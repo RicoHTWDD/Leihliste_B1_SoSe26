@@ -1,5 +1,6 @@
-= Teamcharta: {project-name}
-Vorname Nachname <email@domain.org>; Vorname2 Nachname2 <email2@domain.org>; Vorname3 Nachname3 <email3@domain.org>
+= Teamcharta: {Leihliste B1}
+Adrian Hesse <adrian.hesse@stud.htw-dresden.de>; Rico Knorr <rico.knorr@stud.htw-dresden.de>; Justin Rietschel <justin.rietschel@stud.htw-dresden.de>; Jevan Hassan <jevan.hassan@stud.htw-dresden.de>; Til Maximilian Müller <tilmaximilian.mueller@stud.htw-dresden.de>; Julius Neubert <julius.neubert@stud.htw-dresden.de>; Lidiia Pakhomova <lidiia.pakhomova@stud.htw-dresden.de>
+
 {localdatetime}
 include::../_includes/default-attributes.inc.adoc[]
 :version: 1.0
@@ -7,66 +8,115 @@ include::../_includes/default-attributes.inc.adoc[]
 == Über uns
 _Hier können Sie einen Teamnamen und ggf. ein Motto oder eine kurze Beschreibung hinzufügen, um die Identität Ihres Teams zu stärken._
 
+=== Kurzvorstellung
+
+- Rico (L): Teilzeit-Studium bevorzugt Di oder Mi in Präsenz treffen, keine Erfahrung mit github, etwas von Programmieren
+- Justin (DD): Präsenz-Ttreffen bevorzugt Freitags
+- Adrian (DD): zeitlich relativ felxibel, viel Programmier-Erfahrung
+- Julius (DD): zeitlich fleixbel nachmittags, kann sich in Programmieren reinfuchsen, wenig github-Erfahrung
+- Jevan (Riesa): Mo und Mi in DD, nachmittags wäre gut, online immer, schon in Java und C programmieren, nicht so Programmier-affin
+- Til (Radebeul): nachmittags geht meistens, Programmieren mit KI geht
+- Lidiia (DD): Programmier-Anfängerin, meistens Montags in Präsenz, online flexibel
+
+
 == Zweck
+
+- Adrian: ist Pflicht im Studium, hat biher nur gesehen wie Programmierumsetzung alleine geht, mehr Erfahrungen sammeln zu Programmieren, Aufsetzen von Sachen und Teamarbeit
+- Julius: Pflicht im Studium, hat letztes Semester in Kleingruppen gearbeitet, möchte Programmiererfahrung mit rausnehmen und wie es ist in einer großen Gruppe zu arbeiten
+- Jevan: Pflichtmodul, sehe es als große Chance mehr als nur Programmierung zu lernen, dafür sorgen das verscheidenen Komponenten miteinander funktionieren
+- Til: Vorbereitung auf Beruf, neue Sachen kennenlernen, Einblick bekommen, wie der SE-Prozess in der Realität abläuft
+- Lidiia: Lernen wie ein echtes Projekt im Team mit fremden Menschen läuft, wie werden Bibliotheken, Stacks usw. benutzt, wie wird so richtig programmiert
+- Justin: SE einmal durchspielen als Vorbereitung für Berufsleben
+- Rico: Teamarbeit und Vertrauen lernen, findet Ergebnis spannend: Verleihliste
 
 *Was bauen wir, und warum?*
 
-_Hier die Produktvision und den Projektzweck in 2–3 Sätzen beschreiben._
+* Erfolg / Ziel:
+- wir bauen Grundkonzept
+ - können am Ende gern über Lizenz sprechen, falls eine Person den Code benutzen will für kommerzielle Verwertung
+- gute Teamarbeit ist wichtiger als Ergebnis
+ - ggf. arbeit in Kleinteams
+
+* Vermeiden / Hemmnissen begegnen:
+- offen kommunizieren: direkt ansprechen, wenn irgendwas ist, nicht in sich hineinfressen
+- bei Unsicherheit lieber fragen statt einfach Sachen doppelt machen
+- wenn ihr was mit KI erstellt, dann sollt ihr auch verstehen, was dort rauskommt und dem Team muss erklärt werden können, was da drin steht
+
+
+*Produktvision*
+-> Entwurf abstimmen:
+LeihListe ist ein intuitives Ausleihe- und Inventarisierungssystem, das Hochschulen und private Nutzergruppen dabei unterstützt, Ressourcen wie technische Geräte oder gemeinsam genutzte Gegenstände transparent und effizient zu verwalten.
+
+*Projektzweck in 2–3 Sätzen*
+-> Entwurf abstimmen:
+Durch automatisierte Prozesse – wie Verfügbarkeitsprüfungen, Zustandsdokumentation und Erinnerungsfunktionen – reduziert es organisatorischen Aufwand, minimiert Verluste und schafft eine lückenlose Nachverfolgbarkeit von Ausleihen. Ziel ist es, einen flexiblen, benutzerfreundlichen Rahmen zu schaffen, der sowohl formelle Genehmigungsworkflows als auch vertrauensbasierte Leihkulturen unterstützt, um gemeinsame Ressourcennutzung nachhaltig zu gestalten.
+
 
 == Rollen
 
-[cols="1,2", options="header"]
+[cols="5,2", options="header"]
 |===
 | Rolle | Person
 
-| Product Owner
-| [Name]
+| *Product Owner:*
+Verantwortlich für das Produkt, entscheidet über Features und ihre Priorisierung, bestimmt was das Produkt ist und können soll, Pflege von Issues, Product-Backlog, letztes Wort bei Scope-Entscheidung, wenn vorher im Team keine Einigung
+- reviewt und merged Code, aber alle kündigen vorher an
+| Justin, 
+Stellvertretung: Julius
 
-| Scrum Master
-| [Name]
+| *Scrum Master*:
+Einhaltung von Regeln, beseitigt Hindernisse unterstützt
+Lösungsfindung, Erinnern an Treffen, Zeitpläne und Ablauf, eskaliert bei Blockaden nach außen
+| Adrian, 
+Stellvertretung: Rico
 
-| Tech Lead footnote:[optionale Rolle, aber empfohlen, um technische Entscheidungen zu koordinieren]
-| [Name]
+| *Tech Lead* footnote:[optionale Rolle, aber empfohlen, um technische Entscheidungen zu koordinieren]: letztes Wort bei technischen Architekturentscheidungen, wenn vorher im Team keine Einigung
+| vrsl. Adrian
 
-| Entwickler:innen
-| [Namen]
+| *Entwickler*innen*
+| Lidiia, Jevan, Julius, Rico, Til
 
-| Stakeholder (Hauptansprechpartner)
-| [Name]
+| *Stakeholder* (Hauptansprechpartner)
+| [noch offen]
+
+| *Coach*: falls Fragen oder Schwierigkeiten |
+Robert Ringel (robert.ringel@htw-dresden.de)
 |===
 
 
 == Meetings
 
-[cols="2,1,1,2", options="header"]
+[cols="1,2,1,1", options="header"]
 |===
 | Ereignis | Wann | Dauer | Moderation
 
-| Standup (Daily / Weekly)
-| [z. B. täglich 09:30]
-| [z. B. 15 min]
-| [Rolle / Person]
+| Standup (Weekly)
+| via Discord: Sonntags 15:00 Uhr, Ersatz Montag 17:00 Uhr (auch am Pfingstsontag; am 31.05. wäre ohne Rico)
+| Ziel 15 min, aber erstmal 60 min reservieren für Rückfragen
+| [-> Rolle / Person]
 
 | Sprint Planning
-| [z. B. montags, Sprintstart]
-| [z. B. 2 h]
-| [Rolle / Person]
+| via Discoird: Sonntags bei Sprintstart anstelle/nach Standup 15:00 - 17:00 Uhr (So, 19.04.; So. 10.05, So, 14.06.)
+| 2 h
+| POs Julius und Justin bereiten vor
 
 | Sprint Review
-| [z. B. freitags, Sprintende]
+| [->  muss noch geklärt werden, wenn externe Personen klar sind]
 | [z. B. 1 h]
-| [Rolle / Person]
+| [-> Rolle / Person]
 
 | Retrospektive
-| [z. B. freitags, nach Review]
-| [z. B. 1 h]
-| [Rolle / Person]
+| in S531 13:15 - 15:00 Uhr (Mi, 06.05.,; Mi, 10.06.)
+-> weiteren Termin ausmachen
+| 1,5 h
+| [-> Rolle / Person]
 
 | Backlog Refinement
-| [z. B. mittwochs, wöchentlich]
+| via Discord: wöchentlich nach Standup
 | [z. B. 1 h]
-| [Rolle / Person]
+| POs Julius und Justin 
 |===
+
 
 == Kommunikation
 
@@ -75,25 +125,49 @@ _Hier die Produktvision und den Projektzweck in 2–3 Sätzen beschreiben._
 | Thema | Vereinbarung
 
 | Primärer Kanal
-| [z. B. Discord – #projektname]
+| Discord: -> alle mit Admin-Rechten, -> bei allen auf dem Handy und Gruppe entstummen
 
 | Entscheidungsprotokoll
-| [z. B. Wiki oder per AsciiDoc in Ordner <Ordnername>]
+| Code in github; Kommunikation in Discord mit Untergruppen, ber wird dann bei Meatings in betreffnedes Dokuemnt in github übertragen
 
 | Erwartete Reaktionszeit
-| [z. B. innerhalb von 4 Stunden während Kernzeit]
+| in der Regel innerhalb eines Arbeitstages (24 h), bei Fragen zu eigenen Arbeitspaketen reicht Mehrheitsprinzip aus
+
+| Uneinigkeit im Team
+| versuchen einen Kompromis zu finden, ggf. in Kleinteams zwischen Personen, sonst versuchen einen gemeinsmaen Zusatztermin zu finden
+
+| harte Meinungsverschiedenheiten
+| bei persönlichen: Scrum-Master ansprechen; bei inhaltlichen Poduct Owner oder Tech-Lead; möglichst offen kommunizieren
+
+| Blocker / Verhinderung 
+| Bescheid sagen in Discord; bei Terminen ggf. Wechsel auf Ersatztermin, sonst asynchrone Nachricht vor dem Treffen mit den Infos schicken und Zusammenfassung im Protokoll lesen, Aufgabenwahrnehmung durch Stellvertreter*in
+
+| längerer Ausfall 
+| Bescheid sagen in Discord; aufteilen der Aufgaben auf andere Entwickler*unnen bzw. Stellvertreter*in
 
 | Kernarbeitszeit
-| [z. B. 09:00 – 16:00 Uhr]
+| -> noch nicht besprochen
 
 | Videokonferenz-Tool
-| [z. B. Teams / Discord / Google Meet]
+| Discord: Meetings bevorzugt synchron
+
+
 
 | Asynchrone Abstimmung
 | [z. B. kurze Statusupdates im Issue-Diskussion]
 |===
 
 == Arbeitsweise
+
+-> ab hier Fortsetzung am Sonntag, 19.04.
+
+Feedback aus diesem Treffen
+- viel auf einmal, ganz gut, bis auf Zeitmanagement, fürs erste Meeting ganz okay
+- gut dass, wir Raemendebdingungne festglegt haben und auf Termine geinigt haben
+- meiste Zeit für Terminfindung gebraucht, müssen uns anders hinsetzen, als Kreis, um besser miteinander reden zu können
+- mehr Viualisierung nutzen, mehr anzeichnen, Zeitstrahl, auf Beamer präsentieren
+- discord: bitte Klarnamen nutzen
+
 
 === Definition of Ready (DoR)
 _Eine User Story ist bereit für die Entwicklung, wenn:_

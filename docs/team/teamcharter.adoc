@@ -44,12 +44,10 @@ _Hier können Sie einen Teamnamen und ggf. ein Motto oder eine kurze Beschreibun
 
 
 *Produktvision*
--> Entwurf abstimmen:
 LeihListe ist ein intuitives Ausleihe- und Inventarisierungssystem, das Hochschulen und private Nutzergruppen dabei unterstützt, Ressourcen wie technische Geräte oder gemeinsam genutzte Gegenstände transparent und effizient zu verwalten.
 
 *Projektzweck in 2–3 Sätzen*
--> Entwurf abstimmen:
-Durch automatisierte Prozesse – wie Verfügbarkeitsprüfungen, Zustandsdokumentation und Erinnerungsfunktionen – reduziert es organisatorischen Aufwand, minimiert Verluste und schafft eine lückenlose Nachverfolgbarkeit von Ausleihen. Ziel ist es, einen flexiblen, benutzerfreundlichen Rahmen zu schaffen, der sowohl formelle Genehmigungsworkflows als auch vertrauensbasierte Leihkulturen unterstützt, um gemeinsame Ressourcennutzung nachhaltig zu gestalten.
+Durch automatisierte Prozesse, wie Verfügbarkeitsprüfungen, Zustandsdokumentation und Erinnerungsfunktionen, reduziert es organisatorischen Aufwand, minimiert Verluste und schafft eine lückenlose Nachverfolgbarkeit von Ausleihen. Ziel ist es, einen flexiblen, benutzerfreundlichen Rahmen zu schaffen, der sowohl formelle Genehmigungsworkflows als auch vertrauensbasierte Leihkulturen unterstützt, um gemeinsame Ressourcennutzung nachhaltig zu gestalten.
 
 
 == Rollen
@@ -93,7 +91,7 @@ Robert Ringel (robert.ringel@htw-dresden.de)
 | Standup (Weekly)
 | via Discord: Sonntags 15:00 Uhr, Ersatz Montag 17:00 Uhr (auch am Pfingstsontag; am 31.05. wäre ohne Rico)
 | Ziel 15 min, aber erstmal 60 min reservieren für Rückfragen
-| [-> Rolle / Person]
+| [SM: Adrian]
 
 | Sprint Planning
 | via Discoird: Sonntags bei Sprintstart anstelle/nach Standup 15:00 - 17:00 Uhr (So, 19.04.; So. 10.05, So, 14.06.)
@@ -125,7 +123,7 @@ Robert Ringel (robert.ringel@htw-dresden.de)
 | Thema | Vereinbarung
 
 | Primärer Kanal
-| Discord: -> alle mit Admin-Rechten, -> bei allen auf dem Handy und Gruppe entstummen
+| Discord: alle mit Admin-Rechten, bei allen auf dem Handy und Gruppe entstummen
 
 | Entscheidungsprotokoll
 | Code in github; Kommunikation in Discord mit Untergruppen, ber wird dann bei Meatings in betreffnedes Dokuemnt in github übertragen
@@ -146,12 +144,10 @@ Robert Ringel (robert.ringel@htw-dresden.de)
 | Bescheid sagen in Discord; aufteilen der Aufgaben auf andere Entwickler*unnen bzw. Stellvertreter*in
 
 | Kernarbeitszeit
-| -> noch nicht besprochen
+| gibt es nicht, individuell auf Discord anschreiben, ob eine Person gerade Zeit hat
 
 | Videokonferenz-Tool
 | Discord: Meetings bevorzugt synchron
-
-
 
 | Asynchrone Abstimmung
 | [z. B. kurze Statusupdates im Issue-Diskussion]
@@ -159,37 +155,30 @@ Robert Ringel (robert.ringel@htw-dresden.de)
 
 == Arbeitsweise
 
--> ab hier Fortsetzung am Sonntag, 19.04.
-
-Feedback aus diesem Treffen
-- viel auf einmal, ganz gut, bis auf Zeitmanagement, fürs erste Meeting ganz okay
-- gut dass, wir Raemendebdingungne festglegt haben und auf Termine geinigt haben
-- meiste Zeit für Terminfindung gebraucht, müssen uns anders hinsetzen, als Kreis, um besser miteinander reden zu können
-- mehr Viualisierung nutzen, mehr anzeichnen, Zeitstrahl, auf Beamer präsentieren
-- discord: bitte Klarnamen nutzen
-
-
 === Definition of Ready (DoR)
 _Eine User Story ist bereit für die Entwicklung, wenn:_
 
 // Hier können die Kriterien individuell angepasst werden, z. B.:
-* [ ] Die Akzeptanzkriterien sind klar und vollständig beschrieben
-* [ ] Der Aufwand wurde vom Team geschätzt
-* [ ] Abhängigkeiten sind identifiziert und geklärt
-* [ ] Designs / Mockups sind vorhanden (falls relevant)
-* [ ] [Weitere Kriterien ergänzen]
+* [x] Beschreibung vorhanden
+* [x] Ziel verständlich
+* [x] Die Akzeptanzkriterien sind klar und vollständig beschrieben
+* [x] Der Aufwand wurde vom Team geschätzt
+* [x] Abhängigkeiten sind identifiziert und geklärt
+* [x] Designs / Mockups sind vorhanden (falls relevant)
+* [x] keine offenen Blocker
 
 === Definition of Done (DoD)
 _Eine User Story gilt als fertig, wenn:_
 
 // Hier können die Kriterien individuell angepasst werden, z. B.:
-* [ ] Der Code wurde implementiert und in den Hauptbranch gemergt
-* [ ] Unit- und Integrationstests wurden geschrieben und sind grün
-* [ ] Der Code wurde von mindestens einer weiteren Person reviewt
-* [ ] Die Funktionalität wurde im Staging-System getestet
-* [ ] Dokumentation wurde aktualisiert (falls erforderlich)
-* [ ] Der Product Owner hat die Story abgenommen
-* [ ] [Weitere Kriterien ergänzen]
+* [x] Code wurde implementiert
+* [x] Die Funktionalität wurde im Staging-System getestet
+* [x] Unittests wurden geschrieben und sind grün
+* [x] Integrationstests wurden geschrieben und sind grün
+* [x] Der Code wurde von Tech-Lead und PO reviewt
+* [x] Dokumentation wurde aktualisiert (falls erforderlich)
+* [x] Keine bekannten Bugs
+* [x] in den Hauptbranch gemergt
 
 === Code & Versionierung
 
@@ -198,27 +187,57 @@ _Eine User Story gilt als fertig, wenn:_
 | Thema | Vereinbarung
 
 | Branching-Strategie
-| [z. B. Feature Branches, Trunk-Based Development]
+| Feature Branches: für jede User-Story eine neue Branche
 
 | PR-Review-Regeln
-| [z. B. mind. 1 Approval, kein Merge ohne grüne Pipeline]
+| mind. 1 Approval, bei größeren User-Stories (über mehrere Module, mehrere Abhängigkeiten) ein Approval von Tech-Lead; ein Feature/Bug-Fix pro PR
 
 | Merge-Berechtigung
-| [z. B. jedes Teammitglied nach Approval]
+| PO oder Stellvertretung nach Approval
+
+| Coding-Konventionen
+| Variablen-Benennung mit _ (?); bisher keine Erfahrung mit Linter, ggf. später darauf zurück kommen, damit alle das gleiche nutzen
 
 | Commit-Konventionen
-| [z. B. Conventional Commits]
+| Format: "type: Beschreibung"; type = feat, fix, docs, test ...; Beschreibung in deutscher Sprache
+
+
 |===
 
 == Teamvereinbarungen
 
 _Diese Vereinbarungen haben wir gemeinsam getroffen:_
 
-. [z. B. Wir gehen respektvoll und offen miteinander um.]
-. [z. B. Wir sprechen Probleme frühzeitig an, anstatt sie zu ignorieren.]
-. [z. B. Fehler sind Lernchancen – wir suchen keine Schuldigen.]
-. [z. B. Meetings beginnen pünktlich; wer verhindert ist, gibt rechtzeitig Bescheid.]
-. [z. B. Entscheidungen werden dort dokumentiert, wo alle sie finden können.]
+- fehlerfreundlich, auf Augenhöhe, lieber einmal zu viel gefragt als einmal zu wenig
+- nicht ewig auf Antwort warten müssen, kommunikativ sein
+- wenn gefragte Person gerade nicht kann, auch gern sagen, dass erst in x h geht
+- Diskussionen nicht unnötig in die Länge ziehen, nicht über Kleinigkeiten ewig diskutieren
+- konstruktiv arbeiten, verschiedene Wissensstände akzeptieren
+- bei Problemen (mit Person) aktiv klären, in direktem Call und nicht mit sich rumschleppen
+- Fehler zugeben, offen miteinander sein
+- wollen pünktlich mit Meetings beginnen, warten bis 5 min ist okay, aber rechtzeitig Bescheid geben
+
+- Feedback bevorzugt im persönlichen Gespräch, per Direktnachricht anfragen, ob die Person gerade Zeit hat
+- gegenseitige Feedbacks auch bei den Stand-ups am Ende einplanen
+- an SM wenden oder Bezugsperson, wenn sich wer ungerecht behandelt fühlt
+
+- alle ansprechen, um sicherzustellen, dass sich alle einbringen, also ggf. direkt ansprechen
 
 
-_Nächste Überprüfung: [Datum / Sprint] — Diese Charta wird regelmäßig in der Retrospektive aktualisiert._
+[x] Wir kommunizieren offen und respektvoll, fragen gerne nach, wenn etwas unklar ist, und stellen sicher, dass alle sich einbringen können.
+[x] Wir halten uns an vereinbarte Termine, beginnen pünktlich und geben rechtzeitig Bescheid, wenn wir etwas verspäten – auch wenn es nur kurz ist.
+[x] Wir geben und nehmen Feedback konstruktiv und persönlich, gerne direkt im Gespräch oder in kurzen, gezielten Nachfragen.
+[x] Wir klären Probleme früh und direkt, auch mit Menschen, mit denen wir zusammenarbeiten – lieber im Call als im Stillhalten.
+[x] Wir akzeptieren unterschiedliche Wissensstände und arbeiten gemeinsam an Lösungen, ohne über Kleinigkeiten unnötig zu diskutieren.
+
+
+== Learnings
+- viel auf einmal, ganz gut, bis auf Zeitmanagement, fürs erste Meeting ganz okay
+- gut, dass wir Rahmendebdingungne festglegt haben und auf Termine geeinigt haben
+- meiste Zeit für Terminfindung gebraucht, müssen uns anders hinsetzen, als Kreis, um besser miteinander reden zu können
+- mehr Viualisierung nutzen, mehr anzeichnen, Zeitstrahl, auf Beamer präsentieren
+- Discord: bitte Klarnamen nutzen
+
+- schön, das alle da waren, aber Zeitmanagement war weniger gut
+
+_Nächste Überprüfung: [06.05.2026] — Diese Charta wird regelmäßig in der Retrospektive aktualisiert._

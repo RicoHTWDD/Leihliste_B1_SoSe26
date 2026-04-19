@@ -1,5 +1,6 @@
-= Produktkonzept: {project-name}
-Vorname Nachname <email@domain.org>; Vorname2 Nachname2 <email2@domain.org>; Vorname3 Nachname3 <email3@domain.org>
+= Produktkonzept: {Leihliste B1}
+Adrian Hesse <adrian.hesse@stud.htw-dresden.de>; Rico Knorr <rico.knorr@stud.htw-dresden.de>; Justin Rietschel <justin.rietschel@stud.htw-dresden.de>; Jevan Hassan <jevan.hassan@stud.htw-dresden.de>; Til Maximilian Müller <tilmaximilian.mueller@stud.htw-dresden.de>; Julius Neubert <julius.neubert@stud.htw-dresden.de>; Lidiia Pakhomova <lidiia.pakhomova@stud.htw-dresden.de>
+
 {localdatetime}
 include::../_includes/default-attributes.inc.adoc[]
 // Platzhalter für weitere Dokumenten-Attribute
@@ -11,7 +12,12 @@ Stakeholder, Product Owner, Designer und Entwickler:innen._
 _Das Dokument ist so aufgebaut, dass es relativ stabil bleibt. Detaillierte UX-Artefakte wie Personas, Nutzerkontext,
 Interaktionsflüsse und Design-Entscheidungen sind im UX-Konzept beschrieben._
 
----
+- relationale Datenbank als Speicherort, API, Frontend ist Website zum Durchklicken
+- html-Vorkenntnisse sind mäßig vorhanden, aber schnell erlernbar
+- Datenbank-Vorkenntnisse gibt es auch
+- Programmiersprache: Python oder JavaScript
+- Datenbank: MySQL
+
 
 == Motivation
 

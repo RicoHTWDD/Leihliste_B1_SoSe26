@@ -1,5 +1,5 @@
 // Meta
-:project-name: Projektthema (X0)
+:project-name: Leihliste (B1)
 :project-system-name: Software-Name
 // Settings:
 :toc:

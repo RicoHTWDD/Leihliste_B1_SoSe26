@@ -1,8 +1,9 @@
-= Teamcharta: {Leihliste B1}
+include::../_includes/default-attributes.inc.adoc[]
+
+= Teamcharta: {project-name}
 Adrian Hesse <adrian.hesse@stud.htw-dresden.de>; Rico Knorr <rico.knorr@stud.htw-dresden.de>; Justin Rietschel <justin.rietschel@stud.htw-dresden.de>; Jevan Hassan <jevan.hassan@stud.htw-dresden.de>; Til Maximilian Müller <tilmaximilian.mueller@stud.htw-dresden.de>; Julius Neubert <julius.neubert@stud.htw-dresden.de>; Lidiia Pakhomova <lidiia.pakhomova@stud.htw-dresden.de>
 
 {localdatetime}
-include::../_includes/default-attributes.inc.adoc[]
 :version: 1.0
 
 == Über uns
@@ -69,7 +70,7 @@ Lösungsfindung, Erinnern an Treffen, Zeitpläne und Ablauf, eskaliert bei Block
 Stellvertretung: Rico
 
 | *Tech Lead* footnote:[optionale Rolle, aber empfohlen, um technische Entscheidungen zu koordinieren]: letztes Wort bei technischen Architekturentscheidungen, wenn vorher im Team keine Einigung
-| vrsl. Adrian
+| [wird noch besprochen]
 
 | *Entwickler*innen*
 | Lidiia, Jevan, Julius, Rico, Til

@@ -1,0 +1,41 @@
+= Weekly Meetings - Sprint 1
+
+== Meeting 26.04.2026
+:id: meeting26042026
+
+*Datum:* 26.04.2026  
+*Dauer:* 60 min.
+*Teilnehmende:* Alle Mitglieder des Teams
+
+=== Agenda
+
+. Rollenverteilung (5 min)
+. Sprache/Technologieentscheidung (10 min)
+. Produktvision/-anforderungen durch PO absegnen und ggf. anpassen (20 min)
+. Aufgabenverteilung bis zur naechsten Besprechung (20 min)
+
+=== Beschluesse
+==== 1) Rollenverteilung
+* Adrian bleibt Scrum Master und tritt zurück vom Tech Lead, ist dennoch offen dem Dev Team zu helfen.
+
+==== 2) Sprache/Technologie
+* Frontend: JavaScript und HTML
+* Datenbank: SQL
+* Backend: Python
+- Begründung für Python und SQL: Erfahrung von einigen Teammitgliedern
+- HTML aufgrund der Einfachheit und schnellen Umsetzung für das Frontend.
+
+
+
+==== 3) Produktvision/-anforderungen (PO)
+* Produktvision und Anforderungen wurden vorgestellt.
+* Offene Punkte wurden gesammelt und werden bei Bedarf in der naechsten Besprechung angepasst.
+
+==== 4) Aufgabenverteilung bis zum naechsten Meeting
+* Dev Team: Zugeteilten Hauptfunktionen ausarbeiten mit 5-10 User Stories bis Samstag(02.05.2026)
+* Scrum Master: GitHub Issues aneignen und Struktur aufsetzen bis Samstag(02.05.2026)
+
+
+=== Naechste Besprechung
+*Termin:* 03.05.2026, 15:00 Uhr 
+*Ziel:* Review des Fortschritts

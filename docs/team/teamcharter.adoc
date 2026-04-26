@@ -70,7 +70,7 @@ Lösungsfindung, Erinnern an Treffen, Zeitpläne und Ablauf, eskaliert bei Block
 Stellvertretung: Rico
 
 | *Tech Lead* footnote:[optionale Rolle, aber empfohlen, um technische Entscheidungen zu koordinieren]: letztes Wort bei technischen Architekturentscheidungen, wenn vorher im Team keine Einigung
-| vrsl. Adrian
+| [wird noch besprochen]
 
 | *Entwickler*innen*
 | Lidiia, Jevan, Julius, Rico, Til

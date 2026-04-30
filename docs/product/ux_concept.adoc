@@ -20,56 +20,108 @@ auf Annahmen allein._
 
 _Hinweis: Im link:product_concept.adoc[Produktkonzept] werden Zielgruppen nur benannt. Hier werden sie als Personas ausgearbeitet._
 
-=== Persona 1: [Name]
+=== Persona 1: Hildegard Hochschule
 
 [cols="1,3"]
 |===
 | *Rolle*
-| [z. B. Studierende im 3. Semester, Informatik]
+| Bibliothekarin in einer Hochschul-Bibliothek
 
 | *Alter*
-| [z. B. 22 Jahre]
+| 42
 
 | *Zitat*
-| _„[Ein prägnanter Satz, der ihre Haltung oder ihr Problem auf den Punkt bringt.]"_
+| _„Ich muss jederzeit wissen, wo unsere Bücher sind. Ohne ständig hinterherlaufen zu müssen."_
 
 | *Ziele*
-| [Was will diese Person erreichen? Was motiviert sie?]
+| Effiziente Verwaltung des Bücherbestands; Reduktion von Verlusten und Schäden; Transparente und nachvollziehbare Ausleihprozesse
 
 | *Frustrationen*
-| [Was hindert sie heute daran, ihre Ziele zu erreichen?]
+| Unübersichtliche Excel-Listen; Studierende geben Bücher verspätet oder ohne Rückmeldung zurück; Hoher manueller Abstimmungsaufwand
 
 | *Verhalten & Kontext*
-| [Wie und wann nutzt sie digitale Produkte? Welche Geräte? Welche Erfahrung?]
+| Arbeitet täglich am Desktop-PC; Nutzt Excel, E-Mail und interne Systeme; Hohe digitale Kompetenz
 
 | *Bezug zum Produkt*
-| [Warum ist dieses Produkt für sie relevant? Was ist ihr primärer Nutzen?]
+| Nutzt LeihListe zur zentralen Verwaltung von Büchern und zur Nachverfolgung von Ausleihen; Hauptnutzen: Transparenz und Zeitersparnis
 |===
 
-=== Persona 2: [Name]
+=== Persona 2: Veronika Verein
 
 [cols="1,3"]
 |===
 | *Rolle*
-| [z. B. Verwaltungsangestellte, zuständig für Raumvergabe]
+| Mitglied eines studentischen Kulturvereins
 
 | *Alter*
-| [z. B. 45 Jahre]
+| 23
 
 | *Zitat*
-| _„[Prägnantes Zitat]"_
+| _„Irgendjemand hat immer das Equipment, aber keiner weiß genau wer."_
 
 | *Ziele*
-| [Ziele]
+| Einfache Organisation gemeinsamer Ressourcen; Vermeidung von Chaos bei Veranstaltungen; Schnelle Abstimmung im Team
 
 | *Frustrationen*
-| [Frustrationen]
+| Kommunikation über Messenger ist unübersichtlich; Equipment geht verloren oder wird doppelt verplant; Keine zentrale Übersicht
 
 | *Verhalten & Kontext*
-| [Verhalten & Kontext]
+| Nutzt hauptsächlich Smartphone; Organisiert viel über Messenger-Dienste und spontane Absprachen; Mittlere digitale Kompetenz
 
 | *Bezug zum Produkt*
-| [Bezug zum Produkt]
+| Nutzt LeihListe zur Koordination von Equipment; Hauptnutzen: Übersicht und weniger Abstimmungsaufwand
+|===
+
+=== Persona 3: Peter Privatperson
+
+[cols="1,3"]
+|===
+| *Rolle*
+| Mitglied einer WG
+
+| *Alter*
+| 27
+
+| *Zitat*
+| _„Ich weiß nie, wer meinen Akkuschrauber gerade hat."_
+
+| *Ziele*
+| Überblick über gemeinsam genutzte Gegenstände; Konflikte vermeiden; Einfache und schnelle Nutzung ohne Aufwand
+
+| *Frustrationen*
+| Dinge werden verliehen und nicht zurückgegeben; Niemand fühlt sich verantwortlich; Absprachen gehen verloren
+
+| *Verhalten & Kontext*
+| Nutzt fast ausschließlich Smartphone; Wenig strukturierte Organisation, eher spontan; Erwartet einfache und intuitive App/Webanwendung
+
+| *Bezug zum Produkt*
+| Nutzt LeihListe zur Transparenz im Alltag; Hauptnutzen: Klarheit und weniger Konflikte
+|===
+
+=== Persona 4: Fabian Firma
+
+[cols="1,3"]
+|===
+| *Rolle*
+| Office Manager in einem kleinen Unternehmen
+
+| *Alter*
+| 35
+
+| *Zitat*
+| _„Wir haben genug Equipment. Wir wissen nur nicht, wo es ist."_
+
+| *Ziele*
+| Überblick über interne Ressourcen behalten; Effiziente Nutzung von Geräten; Vermeidung unnötiger Neuanschaffungen 
+
+| *Frustrationen*
+| Geräte sind schwer auffindbar; Keine klare Zuständigkeit; Verwaltung über Excel ist unzuverlässig
+
+| *Verhalten & Kontext*
+| Arbeitet am Desktop, teilweise mobil; Nutzt Office-Tools und einfache Softwarelösungen; Erwartet pragmatische, schnell einführbare Tools
+
+| *Bezug zum Produkt*
+| Nutzt LeihListe zur internen Ressourcenverwaltung; Hauptnutzen: Effizienzsteigerung und Kostenreduktion
 |===
 
 NOTE: Für jedes Projekt sind 2–4 Personas ausreichend. Mehr Personas verwässern

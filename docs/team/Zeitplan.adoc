@@ -17,11 +17,11 @@ include::../_includes/default-attributes.inc.adoc[]
 | (Woche 2)| Standup (Weekly): Produktkonzept ✓ | Mo 20.04.26 | 17:30 – 18:30 | Discord | link:../product/product_concept.adoc[Produkt-Konzept]
 | (Woche 2)| Treffen mit Coach Herr Ringel ✓ | Mi 22.04.26 | 11:20 – 11:50 | U526 | link:../Protokolle/Sprint_1/2026-04-22_Treffen_Coach.adoc[1. Coach-Treffen]
 | (Woche 3)| Standup (Weekly) ✓ | So 26.04.26 | 15:00 – 16:00 | Discord | link:../Protokolle/Sprint_1/weekly_meetings.adoc#meeting26042026[Weekly]
-| (Woche 4)| *Standup (Weekly)* | So 03.05.26 | 15:00 – 16:00 | Discord |
-| (Woche 4)| [BackUp Standup (Weekly)] | Mo 04.05.26 | 17:00 – 18:00 | Discord |
-| (Woche 4)| Retrospektive | Mi 06.05.26 | 13:15 – 15:00 | S531 |
+| (Woche 4)| Standup (Weekly) ✓ | So 03.05.26 | 15:00 – 16:00 | Discord | link:../Protokolle/Sprint_1/weekly_meetings.adoc#meeting03052026[Weekly]
+| (Woche 4)| *Retrospektive* | Mi 06.05.26 | 13:15 – 15:00 | S531 |
+| (Woche 4)| Sprint-Review | Fr 08.05.26 | 1 h | S227 |
 
-| *Sprint 2* (Woche 1) | Sprint Planning | So 10.05.26 | 15:00 – 17:00 | Discord |
+| *Sprint 2* (Woche 1) | Sprint Planning | So 10.05.26 | 15:00 – 18:00 | Discord | + Bericht fertig stellen
 | (Woche 1)| [BackUp Standup (Weekly)] | Mo 11.05.26 | 17:00 – 18:00 | Discord |
 | (Woche 2)| Standup (Weekly) | So 17.05.26 | 15:00 – 16:00 | Discord |
 | (Woche 2)| [BackUp Standup (Weekly)] | Mo 18.05.26 | 17:00 – 18:00 | Discord |

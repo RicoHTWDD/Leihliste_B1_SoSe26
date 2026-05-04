@@ -39,3 +39,49 @@
 === Naechste Besprechung
 *Termin:* 03.05.2026, 15:00 Uhr 
 *Ziel:* Review des Fortschritts
+
+== Meeting 03.05.2026
+:id: meeting03052026
+
+*Datum:* 03.05.2026  
+*Dauer:* 100 min.
+*Teilnehmende:* Alle Mitglieder des Teams
+
+=== Agenda
+
+. Vorstellung der Project Boards auf GitHub (10 min)
+. Brauchen wir einen Virtual Server? (5 min)
+. Feedback-Geber (20 min)
+. User Stories zusammentragen (25 min)
+. Plan der nächste Woche (40 min)
+
+
+
+=== Beschluesse
+==== 1) Project Boards / Issues
+* Task Issues werden (wenn mehrere Personen an einem Task arbeiten) in Unterschiedlichen Issues angelegt, damit die Übersicht gewahrt bleibt und abgehackt werden kann.
+
+==== 2) Virtual Server
+* Es wird ein Virtual Server benötigt, aber die Anschaffung wird erst in Betracht gezogen, wenn die Entwicklung fortgeschritten ist und der Bedarf klarer definiert ist.
+
+==== 3) Feedback-Geber
+* Die Liste der Feedback-Geber wurde vorgestellt und es wurde beschlossen das Review in Person durchzuführen, um direktes Feedback zu erhalten.
+
+==== 4) User Stories
+* Die User Stories wurden gesammelt und abgesegnet
+
+==== 5) Termine für nächste Woche
+* Retrospektive am Mittwoch (06.05.2026) in Person bleibt bestehen, da es nicht an andere Termine oder Aufgaben gebunden ist.
+* Sprint Review am Freitag (08.05.2026) in Person. Eine Einladung wird erstellt und an alle Teammitglieder gesendet.
+* Sonntag (10.05.2026) wird der Report fertig gestellt und beginn der Planung des 2. Sprints.
+
+==== 6) Planung der nächsten Woche
+* PO: Erstellung des Backlogs(10.05.2026)
+* Lidia und Rico: Erstellung Akzeptanzkriterien für die User Stories(06.05.2026)
+* Til, Julius, Jevan: Anfertigung Wireframes für die Hauptfunktionen(06.05.2026)
+* Adrian: Ethik- und Datenschutzrichtlinien recherchieren und aufsetzen(10.05.2026)
+
+
+=== Naechste Besprechung
+*Termin:* 10.05.2026, 15:00 Uhr 
+*Ziel:* Abschließen des 1. Sprints und Planung des 2. Sprints

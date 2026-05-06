@@ -1,10 +1,10 @@
 = Sprint-1-Report: Produktkonzept und agile Arbeitsweise
 
 // Bitte fügen Sie hier die Informationen zu Ihrem Team, Projekt, Datum und Repository ein.
-Team::
-Projektname::
+Team:: Adrian Hesse (SM), Justin Rietschel (PO), Jevan Hassan, Til Maximilian Müller, Julius Neubert, Lidiia Pakhomova , Rico Knorr
+Projektname:: Leihliste (B1)
 Datum::
-Repository-Link::
+Repository-Link:: https://github.com/RicoHTWDD/Leihliste_B1_SoSe26
 
 ====
 Dieser Report soll auf maximal einer Seite zeigen, wie Ihr Team in Sprint 1 gearbeitet hat,
@@ -29,8 +29,10 @@ Formulieren Sie Ihr Sprintziel in 1–2 Sätzen. Leitfragen:
 | Sprintziel
 | Erstellung eines ersten Produktkonzepts, gemeinsame Vorstellung des Produkts zu gewinnen, Teambildung/findung
 
+Als Team zusammenfinden, Arbeits-Mittel samt -Abläufe erproben und eine gemeinsame Vorstellung des Produkts entwickeln.
+
 | Zentrale Unsicherheit / Annahme
-| Vetrauen in das Team, Teamfindung -> Gruppe von Fremden, welche Arbeitsmittel?(WahtsApp), eine Person die alles allein angibt(Diktator)
+| Vetrauen in das Team, Teamfindung -> Gruppe von Fremden, welche Arbeitsmittel?(WahtsApp), eine Person die alles allein angibt(Diktator), wie wird der gemeinsame Umgang sein?
 |===
 
 
@@ -62,10 +64,10 @@ Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 1 be
 | Nachweis / Artefakt (Link einfügen)
 | Nutzen, Erkenntnis oder Anpassung
 
-| Akzeptanzkriterien für ausgewählte User Stories formulieren
-| 
+| Akzeptanzkriterien (AK) für ausgewählte User Stories formulieren
+| von 2 Entwickler*innen in Woche 4 für alle User-Stories mit Prioriät "Hoch" erste Entwürfe gemacht 
 | Miro-Board Link
-| 
+| einige User-Stories widersprechen sich noch: Unklarheiten über grundlegende Abläufe im Produkt aufgedeckt; meist >10 Vorschläge für AKs: pro User-Task mehrere User-Stories auswählen, in Reihenfolge bringen und dann Dopplungen der AKs rausstreichen
 
 | Wireframes oder Low-Fidelity-Prototypen erstellen
 | Stakeholder vorstellung, vision vorstellung, erste skizzen
@@ -102,7 +104,7 @@ Beschreiben Sie 2–3 zentrale Erkenntnisse aus Sprint 1. Leitfragen:
 | Kriterium | Ihre Antwort
 
 | Erkenntnis 1
-| 
+| Das Produkt ist komplexer als es nach mehrmaligen (individuellem) Durchdenken erscheint und es braucht mehr gemeinsamen Austausch damit eine gemeinsame Vorstellung entsteht.
 
 | Erkenntnis 2
 | 
@@ -173,11 +175,24 @@ Beschreiben Sie, was Ihr Team im nächsten Sprint beibehalten, ändern oder gezi
 | Kriterium | Ihre Antwort
 
 | Beibehalten
-| 
+| Regelmäßigkeit: Die Meetings fanden regelmäßig statt und die Agenda wurde eingehalten.
+
+Teamkultur: Alle waren anwesend, die Kommunikation war offen, freundlich und wertschätzend.
+
+Qualität: Es besteht ein gemeinsamer Qualitätsanspruch an die Arbeitsergebnisse.
+
+Vision: Das Team arbeitet gemeinsam an der Produktvision.
 
 | Ändern / verbessern
-| 
+| Zeitmanagement: Aufgaben wurden oft auf den letzten Drücker erledigt; Meetings liefen über die angesetzte Zeit (Timeboxen wurden nicht eingehalten). -> Bessere individuelle Vorbereitung auf Meetings, um Entscheidungszeit zu verkürzen. Strengere Einhaltung von Timeboxen (ggf. Themen auslagern). Agenda wird auf Github gepflegt (alle können Punkte hinzufügen).
+
+Transparenz: Es fehlte der Überblick über anstehende Aufgaben im Sprint. -> Alle Aufgaben werden im Sprint Planning erfasst (inkl. Wochenplanung). Github Issues werden konsequent als Tasks genutzt (bei gemeinsamen Tasks Sub-Issues erstellen). Deadlines werden direkt in Github Issues gesetzt.
+
+Kommunikation: Zu wenig Updates zum Fortschritt der Aufgaben; gleichzeitig führte eine Flut an Nachrichten im Discord zu Informationsüberlastung (ohne relevante Markierungen). -> Regelmäßige Updates im Discord oder kurze Status-Meetings in der Woche. Relevante Nachrichten werden mit einem Ping (@Person) markiert.
+
+Organisation: Die Terminfindung in Meetings nahm zu viel Zeit in Anspruch. -> Terminfindung erfolgt 2 Tage vorab via Nuudel.
+
 
 | Offene Frage für Sprint 2
-| 
+| Funktinieren die vereinabrten unsere Arbeits-Abläufe und -Absprachen für unser Team und wie genau stellen wir uns das Priodukt vor? 
 |===

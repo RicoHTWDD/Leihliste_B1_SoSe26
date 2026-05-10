@@ -3,9 +3,9 @@
 // Bitte fügen Sie hier die Informationen zu Ihrem Team, Projekt, Datum und Repository ein.
 Team:: Adrian Hesse (SM), Justin Rietschel (PO), Jevan Hassan, Til Maximilian Müller, Julius Neubert, Lidiia Pakhomova , Rico Knorr
 Projektname:: Leihliste (B1)
-Datum::
+Datum:: 10.05.2026
 Repository-Link:: https://github.com/RicoHTWDD/Leihliste_B1_SoSe26
-
+////
 ====
 Dieser Report soll auf maximal einer Seite zeigen, wie Ihr Team in Sprint 1 gearbeitet hat,
 welche Praktiken Sie angewendet haben, welche Artefakte entstanden sind und was Sie daraus gelernt haben.
@@ -13,14 +13,8 @@ welche Praktiken Sie angewendet haben, welche Artefakte entstanden sind und was 
 Der Report ist kein Tätigkeitsprotokoll. Beschreiben Sie nicht nur, _was_ Sie gemacht haben,
 sondern vor allem, _warum_ Sie es gemacht haben und was sich dadurch verbessert oder verändert hat.
 ====
-
+////
 == 1. Sprintziel und zentrale Fragestellung
-
-Formulieren Sie Ihr Sprintziel in 1–2 Sätzen. Leitfragen:
-
-* Welches Produktproblem oder Nutzerbedürfnis wollte Ihr Team in diesem Sprint besser verstehen?
-* Welche zentrale Unsicherheit sollte Sprint 1 reduzieren?
-* Warum ist Ihr Produktkonzept nach diesem Sprint besser begründet als vorher?
 
 [cols="1,3", options="header"]
 |===
@@ -35,7 +29,7 @@ Formulieren Sie Ihr Sprintziel in 1–2 Sätzen. Leitfragen:
 
 
 == 2. Erwartete Praktiken in Sprint 1
-
+////
 Wählen Sie 3–5 Praktiken aus, die für Ihren Sprint besonders relevant waren.
 Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 1 beschrieben werden. Mögliche Praktiken:
 
@@ -54,7 +48,7 @@ Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 1 be
 * Qualitätsanforderungen und Randbedingungen erfassen
 * ethische Risiken, Missbrauchsszenarien oder Ausschlussrisiken reflektieren
 * Rollen, Zusammenarbeit oder Arbeitsvereinbarungen im Team klären
-
+////
 [cols="1,2,2,2", options="header"]
 |===
 | Praktik
@@ -90,13 +84,13 @@ Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 1 be
 
 
 == 3. Wichtigste Lernergebnisse aus Sprint 1
-
+////
 Beschreiben Sie 2–3 zentrale Erkenntnisse aus Sprint 1. Leitfragen:
 
 * Was hat Ihr Team über Nutzer, Problem, Kontext oder Produktidee gelernt?
 * Welche Annahme wurde bestätigt, widerlegt oder präzisiert?
 * Welche Rückmeldung hatte den größten Einfluss auf Ihr Produktkonzept?
-
+////
 [cols="1,3", options="header"]
 |===
 | Kriterium | Ihre Antwort
@@ -112,9 +106,9 @@ Beschreiben Sie 2–3 zentrale Erkenntnisse aus Sprint 1. Leitfragen:
 |===
  
 == 4. Änderungen am Produktkonzept
-
+////
 Beschreiben Sie konkret anhand von drei Beispielen, was sich durch Ihre Arbeit und Ihr Feedback verändert hat.
-
+////
 [cols="2,2,2", options="header"]
 |===
 | Ursprüngliche Annahme / Idee
@@ -136,14 +130,14 @@ Beschreiben Sie konkret anhand von drei Beispielen, was sich durch Ihre Arbeit u
 
 
 == 5. Qualität, Randbedingungen und Verantwortung
-
+////
 Beschreiben Sie kurz, welche nicht-funktionalen Anforderungen, Randbedingungen oder ethischen Aspekte Sie identifiziert haben. Leitfragen:
 
 * Welche Qualitätsanforderungen sind für Ihr Produkt besonders wichtig?
 * Welche technischen, organisatorischen, rechtlichen oder fachlichen Randbedingungen gibt es?
 * Welche möglichen Schäden, Missbrauchsszenarien oder Ausschlussrisiken haben Sie erkannt?
 
-
+////
 [cols="1,3", options="header"]
 |===
 | Kriterium | Ihre Antwort
@@ -160,14 +154,14 @@ Beschreiben Sie kurz, welche nicht-funktionalen Anforderungen, Randbedingungen o
 
 
 == 6. Anpassung der Arbeitsweise für Sprint 2
-
+////
 Beschreiben Sie, was Ihr Team im nächsten Sprint beibehalten, ändern oder gezielt verbessern will. Leitfragen:
 
 * Welche Arbeitsweise hat gut funktioniert?
 * Was hat Ihre Zusammenarbeit behindert?
 * Was wollen Sie in Sprint 2 konkret anders machen?
 * Welche offene Frage soll Sprint 2 beantworten?
-
+////
 [cols="1,3", options="header"]
 |===
 | Kriterium | Ihre Antwort

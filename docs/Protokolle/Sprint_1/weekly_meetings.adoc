@@ -110,3 +110,6 @@
 
 ===== Aufgaben / Issues / Tasks
 * Rico: anscheinend gibt es in en ISSUE_TEMPLATES schon konkrete Vorlagen für verschiedene Aufgaben-Typen?
+
+===== Personas
+* Von den Personas werden nur 2 aktiv genutzt (Nina Nutzerin und Hildegard Hochschule), wollen wir diese nochmal überarbeiten?

@@ -1,0 +1,478 @@
+@startuml
+title Logisches Datenmodell - Ausleihsystem
+
+hide circle
+hide empty methods
+
+skinparam shadowing false
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+    ArrowColor Black
+    FontColor Black
+}
+
+' =========================
+' Aufzählungen
+' =========================
+
+enum Kontostatus {
+    verifizierung_ausstehend
+    aktiv
+    gesperrt
+    geloescht
+}
+
+enum Benutzerrolle {
+    admin
+    manager
+    mitglied
+    ausleiher
+}
+
+enum Organisationstyp {
+    schule
+    hochschule
+    unternehmen
+    verein
+    bibliothek
+    sonstige
+}
+
+enum Tokentyp {
+    email_verifizierung
+    passwort_zuruecksetzen
+}
+
+enum Verifizierungsstatus {
+    ausstehend
+    genehmigt
+    abgelehnt
+}
+
+enum Benachrichtigungstyp {
+    anfrage_eingereicht
+    anfrage_genehmigt
+    anfrage_abgelehnt
+    klaerung_erforderlich
+    ausleihe_uebergabe_erinnerung
+    ausleihe_bald_faellig
+    ausleihe_ueberfaellig
+    ausleihe_zurueckgegeben
+    verlaengerung_genehmigt
+    verlaengerung_abgelehnt
+    reservierung_laeuft_ab
+    allgemein
+}
+
+enum Benachrichtigungskanal {
+    email
+    in_app
+    sms
+    push
+}
+
+enum Benachrichtigungsstatus {
+    ausstehend
+    gesendet
+    fehlgeschlagen
+    gelesen
+}
+
+enum Ausleihanfragestatus {
+    entwurf
+    eingereicht
+    klaerung_erforderlich
+    genehmigt
+    abgelehnt
+    zurueckgezogen
+    abgelaufen
+}
+
+enum Ausleihstatus {
+    aktiv
+    zurueckgegeben
+    storniert
+}
+
+enum Faelligkeitsstatus {
+    fristgerecht
+    bald_faellig
+    ueberfaellig
+}
+
+enum Verlaengerungsstatus {
+    ausstehend
+    genehmigt
+    abgelehnt
+    storniert
+}
+
+enum Verfuegbarkeitsstatus {
+    verfuegbar
+    reserviert
+    ausgeliehen
+    nicht_verfuegbar
+    in_reparatur
+    verloren
+}
+
+enum Zustandsstatus {
+    gut
+    beschaedigt
+    defekt
+    verloren
+}
+
+enum Reservierungsstatus {
+    aktiv
+    erfuellt
+    storniert
+    abgelaufen
+}
+
+enum Protokolltyp {
+    uebergabe
+    rueckgabe
+}
+
+' =========================
+' Benutzer und Organisation
+' =========================
+
+class "BENUTZER" as BENUTZER <<Entitaet>> {
+    vollstaendiger_name : string
+    email : string
+    passwort_hash : string
+    telefonnummer : string
+    rolle : Benutzerrolle
+    kontostatus : Kontostatus
+    email_verifiziert_am : datetime
+    datenschutzerklaerung_akzeptiert_am : datetime
+    erstellt_am : datetime
+    aktualisiert_am : datetime
+    letzte_anmeldung_am : datetime
+}
+
+class "ORGANISATION" as ORGANISATION <<Entitaet>> {
+    name : string
+    organisationstyp : Organisationstyp
+    erstellt_am : datetime
+}
+
+class "BENUTZER_VERIFIZIERUNG" as BENUTZER_VERIFIZIERUNG <<Entitaet>> {
+    verifizierungsstatus : Verifizierungsstatus
+    geprueft_am : datetime
+    notiz : string
+}
+
+class "AUTH_TOKEN" as AUTH_TOKEN <<Entitaet>> {
+    token_typ : Tokentyp
+    token_hash : string
+    gueltig_bis : datetime
+    verwendet_am : datetime
+    erstellt_am : datetime
+}
+
+class "BENACHRICHTIGUNG" as BENACHRICHTIGUNG <<Entitaet>> {
+    benachrichtigungstyp : Benachrichtigungstyp
+    kanal : Benachrichtigungskanal
+    bezugsobjekt_typ : string
+    bezugsobjekt_referenz : string
+    nachricht : string
+    status : Benachrichtigungsstatus
+    erstellt_am : datetime
+    gesendet_am : datetime
+    gelesen_am : datetime
+}
+
+' =========================
+' Inventar
+' =========================
+
+class "KATEGORIE" as KATEGORIE <<Entitaet>> {
+    name : string
+    beschreibung : string
+}
+
+class "STANDORT" as STANDORT <<Entitaet>> {
+    name : string
+    beschreibung : string
+}
+
+class "GEGENSTAND" as GEGENSTAND <<Entitaet>> {
+    name : string
+    beschreibung : string
+    verwendungszweck_erforderlich : boolean
+    minimale_ausleihtage : int
+    maximale_ausleihtage : int
+    geplante_anzahl : int
+    ist_geloescht : boolean
+    erstellt_am : datetime
+    aktualisiert_am : datetime
+}
+
+class "GEGENSTAND_BILD" as GEGENSTAND_BILD <<Entitaet>> {
+    bild_url : string
+    beschriftung : string
+    anzeigereihenfolge : int
+    ist_hauptbild : boolean
+    hochgeladen_am : datetime
+}
+
+class "GEGENSTAND_EINHEIT" as GEGENSTAND_EINHEIT <<Entitaet>> {
+    inventarnummer : string
+    zustandsstatus : Zustandsstatus
+    verfuegbarkeitsstatus : Verfuegbarkeitsstatus
+    status_aktualisiert_am : datetime
+    erstellt_am : datetime
+}
+
+class "GEGENSTAND_STATUS_HISTORIE" as GEGENSTAND_STATUS_HISTORIE <<Entitaet>> {
+    alter_status : string
+    neuer_status : string
+    grund : string
+    geaendert_am : datetime
+}
+
+' =========================
+' Ausleihanfrage
+' =========================
+
+class "AUSLEIHANFRAGE" as AUSLEIHANFRAGE <<Entitaet>> {
+    gewuenschtes_startdatum : date
+    gewuenschtes_rueckgabedatum : date
+    verwendungszweck : string
+    status : Ausleihanfragestatus
+    ablehnungsgrund : string
+    eingereicht_am : datetime
+    geprueft_am : datetime
+    erstellt_am : datetime
+    aktualisiert_am : datetime
+}
+
+class "AUSLEIHANFRAGE_POSITION" as AUSLEIHANFRAGE_POSITION <<Entitaet>> {
+    angefragte_menge : int
+    verfuegbarkeit_geprueft_am : datetime
+    verfuegbarkeitsergebnis : string
+}
+
+class "AUSLEIHANFRAGE_STATUS_HISTORIE" as AUSLEIHANFRAGE_STATUS_HISTORIE <<Entitaet>> {
+    alter_status : string
+    neuer_status : string
+    kommentar : string
+    geaendert_am : datetime
+}
+
+class "AUSLEIHANFRAGE_NACHRICHT" as AUSLEIHANFRAGE_NACHRICHT <<Entitaet>> {
+    inhalt : string
+    ist_interne_notiz : boolean
+    erstellt_am : datetime
+}
+
+' =========================
+' Reservierung
+' =========================
+
+class "RESERVIERUNG" as RESERVIERUNG <<Entitaet>> {
+    reservierungs_startdatum : date
+    reservierungs_enddatum : date
+    status : Reservierungsstatus
+    notiz : string
+    erstellt_am : datetime
+    aktualisiert_am : datetime
+}
+
+' =========================
+' Ausleihe
+' =========================
+
+class "AUSLEIHE" as AUSLEIHE <<Entitaet>> {
+    ausleihdatum : date
+    uebergeben_am : datetime
+    faelligkeitsdatum : date
+    rueckgabe_angefragt_am : datetime
+    tatsaechliches_rueckgabedatum : date
+    status : Ausleihstatus
+    / faelligkeitsstatus : Faelligkeitsstatus
+    erstellt_am : datetime
+    aktualisiert_am : datetime
+}
+
+class "AUSLEIHE_POSITION" as AUSLEIHE_POSITION <<Entitaet>> {
+}
+
+class "AUSLEIHE_VERLAENGERUNG" as AUSLEIHE_VERLAENGERUNG <<Entitaet>> {
+    altes_faelligkeitsdatum : date
+    neues_faelligkeitsdatum : date
+    status : Verlaengerungsstatus
+    grund : string
+    erstellt_am : datetime
+}
+
+' =========================
+' Bedingungen und Bestätigung
+' =========================
+
+class "BEDINGUNGS_ANNAHME" as BEDINGUNGS_ANNAHME <<Entitaet>> {
+    bedingungsversion : string
+    akzeptiert_am : datetime
+}
+
+class "BUCHUNGSBESTAETIGUNG" as BUCHUNGSBESTAETIGUNG <<Entitaet>> {
+    dokument_url : string
+    generiert_am : datetime
+    an_ausleiher_gesendet_am : datetime
+    an_verleiher_gesendet_am : datetime
+}
+
+' =========================
+' Zustandsprotokoll
+' =========================
+
+class "ZUSTANDSPROTOKOLL" as ZUSTANDSPROTOKOLL <<Entitaet>> {
+    protokolltyp : Protokolltyp
+    allgemeine_notiz : string
+    erstellt_am : datetime
+}
+
+class "ZUSTANDSPROTOKOLL_POSITION" as ZUSTANDSPROTOKOLL_POSITION <<Entitaet>> {
+    zustandsstatus : Zustandsstatus
+    schadensbeschreibung : string
+    foto_url : string
+}
+
+' =========================
+' Notizen
+' =========================
+
+note right of AUSLEIHANFRAGE_POSITION
+angefragte_menge muss groesser als 0 sein.
+
+verfuegbarkeit_geprueft_am speichert, wann das System
+geprueft hat, ob der angefragte Gegenstand
+fuer den ausgewaehlten Zeitraum verfuegbar war.
+
+verfuegbarkeitsergebnis speichert das Ergebnis dieser Pruefung,
+zum Beispiel: verfuegbar, teilweise_verfuegbar
+oder nicht_verfuegbar.
+end note
+
+note right of RESERVIERUNG
+Eine Reservierung blockiert eine konkrete Gegenstandseinheit
+fuer einen bestimmten Benutzer und Zeitraum.
+
+Normalerweise wird eine Reservierung erstellt, nachdem
+eine Ausleihanfrage genehmigt wurde und bevor
+der Gegenstand uebergeben wird.
+end note
+
+' =========================
+' Beziehungen
+' =========================
+
+ORGANISATION "0..1" -- "0..*" BENUTZER : hat_benutzer
+
+BENUTZER "1" -- "0..*" BENUTZER_VERIFIZIERUNG : hat
+BENUTZER "0..1" -- "0..*" BENUTZER_VERIFIZIERUNG : geprueft_von
+
+BENUTZER "1" -- "0..*" AUTH_TOKEN : erhaelt
+BENUTZER "1" -- "0..*" BENACHRICHTIGUNG : erhaelt
+BENUTZER "0..1" -- "0..*" BENACHRICHTIGUNG : gesendet_von
+
+ORGANISATION "1" o-- "0..*" KATEGORIE : verwaltet
+ORGANISATION "1" o-- "0..*" STANDORT : verwaltet
+
+KATEGORIE "1" -- "0..*" GEGENSTAND : kategorisiert
+STANDORT "0..1" -- "0..*" GEGENSTAND : standard_standort
+
+ORGANISATION "0..1" -- "0..*" GEGENSTAND : besitzt
+BENUTZER "0..1" -- "0..*" GEGENSTAND : besitzt
+
+GEGENSTAND "1" *-- "0..*" GEGENSTAND_BILD : hat_bilder
+BENUTZER "0..1" -- "0..*" GEGENSTAND_BILD : hochgeladen_von
+
+GEGENSTAND "1" *-- "1..*" GEGENSTAND_EINHEIT : besteht_aus
+STANDORT "0..1" -- "0..*" GEGENSTAND_EINHEIT : lagert
+
+GEGENSTAND_EINHEIT "1" -- "0..*" GEGENSTAND_STATUS_HISTORIE : hat_statusaenderungen
+BENUTZER "1" -- "0..*" GEGENSTAND_STATUS_HISTORIE : aendert_status
+
+BENUTZER "1" -- "0..*" AUSLEIHANFRAGE : erstellt
+ORGANISATION "0..1" -- "0..*" AUSLEIHANFRAGE : erhaelt
+BENUTZER "0..1" -- "0..*" AUSLEIHANFRAGE : prueft
+
+AUSLEIHANFRAGE "1" *-- "1..*" AUSLEIHANFRAGE_POSITION : enthaelt
+GEGENSTAND "1" -- "0..*" AUSLEIHANFRAGE_POSITION : angefragter_gegenstand
+
+AUSLEIHANFRAGE "1" -- "0..*" AUSLEIHANFRAGE_STATUS_HISTORIE : hat_historie
+BENUTZER "1" -- "0..*" AUSLEIHANFRAGE_STATUS_HISTORIE : aendert_status
+
+AUSLEIHANFRAGE "1" *-- "0..*" AUSLEIHANFRAGE_NACHRICHT : hat_nachrichten
+BENUTZER "1" -- "0..*" AUSLEIHANFRAGE_NACHRICHT : verfasst_von
+
+AUSLEIHANFRAGE "0..1" -- "0..*" RESERVIERUNG : fuehrt_zu
+GEGENSTAND_EINHEIT "1" -- "0..*" RESERVIERUNG : reserviert
+BENUTZER "1" -- "0..*" RESERVIERUNG : reserviert_fuer
+
+AUSLEIHANFRAGE "0..1" -- "0..1" AUSLEIHE : wird_zu
+
+BENUTZER "1" -- "0..*" AUSLEIHE : entleiht
+BENUTZER "0..1" -- "0..*" AUSLEIHE : verleiht
+ORGANISATION "0..1" -- "0..*" AUSLEIHE : verleihende_organisation
+
+AUSLEIHE "1" *-- "1..*" AUSLEIHE_POSITION : enthaelt
+GEGENSTAND_EINHEIT "1" -- "0..*" AUSLEIHE_POSITION : ausgeliehene_einheit
+
+AUSLEIHE "1" o-- "0..*" AUSLEIHE_VERLAENGERUNG : hat_verlaengerungen
+BENUTZER "1" -- "0..*" AUSLEIHE_VERLAENGERUNG : beantragt
+BENUTZER "0..1" -- "0..*" AUSLEIHE_VERLAENGERUNG : genehmigt
+
+BENUTZER "1" -- "0..*" BEDINGUNGS_ANNAHME : akzeptiert
+AUSLEIHANFRAGE "0..1" -- "0..*" BEDINGUNGS_ANNAHME : erfordert_bedingungen
+
+AUSLEIHANFRAGE "1" -- "0..1" BUCHUNGSBESTAETIGUNG : generiert
+AUSLEIHE "0..1" -- "0..1" BUCHUNGSBESTAETIGUNG : bestaetigt
+
+AUSLEIHE "1" *-- "0..*" ZUSTANDSPROTOKOLL : hat_protokolle
+BENUTZER "1" -- "0..*" ZUSTANDSPROTOKOLL : erstellt_von
+BENUTZER "0..1" -- "0..*" ZUSTANDSPROTOKOLL : uebergeben_von
+BENUTZER "0..1" -- "0..*" ZUSTANDSPROTOKOLL : angenommen_von
+
+ZUSTANDSPROTOKOLL "1" *-- "1..*" ZUSTANDSPROTOKOLL_POSITION : enthaelt
+GEGENSTAND_EINHEIT "1" -- "0..*" ZUSTANDSPROTOKOLL_POSITION : dokumentierte_einheit
+
+' =========================
+' Abhängigkeiten zu Aufzählungen
+' =========================
+
+BENUTZER ..> Kontostatus : verwendet
+BENUTZER ..> Benutzerrolle : verwendet
+ORGANISATION ..> Organisationstyp : verwendet
+
+BENUTZER_VERIFIZIERUNG ..> Verifizierungsstatus : verwendet
+AUTH_TOKEN ..> Tokentyp : verwendet
+
+BENACHRICHTIGUNG ..> Benachrichtigungstyp : verwendet
+BENACHRICHTIGUNG ..> Benachrichtigungskanal : verwendet
+BENACHRICHTIGUNG ..> Benachrichtigungsstatus : verwendet
+
+AUSLEIHANFRAGE ..> Ausleihanfragestatus : verwendet
+
+AUSLEIHE ..> Ausleihstatus : verwendet
+AUSLEIHE ..> Faelligkeitsstatus : verwendet
+
+AUSLEIHE_VERLAENGERUNG ..> Verlaengerungsstatus : verwendet
+
+GEGENSTAND_EINHEIT ..> Verfuegbarkeitsstatus : verwendet
+GEGENSTAND_EINHEIT ..> Zustandsstatus : verwendet
+
+RESERVIERUNG ..> Reservierungsstatus : verwendet
+
+ZUSTANDSPROTOKOLL ..> Protokolltyp : verwendet
+ZUSTANDSPROTOKOLL_POSITION ..> Zustandsstatus : verwendet
+
+@enduml

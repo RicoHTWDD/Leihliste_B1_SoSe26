@@ -20,12 +20,12 @@ auf Annahmen allein._
 
 _Hinweis: Im link:product_concept.adoc[Produktkonzept] werden Zielgruppen nur benannt. Hier werden sie als Personas ausgearbeitet._
 
-=== Persona 1: Hildegard Hochschule
+=== Persona 1: Gerhard Großverleiher
 
 [cols="1,3"]
 |===
 | *Rolle*
-| Bibliothekarin in einer Hochschul-Bibliothek
+| Bibliothekar in einer Hochschul-Bibliothek
 
 | *Alter*
 | 42
@@ -46,44 +46,18 @@ _Hinweis: Im link:product_concept.adoc[Produktkonzept] werden Zielgruppen nur be
 | Nutzt LeihListe zur zentralen Verwaltung von Büchern und zur Nachverfolgung von Ausleihen; Hauptnutzen: Transparenz und Zeitersparnis
 |===
 
-=== Persona 2: Veronika Verein
+=== Persona 2: Katarina Kleinverleiher
 
 [cols="1,3"]
 |===
 | *Rolle*
-| Mitglied eines studentischen Kulturvereins
-
-| *Alter*
-| 23
-
-| *Zitat*
-| _„Irgendjemand hat immer das Equipment, aber keiner weiß genau wer."_
-
-| *Ziele*
-| Einfache Organisation gemeinsamer Ressourcen; Vermeidung von Chaos bei Veranstaltungen; Schnelle Abstimmung im Team
-
-| *Frustrationen*
-| Kommunikation über Messenger ist unübersichtlich; Equipment geht verloren oder wird doppelt verplant; Keine zentrale Übersicht
-
-| *Verhalten & Kontext*
-| Nutzt hauptsächlich Smartphone; Organisiert viel über Messenger-Dienste und spontane Absprachen; Mittlere digitale Kompetenz
-
-| *Bezug zum Produkt*
-| Nutzt LeihListe zur Koordination von Equipment; Hauptnutzen: Übersicht und weniger Abstimmungsaufwand
-|===
-
-=== Persona 3: Peter Privatperson
-
-[cols="1,3"]
-|===
-| *Rolle*
-| Mitglied einer WG
+| Mitglied einer WG und eines studentischen Kulturvereins
 
 | *Alter*
 | 27
 
 | *Zitat*
-| _„Ich weiß nie, wer meinen Akkuschrauber gerade hat."_
+| _„Irgendjemand hat immer das Equipment, aber keiner weiß genau wer."_
 
 | *Ziele*
 | Überblick über gemeinsam genutzte Gegenstände; Konflikte vermeiden; Einfache und schnelle Nutzung ohne Aufwand
@@ -98,36 +72,7 @@ _Hinweis: Im link:product_concept.adoc[Produktkonzept] werden Zielgruppen nur be
 | Nutzt LeihListe zur Transparenz im Alltag; Hauptnutzen: Klarheit und weniger Konflikte
 |===
 
-=== Persona 4: Fabian Firma
-
-[cols="1,3"]
-|===
-| *Rolle*
-| Office Manager in einem kleinen Unternehmen
-
-| *Alter*
-| 35
-
-| *Zitat*
-| _„Wir haben genug Equipment. Wir wissen nur nicht, wo es ist."_
-
-| *Ziele*
-| Überblick über interne Ressourcen behalten; Effiziente Nutzung von Geräten; Vermeidung unnötiger Neuanschaffungen 
-
-| *Frustrationen*
-| Geräte sind schwer auffindbar; Keine klare Zuständigkeit; Verwaltung über Excel ist unzuverlässig
-
-| *Verhalten & Kontext*
-| Arbeitet am Desktop, teilweise mobil; Nutzt Office-Tools und einfache Softwarelösungen; Erwartet pragmatische, schnell einführbare Tools
-
-| *Bezug zum Produkt*
-| Nutzt LeihListe zur internen Ressourcenverwaltung; Hauptnutzen: Effizienzsteigerung und Kostenreduktion
-|===
-
-NOTE: Für jedes Projekt sind 2–4 Personas ausreichend. Mehr Personas verwässern
-den Fokus. Wenn eine Persona in keiner User Story vorkommt, wird sie gestrichen.
-
-=== Persona 5: Nina Nutzerin
+=== Persona 3: Nina Nutzerin
 
 [cols="1,3"]
 |===

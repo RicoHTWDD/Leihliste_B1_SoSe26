@@ -32,16 +32,16 @@ Technische Implementierungsdetails gehören nicht hierher!
 | Entleiher, Nutzer; abzugrenzen von "Verleiher" und "Admin"
 
 | Ausleihanfrage
-| Eine formelle Anfrage eines Nutzers, einen oder mehrere Gegenstände für einen bestimmten Zeitraum auszuleihen. Eine Ausleihanfrage kann zu einer Reservierung führen.
+| Eine formelle Anfrage eines Nutzers, einen oder mehrere Gegenstandsexemplare *genau eines Gegenständstyps* für einen bestimmten Zeitraum auszuleihen. Eine Ausleihanfrage kann zu einer Reservierung führen. Ausleihanfragen können nur für verfügbare Gegenstandsexemplare gestellt werden. Verschiedene Gegenstandstypen führen zu verschiedenen Ausleihanfragen. Die Ausleihanfrage geht an *alle Verleiher, die für den Gegenstandstyp als zuständig eingetragen sind*.
 | Leihanfrage; abzugrenzen von "Ausleihe" und "Reservierung"
 
 | Ausleihhistorie
 | Eine chronologische Aufzeichnung aller Ausleihen und Reservierungen eines Gegenstands oder Nutzers, inklusive Ausleihdatum, Rückgabedatum, beteiligten Nutzern und Zustandsdokumentation.
 | Leihhistorie, Ausleihprotokoll
 
-| ?-> Authentifizierungstoken
-| Ein temporärer Schlüssel (z. B. per E-Mail versendet), der zur Verifizierung von Nutzeraktionen dient, z. B. für die E-Mail-Bestätigung oder das Zurücksetzen des Passworts.
-| Token, Verifizierungslink
+// | Authentifizierungstoken -> zu technisch
+// | Ein temporärer Schlüssel (z. B. per E-Mail versendet), der zur Verifizierung von Nutzeraktionen dient, z. B. für die E-Mail-Bestätigung oder das Zurücksetzen des Passworts.
+// | Token, Verifizierungslink
 
 | Benachrichtigung
 | Eine automatisierte Nachricht an Nutzer, die über wichtige Ereignisse informiert (z. B. "Ausleihe bald fällig", "Anfrage genehmigt"). Benachrichtigungen werden per E-Mail versendet.
@@ -67,7 +67,7 @@ Technische Implementierungsdetails gehören nicht hierher!
 | Inventarstück, Einzelstück; abzugrenzen von "Gegenstandstyp" (allgemeine Beschreibung)
 
 | Gegenstandstyp
-| Eine Kategorie von Gegenständen mit gemeinsamen Eigenschaften (z. B. "Mikroskop Leica DM500"). Ein Gegenstandstyp kann aus mehreren Gegenstandsexemplaren bestehen.
+| Eine Kategorie von Gegenständen *an einem Standort* mit gemeinsamen Eigenschaften (z. B. "Mikroskop Leica DM500"). Ein Gegenstandstyp kann aus mehreren Gegenstandsexemplaren bestehen. Verschiedene Standorte eines gleichen Typs sind verscheiedene Gegensandstypen.
 | Artikelgruppe, Modell; abzugrenzen von "Gegenstandsexemplar" (konkretes Exemplar)
 
 | Kategorie
@@ -95,7 +95,7 @@ Technische Implementierungsdetails gehören nicht hierher!
 | Institution, Gruppe
 
 | Reservierung
-| Eine Vormerkung eines Gegenstandsexemplars für einen zukünftigen Ausleihzeitraum. Eine Reservierung entsteht aus einer genehmigten Ausleihanfrage und kann zu einer Ausleihe führen.
+| Eine Vormerkung eines Gegenstandsexemplars für einen zukünftigen Ausleihzeitraum. Eine Reservierung entsteht aus einer genehmigten Ausleihanfrage und kann zu einer Ausleihe führen. Eine Ausleihanfrage für ein (inzwischen) nicht mehr verfügbares Gegenstandsexemplar kann nicht zu einer Reservierung führen.
 | Vormerkung; abzugrenzen von "Ausleihe" und "Ausleihanfrage"
 
 | Standort
@@ -137,13 +137,13 @@ Technische Implementierungsdetails gehören nicht hierher!
 | Ein registrierter Nutzer, der Gegenstände besitzt und diese zur Ausleihe anbietet. Verleiher können Ausleihanfragen bestätigen oder ablehnen und den Zustand von Gegenständen dokumentieren.
 | Eigentümer, Anbieter; abzugrenzen von "Ausleiher" und "Admin"
 
-| Verlängerungsstatus
-| Der Zustand einer Anfrage zur Verlängerung einer Ausleihe. Mögliche Status sind: +
-  - Ausstehend: Anfrage wurde gestellt, aber noch nicht bearbeitet +
-  - Genehmigt: Verlängerung wurde bestätigt +
-  - Abgelehnt: Verlängerung wurde abgelehnt +
-  - Storniert: Anfrage wurde zurückgezogen
-| Verlängerungsanfrage-Status
+// | Verlängerungsstatus -> Verlängerung einer Ausleihe erstmal nicht im Scope
+// | Der Zustand einer Anfrage zur Verlängerung einer Ausleihe. Mögliche Status sind: +
+//   - Ausstehend: Anfrage wurde gestellt, aber noch nicht bearbeitet +
+//   - Genehmigt: Verlängerung wurde bestätigt +
+//   - Abgelehnt: Verlängerung wurde abgelehnt +
+//   - Storniert: Anfrage wurde zurückgezogen
+// | Verlängerungsanfrage-Status
 
 | Zustand (eines Gegenstands)
 | Die physische oder funktionale Beschaffenheit eines Gegenstandsexemplars. Mögliche Zustände sind: +
@@ -186,45 +186,93 @@ NOTE: Das Domänenmodell wird im Laufe des Projekts weiterentwickelt.
 
 Kurze Erläuterung zu den im Modell enthaltenen Entitäten.
 
+
 [cols="1,3", options="header"]
 |===
 | Entität | Beschreibung
 
 | Nutzer
-| [Beschreibung der Entität und ihrer Rolle im System]
+| Repräsentiert eine Person, die das System verwendet. Jeder Nutzer hat eine eindeutige Identität (E-Mail), eine Rolle (Admin, Verleiher, Ausleiher) und kann Ausleihanfragen stellen, Gegenstände verwalten oder das System administrieren.
 
-| Bestellung
-| [Beschreibung der Entität und ihrer Rolle im System]
+| Organisation
+| Eine formelle oder informelle Gruppe (z. B. Hochschule, Verein, Unternehmen), die das System nutzt. Organisationen verwalten eigene Nutzer, Gegenständstypen und Standorte.
 
-| Produkt
-| [Beschreibung der Entität und ihrer Rolle im System]
+| Gegenstandstyp
+| Eine Kategorie von Gegenständen mit gemeinsamen Eigenschaften (z. B. "Mikroskop Leica DM500") an *einem gemeinsamen Standort*. Ein Gegenstandstyp kann aus mehreren konkreten Exemplaren bestehen.
 
-| [Weitere Entität]
-| [Beschreibung]
+| Gegenstandsexemplar
+| Ein konkretes physisches Exemplar eines Gegenstandstyps (z. B. "Mikroskop #42"). Jedes Exemplar hat eine eindeutige Inventarnummer, einen Standort, einen Zustand und einen Verfügbarkeitsstatus.
+
+| Ausleihanfrage
+| Eine formelle Anfrage eines Nutzers, einen oder mehrere Gegenstände *eines Gegenstandstypen* für einen bestimmten Zeitraum auszuleihen. Eine Ausleihanfrage durchläuft verschiedene Status (z. B. "offen", "genehmigt" und "abgelehnt") und kann zu einer Reservierung führen.
+
+| Reservierung
+| Eine Vormerkung *eines oder mehrerer Gegenstandsexemplare eines Gegenstandstyps* für einen zukünftigen Ausleihzeitraum. Eine Reservierung entsteht aus einer genehmigten Ausleihanfrage und kann zu einer Ausleihe führen.
+
+| Ausleihe
+| Die praktische Umsetzung einer Reservierung, bei der ein oder mehrere Gegenstände tatsächlich an den Ausleiher übergeben werden. Eine Ausleihe hat einen definierten Status (z. B. "aktiv", "überfällig", "zurückgegeben").
+
+| Zustandsprotokoll
+| Eine Dokumentation des Zustands eines Gegenstandsexemplars bei Übergabe (Check-out) oder Rückgabe (Check-in). Enthält Notizen, Fotos und den Zustand des Gegenstands.
+
+| Benachrichtigung
+| Eine automatisierte Nachricht per Mail an Nutzer über wichtige Ereignisse (z. B. "Reservierung bestätigt", "Ausleihe bald fällig").
+
+| AusleihHistorie
+| Eine chronologische Aufzeichnung aller Ausleihen eines Gegenstandsexemplars oder Nutzers, inklusive Ausleihdatum, Rückgabedatum und Zustandsdokumentation.
+
+| Standort
+| Der physische oder logische Ort, an dem sich ein Gegenstandsexemplar befindet (z. B. "Bibliothek", "Labor A", "WG-Keller"). Standorte werden zentral von Admins verwaltet.
+
+| Kategorie
+| Eine Klassifizierung für Gegenstandstypen, die ähnliche Eigenschaften oder Nutzungszwecke haben (z. B. "Bücher", "Elektronik", "Werkzeug").
+
+| Nutzungsbedingungen
+| Die rechtlichen und organisatorischen Regeln, die Nutzer akzeptieren müssen, um das System zu verwenden. Sie regeln z. B. Haftung, Rückgabefristen und Umgang mit Schäden.
+
 |===
+
 
 === Beschreibung der Beziehungen
 
 Beschreibung der wichtigsten Beziehungen zwischen den Entitäten, sofern diese besondere Kardinalitäten haben oder aus anderen Gründen erklärungsbedürftig sind.
 
+
 [cols="1,1,1,3", options="header"]
 |===
 | Von | Zu | Kardinalität | Bedeutung
 
-| Nutzer
-| Bestellung
-| 1 zu 0..*
-| Ein Nutzer kann keine oder mehrere Bestellungen aufgeben.
+| Nutzer | Ausleihanfrage | 1 zu 0..* | Ein Nutzer kann keine oder mehrere Ausleihanfragen stellen.
 
-| Bestellung
-| Produkt
-| 1 zu 1..*
-| Eine Bestellung enthält mindestens ein Produkt.
+| Nutzer | Ausleihe | 1 zu 0..* | Ein Nutzer kann keine oder mehrere Ausleihen tätigen.
 
-| [Entität]
-| [Entität]
-| [z. B. 0..* zu 1]
-| [Beschreibung der Beziehung in natürlicher Sprache]
+| Nutzer | Reservierung | 1 zu 0..* | Ein Nutzer kann keine oder mehrere Reservierungen haben (= bestätigte Ausleihanfragen).
+
+| Organisation | Nutzer | 1 zu 0..* | Eine Organisation kann keine oder mehrere Nutzer enthalten.
+
+| Organisation | Gegenstandstyp | 1 zu 0..* | Eine Organisation kann keine oder mehrere Gegenstandstypen verwalten.
+
+| Gegenstandstyp | Gegenstandsexemplar | 1 zu 0..* | Ein Gegenstandstyp besteht aus keinen oder mehreren Gegenstandsexemplaren.
+
+| Gegenstandsexemplar | Reservierung | 1 zu 0..* | Ein Gegenstandsexemplar kann keine oder mehrere Reservierungen haben.
+
+| Gegenstandsexemplar | Ausleihe | 1 zu 0..1 | Ein Gegenstandsexemplar kann keine oder eine Ausleihe haben.
+
+| Ausleihanfrage | Reservierung | 1 zu 0..1 | Eine Ausleihanfrage kann zu keiner oder einer Reservierung führen (wenn sie genehmigt wird).
+
+| Reservierung | Ausleihe | 1 zu 0..1 | Eine Reservierung kann zu keiner oder einer Ausleihe führen (wenn der Gegenstand übergeben wird).
+
+| Ausleihe | Zustandsprotokoll | 1 zu 0..2 | Eine Ausleihe kann kein, eins oder zwei Zustandsprotokolle haben (z. B. bei Übergabe und Rückgabe).
+
+| Ausleihe | AusleihHistorie | 1..* zu 1 | Jede Ausleihe wird genau einmal in der AusleihHistorie dokumentiert.
+
+| Gegenstandstyp | Kategorie | 0..* zu 1 | Ein Gegenstandstyp gehört zu genau einer Kategorie, aber eine Kategorie kann keine oder mehrere Gegenstandstypen enthalten.
+
+| Gegenstandsexemplar | Standort | 0..* zu 1 | Ein Gegenstandsexemplar befindet sich an genau einem Standort, aber ein Standort kann keinen oder mehrere Gegenstandsexemplare enthalten.
+
+| Nutzer | Benachrichtigung | 1 zu 0..* | Ein Nutzer kann keine oder mehrere Benachrichtigungen erhalten.
+
+| Ausleihe | Nutzungsbedingungen | 0..* zu 0..1 | Eine Ausleihe akzeptiert keine oder eine Version der Nutzungsbedingungen, aber eine Version kann für mehrere Ausleihen gelten.
 |===
 
 _Dieses Dokument wird kontinuierlich gepflegt. Änderungen an Fachbegriffen oder Beziehungen

@@ -89,16 +89,16 @@ Nutzer "1" --> "0..*" Ausleihe : tätigt
 Nutzer "1" --> "0..*" Reservierung : tätigt / bekommt / hat
 Organisation "1" --> "0..*" Nutzer : enthält
 Organisation "1" --> "0..*" Gegenstandstyp : verwaltet
-Gegenstandstyp "1" --> "1..*" Gegenstandsexemplar : besteht aus
+Gegenstandstyp "1" --> "0..*" Gegenstandsexemplar : besteht aus
 Gegenstandsexemplar "1" --> "0..*" Reservierung : wird reserviert in
-Gegenstandsexemplar "1" --> "0..*" Ausleihe : wird ausgeliehen in
+Gegenstandsexemplar "1" --> "0..1" Ausleihe : wird ausgeliehen in
 Ausleihanfrage "1" --> "0..1" Reservierung : führt zu
 Reservierung "1" --> "0..1" Ausleihe : wird umgesetzt in
-Ausleihe "1" --> "0..*" Zustandsprotokoll : dokumentiert
-Ausleihe "1" --> "1" AusleihHistorie : dokumentiert
+Ausleihe "1" --> "0..2" Zustandsprotokoll : dokumentiert
+Ausleihe "1..*" --> "1" AusleihHistorie : dokumentiert
 Gegenstandstyp "0..*" --> "1" Kategorie : gehört zu
 Gegenstandsexemplar "0..*" --> "1" Standort : befindet sich in
 Nutzer "1" --> "0..*" Benachrichtigung : erhält
-Ausleihe "0..*" --> "1" Nutzungsbedingungen : akzeptiert
+Ausleihe "0..*" --> "0..1" Nutzungsbedingungen : akzeptiert
 
 @enduml

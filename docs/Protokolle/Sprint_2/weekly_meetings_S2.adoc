@@ -6,14 +6,14 @@
 :id: meeting17052026
 
 *Datum:* 17.05.2026  
-*Dauer:* 
-*Teilnehmende:* 
+*Dauer:* 90 min.
+*Teilnehmende:* Alle Teammitglieder
 
 === Agenda
-. Ergebnisse Woche 1 zusammentragen (45 min)
- - 1. Entwurf Domänenmodell
- - 1. Entwurf Glossar
- - 1. Entwurf Logisches Modell
+. Ergebnisse Woche 1 zusammentragen (70 min)
+ - Entwurf Domänenmodell
+ - Entwurf Glossar
+ - Entwurf Logisches Modell
  - Architekturtreiber
  - Architekturoptionen
  - Technologie-Stack
@@ -21,3 +21,24 @@
 . Frameworks nutzen? (5min)
 
 . Planung Woche 2 (15 min)
+
+=== Beschluesse
+==== 1) Ergebnisse Woche 1 & Fachliche Domäne
+* *Standortabhängigkeit:* Objekte im System sind fest an einen Standort gebunden. Der jeweilige Verleiher wird ebenfalls einem Standort zugeordnet und besitzt die finale Entscheidungsgewalt, ob eine Ausleihe für diesen Standort genehmigt oder abgelehnt wird.
+* Die ersten Entwürfe für das Domänenmodell, das Glossar und das logische Modell wurden erfolgreich zusammengetragen.
+
+==== 2) Infrastruktur & Schutzmechanismen
+* *Server-Kompatibilität:* Es muss geprüft werden, wie die Kompatibilität mit dem bereitgestellten Server gewährleistet wird. Im Fokus steht dabei die Definition der Schnittstelle (Wie wird der Server konkret angesprochen?).
+* *Sicherheit:* Passende Schutzmechanismen für das Gesamtsystem müssen zwingend eingeplant und berücksichtigt werden.
+
+==== 3) Technologie-Stack & Frameworks
+* *Frontend:* React 
+* *Backend:* Die Entscheidung für die Backend-Technologie steht aktuell noch aus
+
+==== 4) Organisation & GitHub Project Board
+* *Issue-Erstellung:* Ergebnisse aus individuellen Meetings, Zwischenstände und neue Tasks werden direkt an den Scrum Master (SM) übergeben. Dieser formuliert und erstellt daraus zentral die Issues in GitHub.
+* *Projekt-Übersicht:* Das GitHub Project Board wird um die Struktur für die anstehende Woche erweitert.
+
+=== Naechste Besprechung
+*Termin:* 24.05.2026, 15:00 Uhr 
+*Ziel:* Besprechung der ersten Lösungen und Fortschritte in Sprint 2

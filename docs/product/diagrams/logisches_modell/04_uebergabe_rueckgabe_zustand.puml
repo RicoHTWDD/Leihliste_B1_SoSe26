@@ -1,0 +1,90 @@
+@startuml
+
+title Logisches Datenmodell. Übergabe, Rückgabe und Zustand
+left to right direction
+
+entity "BENUTZER" as BENUTZER {
+    vollstaendiger_name : string
+    email : string
+    rolle : Benutzerrolle
+}
+
+entity "GEGENSTAND_EINHEIT" as GEGENSTAND_EINHEIT {
+    inventarnummer : string
+    zustandsstatus : Zustandsstatus
+    verfuegbarkeitsstatus : Verfuegbarkeitsstatus
+}
+
+entity "AUSLEIHE" as AUSLEIHE {
+    ausleihdatum : date
+    uebergeben_am : datetime
+    faelligkeitsdatum : date
+    rueckgabe_angefragt_am : datetime
+    tatsaechliches_rueckgabedatum : date
+    status : Ausleihstatus
+    / faelligkeitsstatus : Faelligkeitsstatus
+    erstellt_am : datetime
+    aktualisiert_am : datetime
+}
+
+entity "AUSLEIHE_POSITION" as AUSLEIHE_POSITION {
+}
+
+entity "AUSLEIHE_VERLAENGERUNG" as AUSLEIHE_VERLAENGERUNG {
+    altes_faelligkeitsdatum : date
+    neues_faelligkeitsdatum : date
+    status : Verlaengerungsstatus
+    grund : string
+    erstellt_am : datetime
+}
+
+entity "BUCHUNGSBESTAETIGUNG" as BUCHUNGSBESTAETIGUNG {
+    dokument_url : string
+    generiert_am : datetime
+    an_ausleiher_gesendet_am : datetime
+    an_verleiher_gesendet_am : datetime
+}
+
+entity "ZUSTANDSPROTOKOLL" as ZUSTANDSPROTOKOLL {
+    protokolltyp : Protokolltyp
+    allgemeine_notiz : string
+    erstellt_am : datetime
+}
+
+entity "ZUSTANDSPROTOKOLL_POSITION" as ZUSTANDSPROTOKOLL_POSITION {
+    zustandsstatus : Zustandsstatus
+    schadensbeschreibung : string
+    foto_url : string
+}
+
+BENUTZER "1" -- "0..*" AUSLEIHE : entleiht
+BENUTZER "0..1" -- "0..*" AUSLEIHE : verleiht
+
+AUSLEIHE "1" *-- "1..*" AUSLEIHE_POSITION : enthaelt
+GEGENSTAND_EINHEIT "1" -- "0..*" AUSLEIHE_POSITION : ausgeliehene_einheit
+
+AUSLEIHE "1" o-- "0..*" AUSLEIHE_VERLAENGERUNG : hat_verlaengerungen
+BENUTZER "1" -- "0..*" AUSLEIHE_VERLAENGERUNG : beantragt
+BENUTZER "0..1" -- "0..*" AUSLEIHE_VERLAENGERUNG : genehmigt
+
+AUSLEIHE "0..1" -- "0..1" BUCHUNGSBESTAETIGUNG : bestaetigt
+
+AUSLEIHE "1" *-- "0..*" ZUSTANDSPROTOKOLL : hat_protokolle
+BENUTZER "1" -- "0..*" ZUSTANDSPROTOKOLL : erstellt_von
+BENUTZER "0..1" -- "0..*" ZUSTANDSPROTOKOLL : uebergeben_von
+BENUTZER "0..1" -- "0..*" ZUSTANDSPROTOKOLL : angenommen_von
+
+ZUSTANDSPROTOKOLL "1" *-- "1..*" ZUSTANDSPROTOKOLL_POSITION : enthaelt
+GEGENSTAND_EINHEIT "1" -- "0..*" ZUSTANDSPROTOKOLL_POSITION : dokumentierte_einheit
+
+note right of ZUSTANDSPROTOKOLL
+Ein Zustandsprotokoll dokumentiert entweder Uebergabe oder Rueckgabe.
+Die einzelnen Gegenstandseinheiten werden in den Positionen dokumentiert.
+end note
+
+note right of AUSLEIHE_VERLAENGERUNG
+Verlängerungen ändern nicht direkt die Historie,
+sondern werden als eigener Vorgang dokumentiert.
+end note
+
+@enduml

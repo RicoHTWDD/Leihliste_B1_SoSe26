@@ -1,22 +1,9 @@
 @startuml
-title Logisches Datenmodell - Ausleihsystem
+title Logisches Datenmodell
 
-hide circle
-hide empty methods
-
-skinparam shadowing false
-skinparam linetype ortho
-skinparam classAttributeIconSize 0
-
-skinparam class {
-    BackgroundColor White
-    BorderColor Black
-    ArrowColor Black
-    FontColor Black
-}
 
 ' =========================
-' Aufzählungen
+' Enums
 ' =========================
 
 enum Kontostatus {
@@ -143,7 +130,7 @@ enum Protokolltyp {
 ' Benutzer und Organisation
 ' =========================
 
-class "BENUTZER" as BENUTZER <<Entitaet>> {
+entity "BENUTZER" as BENUTZER {
     vollstaendiger_name : string
     email : string
     passwort_hash : string
@@ -157,19 +144,21 @@ class "BENUTZER" as BENUTZER <<Entitaet>> {
     letzte_anmeldung_am : datetime
 }
 
-class "ORGANISATION" as ORGANISATION <<Entitaet>> {
+entity "ORGANISATION" as ORGANISATION {
     name : string
     organisationstyp : Organisationstyp
     erstellt_am : datetime
 }
 
-class "BENUTZER_VERIFIZIERUNG" as BENUTZER_VERIFIZIERUNG <<Entitaet>> {
-    verifizierungsstatus : Verifizierungsstatus
-    geprueft_am : datetime
-    notiz : string
+entity "BENUTZER_VERIFIZIERUNG" as BENUTZER_VERIFIZIERUNG {
+    methode : string
+    status : Verifizierungsstatus
+    gueltig_bis : datetime
+    verifiziert_am : datetime
+    erstellt_am : datetime
 }
 
-class "AUTH_TOKEN" as AUTH_TOKEN <<Entitaet>> {
+entity "AUTH_TOKEN" as AUTH_TOKEN {
     token_typ : Tokentyp
     token_hash : string
     gueltig_bis : datetime
@@ -177,7 +166,7 @@ class "AUTH_TOKEN" as AUTH_TOKEN <<Entitaet>> {
     erstellt_am : datetime
 }
 
-class "BENACHRICHTIGUNG" as BENACHRICHTIGUNG <<Entitaet>> {
+entity "BENACHRICHTIGUNG" as BENACHRICHTIGUNG {
     benachrichtigungstyp : Benachrichtigungstyp
     kanal : Benachrichtigungskanal
     bezugsobjekt_typ : string
@@ -193,17 +182,17 @@ class "BENACHRICHTIGUNG" as BENACHRICHTIGUNG <<Entitaet>> {
 ' Inventar
 ' =========================
 
-class "KATEGORIE" as KATEGORIE <<Entitaet>> {
+entity "KATEGORIE" as KATEGORIE {
     name : string
     beschreibung : string
 }
 
-class "STANDORT" as STANDORT <<Entitaet>> {
+entity "STANDORT" as STANDORT {
     name : string
     beschreibung : string
 }
 
-class "GEGENSTAND" as GEGENSTAND <<Entitaet>> {
+entity "GEGENSTAND" as GEGENSTAND {
     name : string
     beschreibung : string
     verwendungszweck_erforderlich : boolean
@@ -215,7 +204,7 @@ class "GEGENSTAND" as GEGENSTAND <<Entitaet>> {
     aktualisiert_am : datetime
 }
 
-class "GEGENSTAND_BILD" as GEGENSTAND_BILD <<Entitaet>> {
+entity "GEGENSTAND_BILD" as GEGENSTAND_BILD {
     bild_url : string
     beschriftung : string
     anzeigereihenfolge : int
@@ -223,7 +212,7 @@ class "GEGENSTAND_BILD" as GEGENSTAND_BILD <<Entitaet>> {
     hochgeladen_am : datetime
 }
 
-class "GEGENSTAND_EINHEIT" as GEGENSTAND_EINHEIT <<Entitaet>> {
+entity "GEGENSTAND_EINHEIT" as GEGENSTAND_EINHEIT {
     inventarnummer : string
     zustandsstatus : Zustandsstatus
     verfuegbarkeitsstatus : Verfuegbarkeitsstatus
@@ -231,7 +220,7 @@ class "GEGENSTAND_EINHEIT" as GEGENSTAND_EINHEIT <<Entitaet>> {
     erstellt_am : datetime
 }
 
-class "GEGENSTAND_STATUS_HISTORIE" as GEGENSTAND_STATUS_HISTORIE <<Entitaet>> {
+entity "GEGENSTAND_STATUS_HISTORIE" as GEGENSTAND_STATUS_HISTORIE {
     alter_status : string
     neuer_status : string
     grund : string
@@ -242,7 +231,7 @@ class "GEGENSTAND_STATUS_HISTORIE" as GEGENSTAND_STATUS_HISTORIE <<Entitaet>> {
 ' Ausleihanfrage
 ' =========================
 
-class "AUSLEIHANFRAGE" as AUSLEIHANFRAGE <<Entitaet>> {
+entity "AUSLEIHANFRAGE" as AUSLEIHANFRAGE {
     gewuenschtes_startdatum : date
     gewuenschtes_rueckgabedatum : date
     verwendungszweck : string
@@ -254,20 +243,20 @@ class "AUSLEIHANFRAGE" as AUSLEIHANFRAGE <<Entitaet>> {
     aktualisiert_am : datetime
 }
 
-class "AUSLEIHANFRAGE_POSITION" as AUSLEIHANFRAGE_POSITION <<Entitaet>> {
+entity "AUSLEIHANFRAGE_POSITION" as AUSLEIHANFRAGE_POSITION {
     angefragte_menge : int
     verfuegbarkeit_geprueft_am : datetime
     verfuegbarkeitsergebnis : string
 }
 
-class "AUSLEIHANFRAGE_STATUS_HISTORIE" as AUSLEIHANFRAGE_STATUS_HISTORIE <<Entitaet>> {
+entity "AUSLEIHANFRAGE_STATUS_HISTORIE" as AUSLEIHANFRAGE_STATUS_HISTORIE {
     alter_status : string
     neuer_status : string
     kommentar : string
     geaendert_am : datetime
 }
 
-class "AUSLEIHANFRAGE_NACHRICHT" as AUSLEIHANFRAGE_NACHRICHT <<Entitaet>> {
+entity "AUSLEIHANFRAGE_NACHRICHT" as AUSLEIHANFRAGE_NACHRICHT {
     inhalt : string
     ist_interne_notiz : boolean
     erstellt_am : datetime
@@ -277,7 +266,7 @@ class "AUSLEIHANFRAGE_NACHRICHT" as AUSLEIHANFRAGE_NACHRICHT <<Entitaet>> {
 ' Reservierung
 ' =========================
 
-class "RESERVIERUNG" as RESERVIERUNG <<Entitaet>> {
+entity "RESERVIERUNG" as RESERVIERUNG {
     reservierungs_startdatum : date
     reservierungs_enddatum : date
     status : Reservierungsstatus
@@ -290,7 +279,7 @@ class "RESERVIERUNG" as RESERVIERUNG <<Entitaet>> {
 ' Ausleihe
 ' =========================
 
-class "AUSLEIHE" as AUSLEIHE <<Entitaet>> {
+entity "AUSLEIHE" as AUSLEIHE {
     ausleihdatum : date
     uebergeben_am : datetime
     faelligkeitsdatum : date
@@ -302,10 +291,10 @@ class "AUSLEIHE" as AUSLEIHE <<Entitaet>> {
     aktualisiert_am : datetime
 }
 
-class "AUSLEIHE_POSITION" as AUSLEIHE_POSITION <<Entitaet>> {
+entity "AUSLEIHE_POSITION" as AUSLEIHE_POSITION {
 }
 
-class "AUSLEIHE_VERLAENGERUNG" as AUSLEIHE_VERLAENGERUNG <<Entitaet>> {
+entity "AUSLEIHE_VERLAENGERUNG" as AUSLEIHE_VERLAENGERUNG {
     altes_faelligkeitsdatum : date
     neues_faelligkeitsdatum : date
     status : Verlaengerungsstatus
@@ -317,12 +306,19 @@ class "AUSLEIHE_VERLAENGERUNG" as AUSLEIHE_VERLAENGERUNG <<Entitaet>> {
 ' Bedingungen und Bestätigung
 ' =========================
 
-class "BEDINGUNGS_ANNAHME" as BEDINGUNGS_ANNAHME <<Entitaet>> {
-    bedingungsversion : string
+entity "NUTZUNGSBEDINGUNGEN" as NUTZUNGSBEDINGUNGEN {
+    version : string
+    text : string
+    gueltig_ab : datetime
+    gueltig_bis : datetime
+    erstellt_am : datetime
+}
+
+entity "BEDINGUNGS_ANNAHME" as BEDINGUNGS_ANNAHME {
     akzeptiert_am : datetime
 }
 
-class "BUCHUNGSBESTAETIGUNG" as BUCHUNGSBESTAETIGUNG <<Entitaet>> {
+entity "BUCHUNGSBESTAETIGUNG" as BUCHUNGSBESTAETIGUNG {
     dokument_url : string
     generiert_am : datetime
     an_ausleiher_gesendet_am : datetime
@@ -333,13 +329,13 @@ class "BUCHUNGSBESTAETIGUNG" as BUCHUNGSBESTAETIGUNG <<Entitaet>> {
 ' Zustandsprotokoll
 ' =========================
 
-class "ZUSTANDSPROTOKOLL" as ZUSTANDSPROTOKOLL <<Entitaet>> {
+entity "ZUSTANDSPROTOKOLL" as ZUSTANDSPROTOKOLL {
     protokolltyp : Protokolltyp
     allgemeine_notiz : string
     erstellt_am : datetime
 }
 
-class "ZUSTANDSPROTOKOLL_POSITION" as ZUSTANDSPROTOKOLL_POSITION <<Entitaet>> {
+entity "ZUSTANDSPROTOKOLL_POSITION" as ZUSTANDSPROTOKOLL_POSITION {
     zustandsstatus : Zustandsstatus
     schadensbeschreibung : string
     foto_url : string
@@ -374,12 +370,13 @@ end note
 ' Beziehungen
 ' =========================
 
-ORGANISATION "0..1" -- "0..*" BENUTZER : hat_benutzer
+ORGANISATION "1" -- "0..*" BENUTZER : hat_benutzer
 
-BENUTZER "1" -- "0..*" BENUTZER_VERIFIZIERUNG : hat
-BENUTZER "0..1" -- "0..*" BENUTZER_VERIFIZIERUNG : geprueft_von
+BENUTZER "1" -- "0..*" BENUTZER_VERIFIZIERUNG : ist_betroffen
+BENUTZER "0..1" -- "0..*" BENUTZER_VERIFIZIERUNG : fuehrt_durch
 
 BENUTZER "1" -- "0..*" AUTH_TOKEN : erhaelt
+BENUTZER_VERIFIZIERUNG "0..1" -- "0..1" AUTH_TOKEN : nutzt_token
 BENUTZER "1" -- "0..*" BENACHRICHTIGUNG : erhaelt
 BENUTZER "0..1" -- "0..*" BENACHRICHTIGUNG : gesendet_von
 
@@ -389,20 +386,19 @@ ORGANISATION "1" o-- "0..*" STANDORT : verwaltet
 KATEGORIE "1" -- "0..*" GEGENSTAND : kategorisiert
 STANDORT "0..1" -- "0..*" GEGENSTAND : standard_standort
 
-ORGANISATION "0..1" -- "0..*" GEGENSTAND : besitzt
-BENUTZER "0..1" -- "0..*" GEGENSTAND : besitzt
+ORGANISATION "1" -- "0..*" GEGENSTAND : besitzt
 
 GEGENSTAND "1" *-- "0..*" GEGENSTAND_BILD : hat_bilder
 BENUTZER "0..1" -- "0..*" GEGENSTAND_BILD : hochgeladen_von
 
 GEGENSTAND "1" *-- "1..*" GEGENSTAND_EINHEIT : besteht_aus
-STANDORT "0..1" -- "0..*" GEGENSTAND_EINHEIT : lagert
+STANDORT "1" -- "0..*" GEGENSTAND_EINHEIT : lagert
 
 GEGENSTAND_EINHEIT "1" -- "0..*" GEGENSTAND_STATUS_HISTORIE : hat_statusaenderungen
 BENUTZER "1" -- "0..*" GEGENSTAND_STATUS_HISTORIE : aendert_status
 
 BENUTZER "1" -- "0..*" AUSLEIHANFRAGE : erstellt
-ORGANISATION "0..1" -- "0..*" AUSLEIHANFRAGE : erhaelt
+ORGANISATION "1" -- "0..*" AUSLEIHANFRAGE : erhaelt
 BENUTZER "0..1" -- "0..*" AUSLEIHANFRAGE : prueft
 
 AUSLEIHANFRAGE "1" *-- "1..*" AUSLEIHANFRAGE_POSITION : enthaelt
@@ -415,6 +411,7 @@ AUSLEIHANFRAGE "1" *-- "0..*" AUSLEIHANFRAGE_NACHRICHT : hat_nachrichten
 BENUTZER "1" -- "0..*" AUSLEIHANFRAGE_NACHRICHT : verfasst_von
 
 AUSLEIHANFRAGE "0..1" -- "0..*" RESERVIERUNG : fuehrt_zu
+AUSLEIHANFRAGE_POSITION "1" -- "0..*" RESERVIERUNG : erzeugt_reservierungen
 GEGENSTAND_EINHEIT "1" -- "0..*" RESERVIERUNG : reserviert
 BENUTZER "1" -- "0..*" RESERVIERUNG : reserviert_fuer
 
@@ -422,17 +419,20 @@ AUSLEIHANFRAGE "0..1" -- "0..1" AUSLEIHE : wird_zu
 
 BENUTZER "1" -- "0..*" AUSLEIHE : entleiht
 BENUTZER "0..1" -- "0..*" AUSLEIHE : verleiht
-ORGANISATION "0..1" -- "0..*" AUSLEIHE : verleihende_organisation
+ORGANISATION "1" -- "0..*" AUSLEIHE : verleihende_organisation
 
 AUSLEIHE "1" *-- "1..*" AUSLEIHE_POSITION : enthaelt
+RESERVIERUNG "0..1" -- "0..1" AUSLEIHE_POSITION : wird_ausgeliehen_als
 GEGENSTAND_EINHEIT "1" -- "0..*" AUSLEIHE_POSITION : ausgeliehene_einheit
 
 AUSLEIHE "1" o-- "0..*" AUSLEIHE_VERLAENGERUNG : hat_verlaengerungen
 BENUTZER "1" -- "0..*" AUSLEIHE_VERLAENGERUNG : beantragt
 BENUTZER "0..1" -- "0..*" AUSLEIHE_VERLAENGERUNG : genehmigt
 
+NUTZUNGSBEDINGUNGEN "1" -- "0..*" BEDINGUNGS_ANNAHME : wird_akzeptiert_in
 BENUTZER "1" -- "0..*" BEDINGUNGS_ANNAHME : akzeptiert
-AUSLEIHANFRAGE "0..1" -- "0..*" BEDINGUNGS_ANNAHME : erfordert_bedingungen
+AUSLEIHANFRAGE "0..*" -- "1" BEDINGUNGS_ANNAHME : basiert_auf_annahme
+AUSLEIHE "0..*" -- "1" BEDINGUNGS_ANNAHME : basiert_auf_annahme
 
 AUSLEIHANFRAGE "1" -- "0..1" BUCHUNGSBESTAETIGUNG : generiert
 AUSLEIHE "0..1" -- "0..1" BUCHUNGSBESTAETIGUNG : bestaetigt

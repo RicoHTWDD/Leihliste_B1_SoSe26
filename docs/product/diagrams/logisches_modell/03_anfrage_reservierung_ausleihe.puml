@@ -1,0 +1,143 @@
+@startuml
+
+title Logisches Datenmodell. Anfrage, Reservierung und Ausleihe
+left to right direction
+
+entity "BENUTZER" as BENUTZER {
+    vollstaendiger_name : string
+    email : string
+    rolle : Benutzerrolle
+}
+
+entity "ORGANISATION" as ORGANISATION {
+    name : string
+    organisationstyp : Organisationstyp
+}
+
+entity "GEGENSTAND" as GEGENSTAND {
+    name : string
+    beschreibung : string
+    verwendungszweck_erforderlich : boolean
+    minimale_ausleihtage : int
+    maximale_ausleihtage : int
+}
+
+entity "GEGENSTAND_EINHEIT" as GEGENSTAND_EINHEIT {
+    inventarnummer : string
+    zustandsstatus : Zustandsstatus
+    verfuegbarkeitsstatus : Verfuegbarkeitsstatus
+}
+
+entity "AUSLEIHANFRAGE" as AUSLEIHANFRAGE {
+    gewuenschtes_startdatum : date
+    gewuenschtes_rueckgabedatum : date
+    verwendungszweck : string
+    status : Ausleihanfragestatus
+    ablehnungsgrund : string
+    eingereicht_am : datetime
+    geprueft_am : datetime
+    erstellt_am : datetime
+    aktualisiert_am : datetime
+}
+
+entity "AUSLEIHANFRAGE_POSITION" as AUSLEIHANFRAGE_POSITION {
+    angefragte_menge : int
+    verfuegbarkeit_geprueft_am : datetime
+    verfuegbarkeitsergebnis : string
+}
+
+entity "AUSLEIHANFRAGE_STATUS_HISTORIE" as AUSLEIHANFRAGE_STATUS_HISTORIE {
+    alter_status : string
+    neuer_status : string
+    kommentar : string
+    geaendert_am : datetime
+}
+
+entity "AUSLEIHANFRAGE_NACHRICHT" as AUSLEIHANFRAGE_NACHRICHT {
+    inhalt : string
+    ist_interne_notiz : boolean
+    erstellt_am : datetime
+}
+
+entity "RESERVIERUNG" as RESERVIERUNG {
+    reservierungs_startdatum : date
+    reservierungs_enddatum : date
+    status : Reservierungsstatus
+    notiz : string
+    erstellt_am : datetime
+    aktualisiert_am : datetime
+}
+
+entity "AUSLEIHE" as AUSLEIHE {
+    ausleihdatum : date
+    uebergeben_am : datetime
+    faelligkeitsdatum : date
+    rueckgabe_angefragt_am : datetime
+    tatsaechliches_rueckgabedatum : date
+    status : Ausleihstatus
+    / faelligkeitsstatus : Faelligkeitsstatus
+    erstellt_am : datetime
+    aktualisiert_am : datetime
+}
+
+entity "AUSLEIHE_POSITION" as AUSLEIHE_POSITION {
+}
+
+entity "NUTZUNGSBEDINGUNGEN" as NUTZUNGSBEDINGUNGEN {
+    version : string
+    text : string
+    gueltig_ab : datetime
+    gueltig_bis : datetime
+    erstellt_am : datetime
+}
+
+entity "BEDINGUNGS_ANNAHME" as BEDINGUNGS_ANNAHME {
+    akzeptiert_am : datetime
+}
+
+BENUTZER "1" -- "0..*" AUSLEIHANFRAGE : erstellt
+ORGANISATION "1" -- "0..*" AUSLEIHANFRAGE : erhaelt
+BENUTZER "0..1" -- "0..*" AUSLEIHANFRAGE : prueft
+
+AUSLEIHANFRAGE "1" *-- "1..*" AUSLEIHANFRAGE_POSITION : enthaelt
+GEGENSTAND "1" -- "0..*" AUSLEIHANFRAGE_POSITION : angefragter_gegenstand
+
+AUSLEIHANFRAGE "1" -- "0..*" AUSLEIHANFRAGE_STATUS_HISTORIE : hat_historie
+BENUTZER "1" -- "0..*" AUSLEIHANFRAGE_STATUS_HISTORIE : aendert_status
+
+AUSLEIHANFRAGE "1" *-- "0..*" AUSLEIHANFRAGE_NACHRICHT : hat_nachrichten
+BENUTZER "1" -- "0..*" AUSLEIHANFRAGE_NACHRICHT : verfasst_von
+
+AUSLEIHANFRAGE "0..1" -- "0..*" RESERVIERUNG : fuehrt_zu
+AUSLEIHANFRAGE_POSITION "1" -- "0..*" RESERVIERUNG : erzeugt_reservierungen
+GEGENSTAND_EINHEIT "1" -- "0..*" RESERVIERUNG : reserviert
+BENUTZER "1" -- "0..*" RESERVIERUNG : reserviert_fuer
+
+AUSLEIHANFRAGE "0..1" -- "0..1" AUSLEIHE : wird_zu
+BENUTZER "1" -- "0..*" AUSLEIHE : entleiht
+BENUTZER "0..1" -- "0..*" AUSLEIHE : verleiht
+ORGANISATION "1" -- "0..*" AUSLEIHE : verleihende_organisation
+
+AUSLEIHE "1" *-- "1..*" AUSLEIHE_POSITION : enthaelt
+RESERVIERUNG "0..1" -- "0..1" AUSLEIHE_POSITION : wird_ausgeliehen_als
+GEGENSTAND_EINHEIT "1" -- "0..*" AUSLEIHE_POSITION : ausgeliehene_einheit
+
+NUTZUNGSBEDINGUNGEN "1" -- "0..*" BEDINGUNGS_ANNAHME : wird_akzeptiert_in
+BENUTZER "1" -- "0..*" BEDINGUNGS_ANNAHME : akzeptiert
+AUSLEIHANFRAGE "0..*" -- "1" BEDINGUNGS_ANNAHME : basiert_auf_annahme
+AUSLEIHE "0..*" -- "1" BEDINGUNGS_ANNAHME : basiert_auf_annahme
+
+note right of AUSLEIHANFRAGE_POSITION
+angefragte_menge muss groesser als 0 sein.
+
+Eine Position fragt einen Gegenstandstyp und eine Menge an.
+Konkrete Exemplare entstehen erst ueber Reservierungen.
+end note
+
+note right of RESERVIERUNG
+Eine Reservierung blockiert eine konkrete Gegenstandseinheit
+für einen bestimmten Benutzer und Zeitraum.
+Die Umsetzung in eine Ausleihe erfolgt über AUSLEIHE_POSITION.
+end note
+
+@enduml

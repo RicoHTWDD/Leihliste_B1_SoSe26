@@ -1,0 +1,115 @@
+@startuml
+
+
+title Logisches Datenmodell. Übersicht
+left to right direction
+
+package "Benutzer und Organisation" {
+entity "ORGANISATION" as ORGANISATION {
+    name : string
+    organisationstyp : Organisationstyp
+}
+
+entity "BENUTZER" as BENUTZER {
+    vollstaendiger_name : string
+    email : string
+    rolle : Benutzerrolle
+    kontostatus : Kontostatus
+}
+
+entity "BENACHRICHTIGUNG" as BENACHRICHTIGUNG {
+    benachrichtigungstyp : Benachrichtigungstyp
+    status : Benachrichtigungsstatus
+}
+}
+
+package "Inventar" {
+entity "KATEGORIE" as KATEGORIE {
+    name : string
+}
+
+entity "STANDORT" as STANDORT {
+    name : string
+}
+
+entity "GEGENSTAND" as GEGENSTAND {
+    name : string
+    maximale_ausleihtage : int
+}
+
+entity "GEGENSTAND_EINHEIT" as GEGENSTAND_EINHEIT {
+    inventarnummer : string
+    zustandsstatus : Zustandsstatus
+    verfuegbarkeitsstatus : Verfuegbarkeitsstatus
+}
+}
+
+package "Ausleihprozess" {
+entity "AUSLEIHANFRAGE" as AUSLEIHANFRAGE {
+    gewuenschtes_startdatum : date
+    gewuenschtes_rueckgabedatum : date
+    status : Ausleihanfragestatus
+}
+
+entity "AUSLEIHANFRAGE_POSITION" as AUSLEIHANFRAGE_POSITION {
+    angefragte_menge : int
+}
+
+entity "RESERVIERUNG" as RESERVIERUNG {
+    reservierungs_startdatum : date
+    reservierungs_enddatum : date
+    status : Reservierungsstatus
+}
+
+entity "AUSLEIHE" as AUSLEIHE {
+    ausleihdatum : date
+    faelligkeitsdatum : date
+    status : Ausleihstatus
+}
+
+entity "AUSLEIHE_POSITION" as AUSLEIHE_POSITION {
+}
+
+entity "ZUSTANDSPROTOKOLL" as ZUSTANDSPROTOKOLL {
+    protokolltyp : Protokolltyp
+    allgemeine_notiz : string
+}
+
+entity "NUTZUNGSBEDINGUNGEN" as NUTZUNGSBEDINGUNGEN {
+    version : string
+    text : string
+}
+}
+
+ORGANISATION "1" -- "0..*" BENUTZER : hat_benutzer
+ORGANISATION "1" -- "0..*" GEGENSTAND : besitzt
+ORGANISATION "1" o-- "0..*" KATEGORIE : verwaltet
+ORGANISATION "1" o-- "0..*" STANDORT : verwaltet
+
+KATEGORIE "1" -- "0..*" GEGENSTAND : kategorisiert
+STANDORT "0..1" -- "0..*" GEGENSTAND : standard_standort
+GEGENSTAND "1" *-- "1..*" GEGENSTAND_EINHEIT : besteht_aus
+STANDORT "1" -- "0..*" GEGENSTAND_EINHEIT : lagert
+
+BENUTZER "1" -- "0..*" AUSLEIHANFRAGE : erstellt
+ORGANISATION "1" -- "0..*" AUSLEIHANFRAGE : erhaelt
+AUSLEIHANFRAGE "1" *-- "1..*" AUSLEIHANFRAGE_POSITION : enthaelt
+GEGENSTAND "1" -- "0..*" AUSLEIHANFRAGE_POSITION : angefragter_gegenstand
+
+AUSLEIHANFRAGE_POSITION "1" -- "0..*" RESERVIERUNG : erzeugt_reservierungen
+GEGENSTAND_EINHEIT "1" -- "0..*" RESERVIERUNG : reserviert
+BENUTZER "1" -- "0..*" RESERVIERUNG : reserviert_fuer
+
+AUSLEIHANFRAGE "0..1" -- "0..1" AUSLEIHE : wird_zu
+BENUTZER "1" -- "0..*" AUSLEIHE : entleiht
+ORGANISATION "1" -- "0..*" AUSLEIHE : verleihende_organisation
+AUSLEIHE "1" *-- "1..*" AUSLEIHE_POSITION : enthaelt
+RESERVIERUNG "0..1" -- "0..1" AUSLEIHE_POSITION : wird_ausgeliehen_als
+GEGENSTAND_EINHEIT "1" -- "0..*" AUSLEIHE_POSITION : ausgeliehene_einheit
+
+AUSLEIHE "1" *-- "0..*" ZUSTANDSPROTOKOLL : hat_protokolle
+BENUTZER "1" -- "0..*" BENACHRICHTIGUNG : erhaelt
+NUTZUNGSBEDINGUNGEN "1" -- "0..*" AUSLEIHANFRAGE : wird_akzeptiert_fuer
+NUTZUNGSBEDINGUNGEN "1" -- "0..*" AUSLEIHE : wird_akzeptiert_fuer
+
+@enduml

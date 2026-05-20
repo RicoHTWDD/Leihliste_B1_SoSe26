@@ -1,0 +1,167 @@
+@startuml
+
+
+title Logisches Datenmodell. Enums und Status
+left to right direction
+
+package "Benutzer und Organisation" {
+enum Kontostatus {
+    verifizierung_ausstehend
+    aktiv
+    gesperrt
+    geloescht
+}
+
+enum Benutzerrolle {
+    admin
+    manager
+    mitglied
+    ausleiher
+}
+
+enum Organisationstyp {
+    schule
+    hochschule
+    unternehmen
+    verein
+    bibliothek
+    sonstige
+}
+
+enum Tokentyp {
+    email_verifizierung
+    passwort_zuruecksetzen
+}
+
+enum Verifizierungsstatus {
+    ausstehend
+    genehmigt
+    abgelehnt
+}
+
+enum Benachrichtigungstyp {
+    anfrage_eingereicht
+    anfrage_genehmigt
+    anfrage_abgelehnt
+    klaerung_erforderlich
+    ausleihe_uebergabe_erinnerung
+    ausleihe_bald_faellig
+    ausleihe_ueberfaellig
+    ausleihe_zurueckgegeben
+    verlaengerung_genehmigt
+    verlaengerung_abgelehnt
+    reservierung_laeuft_ab
+    allgemein
+}
+
+enum Benachrichtigungskanal {
+    email
+    in_app
+    sms
+    push
+}
+
+enum Benachrichtigungsstatus {
+    ausstehend
+    gesendet
+    fehlgeschlagen
+    gelesen
+}
+}
+
+package "Inventar" {
+enum Verfuegbarkeitsstatus {
+    verfuegbar
+    reserviert
+    ausgeliehen
+    nicht_verfuegbar
+    in_reparatur
+    verloren
+}
+
+enum Zustandsstatus {
+    gut
+    beschaedigt
+    defekt
+    verloren
+}
+}
+
+package "Ausleihprozess" {
+enum Ausleihanfragestatus {
+    entwurf
+    eingereicht
+    klaerung_erforderlich
+    genehmigt
+    abgelehnt
+    zurueckgezogen
+    abgelaufen
+}
+
+enum Reservierungsstatus {
+    aktiv
+    erfuellt
+    storniert
+    abgelaufen
+}
+
+enum Ausleihstatus {
+    aktiv
+    zurueckgegeben
+    storniert
+}
+
+enum Faelligkeitsstatus {
+    fristgerecht
+    bald_faellig
+    ueberfaellig
+}
+
+enum Verlaengerungsstatus {
+    ausstehend
+    genehmigt
+    abgelehnt
+    storniert
+}
+
+enum Protokolltyp {
+    uebergabe
+    rueckgabe
+}
+}
+
+entity "BENUTZER" as BENUTZER
+entity "ORGANISATION" as ORGANISATION
+entity "BENUTZER_VERIFIZIERUNG" as BENUTZER_VERIFIZIERUNG
+entity "AUTH_TOKEN" as AUTH_TOKEN
+entity "BENACHRICHTIGUNG" as BENACHRICHTIGUNG
+entity "AUSLEIHANFRAGE" as AUSLEIHANFRAGE
+entity "AUSLEIHE" as AUSLEIHE
+entity "AUSLEIHE_VERLAENGERUNG" as AUSLEIHE_VERLAENGERUNG
+entity "GEGENSTAND_EINHEIT" as GEGENSTAND_EINHEIT
+entity "RESERVIERUNG" as RESERVIERUNG
+entity "ZUSTANDSPROTOKOLL" as ZUSTANDSPROTOKOLL
+entity "ZUSTANDSPROTOKOLL_POSITION" as ZUSTANDSPROTOKOLL_POSITION
+
+BENUTZER ..> Kontostatus : verwendet
+BENUTZER ..> Benutzerrolle : verwendet
+ORGANISATION ..> Organisationstyp : verwendet
+BENUTZER_VERIFIZIERUNG ..> Verifizierungsstatus : verwendet
+AUTH_TOKEN ..> Tokentyp : verwendet
+
+BENACHRICHTIGUNG ..> Benachrichtigungstyp : verwendet
+BENACHRICHTIGUNG ..> Benachrichtigungskanal : verwendet
+BENACHRICHTIGUNG ..> Benachrichtigungsstatus : verwendet
+
+AUSLEIHANFRAGE ..> Ausleihanfragestatus : verwendet
+RESERVIERUNG ..> Reservierungsstatus : verwendet
+AUSLEIHE ..> Ausleihstatus : verwendet
+AUSLEIHE ..> Faelligkeitsstatus : verwendet
+AUSLEIHE_VERLAENGERUNG ..> Verlaengerungsstatus : verwendet
+
+GEGENSTAND_EINHEIT ..> Verfuegbarkeitsstatus : verwendet
+GEGENSTAND_EINHEIT ..> Zustandsstatus : verwendet
+ZUSTANDSPROTOKOLL ..> Protokolltyp : verwendet
+ZUSTANDSPROTOKOLL_POSITION ..> Zustandsstatus : verwendet
+
+@enduml

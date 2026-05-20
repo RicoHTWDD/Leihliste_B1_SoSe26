@@ -1,0 +1,78 @@
+@startuml
+
+
+title Logisches Datenmodell. Benutzer und Organisation
+left to right direction
+
+entity "ORGANISATION" as ORGANISATION {
+    name : string
+    organisationstyp : Organisationstyp
+    erstellt_am : datetime
+}
+
+entity "BENUTZER" as BENUTZER {
+    vollstaendiger_name : string
+    email : string
+    passwort_hash : string
+    telefonnummer : string
+    rolle : Benutzerrolle
+    kontostatus : Kontostatus
+    email_verifiziert_am : datetime
+    datenschutzerklaerung_akzeptiert_am : datetime
+    erstellt_am : datetime
+    aktualisiert_am : datetime
+    letzte_anmeldung_am : datetime
+}
+
+entity "BENUTZER_VERIFIZIERUNG" as BENUTZER_VERIFIZIERUNG {
+    methode : string
+    status : Verifizierungsstatus
+    gueltig_bis : datetime
+    verifiziert_am : datetime
+    erstellt_am : datetime
+}
+
+entity "AUTH_TOKEN" as AUTH_TOKEN {
+    token_typ : Tokentyp
+    token_hash : string
+    gueltig_bis : datetime
+    verwendet_am : datetime
+    erstellt_am : datetime
+}
+
+entity "BENACHRICHTIGUNG" as BENACHRICHTIGUNG {
+    benachrichtigungstyp : Benachrichtigungstyp
+    kanal : Benachrichtigungskanal
+    bezugsobjekt_typ : string
+    bezugsobjekt_referenz : string
+    nachricht : string
+    status : Benachrichtigungsstatus
+    erstellt_am : datetime
+    gesendet_am : datetime
+    gelesen_am : datetime
+}
+
+ORGANISATION "1" -- "0..*" BENUTZER : hat_benutzer
+
+BENUTZER "1" -- "0..*" BENUTZER_VERIFIZIERUNG : ist_betroffen
+BENUTZER "0..1" -- "0..*" BENUTZER_VERIFIZIERUNG : fuehrt_durch
+
+BENUTZER "1" -- "0..*" AUTH_TOKEN : erhaelt
+BENUTZER_VERIFIZIERUNG "0..1" -- "0..1" AUTH_TOKEN : nutzt_token
+
+BENUTZER "1" -- "0..*" BENACHRICHTIGUNG : erhaelt
+BENUTZER "0..1" -- "0..*" BENACHRICHTIGUNG : gesendet_von
+
+note right of BENUTZER
+Jeder Benutzer gehoert genau zu einer Organisation.
+Die Organisation kann aber auch noch keine Benutzer haben.
+
+Die Akzeptanz der Datenschutzerklärung wird am Benutzer gespeichert.
+end note
+
+note right of AUTH_TOKEN
+AUTH_TOKEN ist ein technisches Objekt,
+z. B. fuer E-Mail-Verifizierung oder Passwort-Zurücksetzen.
+end note
+
+@enduml

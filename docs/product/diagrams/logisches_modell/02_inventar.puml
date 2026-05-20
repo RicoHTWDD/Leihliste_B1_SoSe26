@@ -1,0 +1,90 @@
+@startuml
+
+
+title Logisches Datenmodell. Inventar
+left to right direction
+
+entity "ORGANISATION" as ORGANISATION {
+    name : string
+    organisationstyp : Organisationstyp
+    erstellt_am : datetime
+}
+
+entity "BENUTZER" as BENUTZER {
+    vollstaendiger_name : string
+    email : string
+    rolle : Benutzerrolle
+}
+
+entity "KATEGORIE" as KATEGORIE {
+    name : string
+    beschreibung : string
+}
+
+entity "STANDORT" as STANDORT {
+    name : string
+    beschreibung : string
+}
+
+entity "GEGENSTAND" as GEGENSTAND {
+    name : string
+    beschreibung : string
+    verwendungszweck_erforderlich : boolean
+    minimale_ausleihtage : int
+    maximale_ausleihtage : int
+    geplante_anzahl : int
+    ist_geloescht : boolean
+    erstellt_am : datetime
+    aktualisiert_am : datetime
+}
+
+entity "GEGENSTAND_BILD" as GEGENSTAND_BILD {
+    bild_url : string
+    beschriftung : string
+    anzeigereihenfolge : int
+    ist_hauptbild : boolean
+    hochgeladen_am : datetime
+}
+
+entity "GEGENSTAND_EINHEIT" as GEGENSTAND_EINHEIT {
+    inventarnummer : string
+    zustandsstatus : Zustandsstatus
+    verfuegbarkeitsstatus : Verfuegbarkeitsstatus
+    status_aktualisiert_am : datetime
+    erstellt_am : datetime
+}
+
+entity "GEGENSTAND_STATUS_HISTORIE" as GEGENSTAND_STATUS_HISTORIE {
+    alter_status : string
+    neuer_status : string
+    grund : string
+    geaendert_am : datetime
+}
+
+ORGANISATION "1" o-- "0..*" KATEGORIE : verwaltet
+ORGANISATION "1" o-- "0..*" STANDORT : verwaltet
+ORGANISATION "1" -- "0..*" GEGENSTAND : besitzt
+
+KATEGORIE "1" -- "0..*" GEGENSTAND : kategorisiert
+STANDORT "0..1" -- "0..*" GEGENSTAND : standard_standort
+
+GEGENSTAND "1" *-- "0..*" GEGENSTAND_BILD : hat_bilder
+BENUTZER "0..1" -- "0..*" GEGENSTAND_BILD : hochgeladen_von
+
+GEGENSTAND "1" *-- "1..*" GEGENSTAND_EINHEIT : besteht_aus
+STANDORT "1" -- "0..*" GEGENSTAND_EINHEIT : lagert
+
+GEGENSTAND_EINHEIT "1" -- "0..*" GEGENSTAND_STATUS_HISTORIE : hat_statusaenderungen
+BENUTZER "1" -- "0..*" GEGENSTAND_STATUS_HISTORIE : aendert_status
+
+note right of GEGENSTAND
+GEGENSTAND beschreibt den Typ,
+z. B. "Mikroskop".
+end note
+
+note right of GEGENSTAND_EINHEIT
+GEGENSTAND_EINHEIT beschreibt ein konkretes Exemplar,
+z. B. "Mikroskop #123".
+end note
+
+@enduml

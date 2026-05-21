@@ -170,7 +170,7 @@ sind in <<Architekturentscheidungen>> dokumentiert._
 | Datenbank
 | MariaDB - MySQL
 | auf Hochschulinfrastruktur verfügbar; Open-Source; performant; läuft gut auf allen Betriebssystemen;
-| ADR-003 (Julius, Review: )
+| ADR-003 (Julius, Review: Til)
 
 //| Authentifizierung
 //| [z. B. OAuth2 / Hochschul-SSO]
@@ -185,7 +185,7 @@ sind in <<Architekturentscheidungen>> dokumentiert._
 | CI/CD
 | GitHub Actions
 | Direkte Integration mit Repository; kostenlos für Studierende
-| ADR-005 (Julius, Review: )
+| ADR-005 (Julius, Review: Til)
 
 | Testing
 | pytest, playwright
@@ -200,22 +200,22 @@ sind in <<Architekturentscheidungen>> dokumentiert._
 | Cloud-Speicher
 | über Datenbank
 | ausreichend für die aktuelle Skalierung des Produkts
-| ADR-008 (Jevan, Review: )
+| ADR-008 (Jevan, Review: Lidia)
 
 | QR-Code
 | Python (qrcode, tkinter - Bibliotheken)
 | automatisierte Generierung zum  labeln von Ausleihobjekten
-| ADR-009 (Jevan, Review: )
+| ADR-009 (Jevan, Review: Lidia)
 
 | Reverse-Proxy
 | nginx
 | SSL-Terminierung; Load-Balancing; Caching
-| ADR-010 (Rico, Review: )
+| ADR-010 (Rico, Review: Jevan)
 
 | Client
 | PWA (Progressive Web App)
 | läuft im Browser; kann wie eine native App installiert werden
-| ADR-011 (Rico, Review: )
+| ADR-011 (Rico, Review: Jevan)
 
 //|Monitioring?; Cloudflare? -> Datenschutz
 |===

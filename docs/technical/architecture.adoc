@@ -39,23 +39,23 @@ _Der Systemkontext zeigt das System als Ganzes in seiner Umgebung: welche extern
 
 LAYOUT_WITH_LEGEND()
 
-title System Context Diagram – [Systemname]
+title System Context Diagram – [Leihliste]
 
-Person(user, "Nutzer:in", "Verwendet das System über Web oder Mobile")
+Person(user, "Nutzer:in", "Verleiher/Ausleiher - Verwendet das System über Web oder Mobile")
 Person(admin, "Administrator:in", "Verwaltet und konfiguriert das System")
 
-System(system, "[Systemname]", "Kernfunktionalität des Systems")
+System(system, "[Leihliste]", "Kerfunktionalitäten des Systems")
 
-SystemDb(db, "Datenbank", "Persistente Datenhaltung des Systems")
-
-System_Ext(ext1, "Externer Dienst\n[z. B. LDAP / SSO]", "Authentifizierung und Identitätsverwaltung")
-System_Ext(ext2, "Externer Dienst\n[z. B. E-Mail-Server]", "Versand von Benachrichtigungen")
+System_Ext(ext1, "Externer Dienst\n[z.B. Cloud-Speicher]", "NextCloud, HTW-Dateisystem - speichert Dokumente und Bilder")
+System_Ext(ext2, "Externer Dienst\n[z. B. E-Mail-Server]", "Brevo, MailJet - Versand von Benachrichtigungen")
+/'System_Ext(ext3, "Externer Dienst\n[z.B. Kalender-API]", "Google-Kalender - Reservierungen/Ausleihen in Nutzer-Kalender exportieren")'/
+/'System_Ext(ext, "Externer Dienst\n[z. B. LDAP / SSO]", "über Hochschule - Authentifizierung und Identitätsverwaltung")'/
 
 Rel(user, system, "nutzt", "Web / Mobile")
 Rel(admin, system, "verwaltet")
-Rel(system, db, "liest / schreibt", "JDBC / SQL")
-Rel(system, ext1, "authentifiziert über", "LDAP / OAuth2")
+Rel(system, ext1, "lädt Fotos & Dokumente hoch/herunter", "WebDAV / HTTPS / S3-API")
 Rel(system, ext2, "sendet Benachrichtigungen über", "SMTP")
+'Rel(api, ext3, "exportiert Termine/Buchungen", "iCal/RestAPI")
 
 @enduml
 ....
@@ -69,44 +69,74 @@ Die interne Struktur des Systems ist im Designdokument beschrieben.
 |===
 | Schnittstelle | Typ | Beschreibung | Protokoll / Format
 
-| [z. B. Hochschul-LDAP]
-| Externes System
-| Authentifizierung und Nutzerverwaltung über bestehende Hochschulinfrastruktur
-| LDAP / TLS
+//|[z. B. Hochschul-LDAP]
+//| Externes System
+//| Authentifizierung und Nutzerverwaltung über bestehende Hochschulinfrastruktur
+//| LDAP / TLS
 
-| [z. B. SMTP-Server]
+| SMTP-Server
 | Externes System
 | Versand von Benachrichtigungs-E-Mails an Nutzende
 | SMTP / TLS
 
-| [z. B. Nutzer:in via Browser]
+| Nutzer:in via Browser/Webapplikation
 | Menschlicher Akteur
 | Zugriff über Web-Oberfläche
 | HTTPS / REST
 
-| [Weitere Schnittstelle]
-| [Typ]
-| [Beschreibung]
-| [Protokoll]
+| Cloud-Server
+| Externes System
+| Speicherung von Protokollen, Bildern und Dokumenten (z.B. NextCloud)
+| WebDAV / HTTPS
 |===
 
 === Laufzeitumgebungen (Container Diagramm)
 //Level 2 im C4-Modell
 Diese Sicht gibt an, welche Umgebungen für den Code vorgesehen sind, z.B. JVM, Node.js, DBMS, Browser, Android Runtime.
 
-[plantuml, "{diagramsdir}/runtime-environment", svg]
+[plantuml, "{diagramsdir}/system-context", svg]
 ....
 @startuml
 ' source: https://github.com/plantuml-stdlib/C4-PlantUML
 ' C4 Model
+!include <c4/C4_Context.puml>
+
+' Images
+!include <office/Users/user.puml>
+!include <office/Users/mobile_user.puml>^
 !include <c4/C4_Container.puml>
 
-Person(personAlias, "Label", "Optional Description")
+LAYOUT_WITH_LEGEND()
 
-System_Boundary(c1, "Sample System") {
-    Container(containerAlias, "Container Name", "Technology", "Optional Description")
+skinparam rectangle {
+  BackgroundColor White
+  BorderColor Black
+  BorderStyle dashed
 }
-Rel(personAlias, containerAlias, "Label", "Optional Technology")
+
+title  Container Diagram – [Leihliste]
+
+Person(user, "Nutzer:in", "Verleiher/Ausleiher - Verwendet das System über Web oder Mobile")
+Person(admin, "Administrator:in", "Verwaltet und konfiguriert das System")
+
+rectangle "Leihliste\n<<System>>" as system {
+  Container(web, "Web-Frontend", "React - UI für Suche, Reservierung, Ausleihe")
+  Container(api, "Backend API", "Domänenmodule")
+  ContainerDb(db, "Datenbank", "MariaDB, MySQL - Persistente Datenhaltung des Systems")
+  }
+
+System_Ext(ext1, "Externer Dienst\n[z.B. Cloud-Speicher]", "NextCloud, HTW-Dateisystem - speichert Dokumente und Bilder")
+System_Ext(ext2, "Externer Dienst\n[z. B. E-Mail-Server]", "Brevo, MailJet - Versand von Benachrichtigungen")
+/'System_Ext(ext3, "Externer Dienst\n[z.B. Kalender-API]", "Google-Kalender - Reservierungen/Ausleihen in Nutzer-Kalender exportieren")'/
+/'System_Ext(ext, "Externer Dienst\n[z. B. LDAP / SSO]", "über Hochschule - Authentifizierung und Identitätsverwaltung")'/
+
+Rel(user, web, "nutzt", "Web / Mobile")
+Rel(admin, web, "verwaltet")
+Rel(web, api, "ruft auf", "JSON/HTTPS")
+Rel(api, db, "liest/schreibt", "SQL")
+Rel(api, ext1, "lädt Fotos & Dokumente hoch/herunter", "WebDAV / HTTPS")
+Rel(api, ext2, "sendet Benachrichtigungen über", "SMTP")
+'Rel(api, ext3, "exportiert Termine/Buchungen", "iCal/RestAPI")
 
 @enduml
 ....
@@ -128,39 +158,66 @@ sind in <<Architekturentscheidungen>> dokumentiert._
 | Bereich | Technologie | Begründung | Entscheidung
 
 | Frontend
-| [z. B. React 18]
-| [z. B. Teamkenntnisse; große Community; Komponentenmodell]
+| React 19.2.3;
+| weit verbreitet und performant; große Community; Komponentenmodell; Skalierbar; bietet viele Vorlagen
 | [z. B. ADR-002]
 
 | Backend
-| [z. B. Spring Boot 3]
-| [z. B. Vorgabe im Studiengang; gute Dokumentation]
+| Django / FastAPI
+| FastAPI -> Geschwindigkeit; automatische Dokumentation; schnelle Fehlersuche; Django -> viele Komponenten für Schnittstellen; integrierter Schutz vor Web-Schwachstellen; Einfachheit; größere Community als FastAPI -> bessere Lösungsfindung online
 | [z. B. ADR-001]
 
 | Datenbank
-| [z. B. PostgreSQL 15]
-| [z. B. Relationales Modell passend; auf Hochschulinfrastruktur verfügbar]
+| MariaDB - MySQL
+| auf Hochschulinfrastruktur verfügbar; Open-Source; performant; läuft gut auf allen Betriebssystemen;
 | [z. B. ADR-003]
 
-| Authentifizierung
-| [z. B. OAuth2 / Hochschul-SSO]
-| [z. B. Pflichtintegration; kein eigenes Nutzermanagement nötig]
-| [z. B. ADR-004]
+//| Authentifizierung
+//| [z. B. OAuth2 / Hochschul-SSO]
+//| [z. B. Pflichtintegration; kein eigenes Nutzermanagement nötig]
+//| [z. B. ADR-004]
 
-| Containerisierung
-| [z. B. Docker / Docker Compose]
+| Containerisierung?   -> Adrian fragen
+| Docker Compose
 | [z. B. Reproduzierbare Umgebung für alle Teammitglieder]
 | [z. B. ADR-005]
 
 | CI/CD
-| [z. B. GitHub Actions]
-| [z. B. Direkte Integration mit Repository; kostenlos für Studierende]
+| GitHub Actions
+| Direkte Integration mit Repository; kostenlos für Studierende
 | [z. B. ADR-006]
 
-| [Weiterer Bereich]
-| [Technologie]
-| [Begründung]
+| Testing
+| pytest, playwright
+| automatisierte Überprüfbarkeit von Kernfunktionalitäten (UI, Kernlogik, Wartbarkeit)
+| [ADR]
+
+| Email/Broadcast
+| SMTP über Brevo/MailJet
+| Versand von Registrierungs-, Bestätigungs- und Erinnerungs-E-Mails ohne Betrieb eines eigenen Mailservers; geringerer Implementierungs- und Wartungsaufwand;
 | [ADR-Referenz oder —]
+
+| Cloud-Speicher
+| über Datenbank
+| ausreichend für die aktuelle Skalierung des Produkts
+| [ADR]
+
+| QR-Code
+| Python (qrcode, tkinter - Bibliotheken)
+| automatisierte Generierung zum  labeln von Ausleihobjekten
+| [ADR]
+
+| Reverse-Proxy
+| nginx
+| SSL-Terminierung; Load-Balancing; Caching
+| [ADR]
+
+| Client
+| PWA (Progressive Web App)
+| läuft im Browser; kann wie eine native App installiert werden
+| [ADR]
+
+//|Monitioring?; Cloudflare? -> Datenschutz
 |===
 
 == Architekturrelevante Anforderungen

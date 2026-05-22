@@ -305,32 +305,39 @@ gehören nicht hierher._
 NOTE: ADRs werden nicht gelöscht oder überschrieben — sie werden als
 „ersetzt durch ADR-XXX" markiert. So bleibt die Entscheidungshistorie nachvollziehbar.
 
-=== ADR-001: [Titel der Entscheidung]
+=== ADR-001: [Verwendung von React für das Frontend]
 
 [cols="1,3"]
 |===
 | *Status*
-| [Vorgeschlagen \| Akzeptiert \| Abgelehnt \| Ersetzt durch ADR-XXX]
+| Vorgeschlagen
 
 | *Datum*
-| [Datum]
+| 22.05.2026
 
 | *Kontext*
-| [Warum musste diese Entscheidung getroffen werden?
-  Welches Problem oder welche Anforderung hat sie ausgelöst?
-  Verweise auf Qualitätsziele oder Einschränkungen aus dem Produktkonzept falls relevant.]
+| LeihListe benötigt eine moderne, gut bedienbare Weboberfläche (Frontend) für unterschiedliche Nutzungsszenarien. Nutzer sollen zentrale Funktionen wie Suche, Verfügbarkeitsprüfung, Ausleihe und Rückgabe effizient ausführen können. Daraus ergeben sich Anforderungen an Benutzbarkeit, mobile Nutzbarkeit, kurze Ladezeiten und eine wartbare UI-Struktur. Die Anwendung soll für verschiedene Nutzergruppen einsetzbar sein. Deshalb muss das Frontend flexibel genug sein, um unterschiedliche Rollen, Ansichten und Workflows abzubilden. Zusätzlich soll die Oberfläche später als Progressive Web App nutzbar sein.
 
 | *Entscheidung*
-| [Was wurde entschieden? Formuliere die Entscheidung als aktiven Satz:
-  „Wir verwenden X, weil..."]
+| Wir verwenden React 19.2.3 für das Frontend, weil React ein etabliertes Komponentenmodell bietet und die Entwicklung wiederverwendbarer, wartbarer und skalierbarer Benutzeroberflächen unterstützt. Dadurch können zentrale Elemente wie Inventarlisten, Such- und Filterfunktionen, Ausleihformulare, Statusanzeigen und rollenabhängige Ansichten strukturiert umgesetzt werden.
+
+React ist weit verbreitet, besitzt eine große Community und bietet viele Vorlagen, Bibliotheken und Hilfsmittel für die Entwicklung moderner Webanwendungen. Außerdem lässt sich React gut mit responsiven Layouts und Progressive-Web-App-Konzepten kombinieren, wodurch die spätere mobile Nutzung von LeihListe unterstützt wird.
 
 | *Alternativen*
-| [Welche Alternativen wurden in Betracht gezogen und warum verworfen?]
+| Eine Alternative wäre Vue.js. Vue bietet ebenfalls ein komponentenbasiertes Frontend-Modell und wäre für LeihListe grundsätzlich geeignet. Gegen Vue spricht, dass React weiter verbreitet ist, ein größeres Ökosystem besitzt und mehr Vorlagen, Bibliotheken und Hilfsmittel für moderne Webanwendungen bietet.
+
+Eine weitere Alternative wäre eine serverseitig gerenderte Oberfläche mit Django Templates. Diese Lösung würde gut zu einem Python-Backend passen und wäre für einfache Verwaltungsseiten ausreichend. Gegen diese Alternative spricht jedoch, dass dynamische Oberflächen mit vielen Zuständen, Filtern, Verfügbarkeitsprüfungen und rollenabhängigen Ansichten mit React flexibler und übersichtlicher umgesetzt werden können.
 
 | *Konsequenzen*
-| [Was wird durch diese Entscheidung einfacher? Was wird schwieriger oder teurer?
-  Welche neuen Risiken entstehen?]
+| Durch die Entscheidung für React wird die Entwicklung einer modularen und wiederverwendbaren Benutzeroberfläche erleichtert. Komponenten für Inventarlisten, Such- und Filterfunktionen, Ausleihformulare, Statusanzeigen und rollenabhängige Ansichten können mehrfach verwendet und einheitlich gestaltet werden.
+
+Die Trennung zwischen React-Frontend und Python-Backend unterstützt eine klare Aufgabenverteilung im System. Das Frontend ist für die Darstellung und Benutzerinteraktion zuständig, während das Backend die Geschäftslogik, Datenhaltung und Schnittstellen bereitstellt.
+
+Die Entscheidung erleichtert außerdem die spätere mobile Nutzung, da React gut mit responsiven Layouts und app-ähnlichen Weboberflächen kombiniert werden kann. Dadurch kann LeihListe perspektivisch auf Desktop-Geräten, Tablets und Smartphones genutzt werden.
+
+Gleichzeitig entsteht zusätzlicher technischer Aufwand, da ein separates Frontend-Projekt mit Build-Prozess, Paketverwaltung und API-Kommunikation gepflegt werden muss. Außerdem müssen Abhängigkeiten regelmäßig aktualisiert werden, um Sicherheitsrisiken und Versionskonflikte zu vermeiden.
 |===
+
 
 === ADR-002: [Titel der Entscheidung]
 

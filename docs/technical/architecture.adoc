@@ -236,7 +236,7 @@ diesen Anforderungen ergeben, und verweist auf die zugehörigen Entscheidungen.
 
 | Benutzbarkeit
 | intuitive, barrierefreie (einfache) Nutzeroberfläche; Skalierbarkeit der UI für verschiedene Inventargrößen; Individualisierbarkeit; Vorschlag Umsetzung mit React (JS-Framework); Web + Desktopansicht -> 3 Formate im Design für verschiedene Nutzungsszenarien; 
-| To-Do
+| ggf. ADR-001, 
 
 | Verfügbarkeit ≥ 99 % während Betriebszeiten
 | Server muss konstant laufen bzw erreichbar sein-> Inwiefern beeinflussen die HTW-Serverwartungen den Proxy-Server?; Fallback-Server? -> Macht das in unserem Rahmen Sinn?; verbreitete Programmiersprache verwenden um allgemeine Verfügbarkeit zu garantieren; Ausfälle und kleinere Fehler werden automatisch erkannt und behoben; fehlertolerante Verarbeitung; Grundfunktionalität bleibt dauerhaft erhalten; Statusüberwachung;
@@ -244,7 +244,7 @@ diesen Anforderungen ergeben, und verweist auf die zugehörigen Entscheidungen.
 
 | Performanceziel: Seitenladezeit < 2 s
 | Python nicht das performanteste -> an Schnittstellen spezialisierte Bibliotheken einbeziehen; Ladezeiten von Daten aus Datenbank optimieren bspw. durch Verwendung von Maria-DB und man bräuchte performante Abfragen; keine vollständige Vorabladung großer Inventarlisten oder Bilder; serverseitige Suche/Filterung mit Pagination
-| To-Do
+| ADR-010, ggf. ADR-001, 
 
 | Max. 5 Interaktionen für Standardausleihe
 | Minimalistische Ausleihoberfläche (Effizienz); Eingaben können gespeichert werden und als Nutzer-Standard vorausgefüllt; möglichst wenige Masken; rollenabhängige UI - Wichtigste Kernfunktionen werden direkt angezeigt;
@@ -257,11 +257,11 @@ diesen Anforderungen ergeben, und verweist auf die zugehörigen Entscheidungen.
 
 | Betrieb auf Hochschulinfrastruktur
 | Keine Cloud-only-Dienste; Containerisierung für Portabilität erforderlich
-| To-Do
+| ggf. ADR-010, 
 
 | Cybersecurity
 | sicherer Code -> Schutz vor Datenmanipulation, Diebstahl; Strikte Eingabeüberprüfung; Principle of Least Privilege;
-| To-Do
+| ADR-010, 
 
 | Infrastrukturvorgaben
 | Rücksprache mit Herr Ringel bzw. Zirkelbach bezüglich der Kompatibilität mit Server;
@@ -269,7 +269,7 @@ diesen Anforderungen ergeben, und verweist auf die zugehörigen Entscheidungen.
 
 | Skalierbarkeit
 | Technologieauswahl muss Wachstum ohne grundlegenden Architekturwechsel ermöglichen;
-| To-Do
+| ADR-010, 
 
 | Datenkonsistenz
 | Statuszeile in Datenbank wo der Objektstatus dokumentiert und ausgelesen wird; Race Conditions (Speicherkonflikte) vermeiden;
@@ -277,7 +277,7 @@ diesen Anforderungen ergeben, und verweist auf die zugehörigen Entscheidungen.
 
 | mobile Nutzbarkeit
 | touchfreundliche Bedienung; optimierte Darstellung bei variierender Bildschirmgröße; Nutzung von Browserfunktionen;
-| To-Do
+| ADR-011, 
 
 | Rollenmodell
 | Admin -> Alle Rechte; Verleiher -> Lese- und Bearbeitungsrechte an eigenen Ausleihobjekten sowie Genehmigung von Anfragen; Ausleiher -> Leserechte auf das Inventar und eingeschränkte Schreibrechte zur Erstellung eigener Buchungsanfragen;
@@ -289,7 +289,7 @@ diesen Anforderungen ergeben, und verweist auf die zugehörigen Entscheidungen.
 
 | Nutzungskontexte
 | Unterscheidung bei Ausleiher und Verleiher über Abfrage was diese tun wollen -> Risiko dass sehr viele Nutzerkonten erstellt werden?; Module? Freundessystem? Lobbies?;
-| To-Do
+| ggf. ADR-011, 
 |===
 
 == Architekturentscheidungen
@@ -323,6 +323,8 @@ NOTE: ADRs werden nicht gelöscht oder überschrieben — sie werden als
 
 React ist weit verbreitet, besitzt eine große Community und bietet viele Vorlagen, Bibliotheken und Hilfsmittel für die Entwicklung moderner Webanwendungen. Außerdem lässt sich React gut mit responsiven Layouts und app-ähnlichen Weboberflächen kombinieren, wodurch die spätere mobile Nutzung von LeihListe unterstützt wird.
 
+React unterstützt das Qualitätsziel Benutzbarkeit durch sein deklaratives Komponentenmodell, das konsistente UI-Elemente ermöglicht. Zudem trägt es zum Performanceziel (Seitenladezeit < 2s) bei, da React effiziente DOM-Updates durchführt."
+
 | *Alternativen*
 | Eine Alternative wäre Vue.js. Vue bietet ebenfalls ein komponentenbasiertes Frontend-Modell und wäre für LeihListe grundsätzlich geeignet. Gegen Vue spricht, dass React weiter verbreitet ist, ein größeres Ökosystem besitzt und mehr Vorlagen, Bibliotheken und Hilfsmittel für moderne Webanwendungen bietet.
 
@@ -354,7 +356,7 @@ Gleichzeitig entsteht zusätzlicher technischer Aufwand, da ein separates Fronte
 Da viele Funktionen wie Benutzerverwaltung, Rechteverwaltung, Datenbankzugriff und Verwaltungsoberflächen benötigt werden, soll ein Backend-Framework verwendet werden, das diese Grundfunktionen möglichst zuverlässig unterstützt.
 
 | *Entscheidung*
-| Wir verwenden Django für das Backend, weil Django viele zentrale Funktionen für Webanwendungen bereits mitbringt. Dazu gehören unter anderem Benutzerverwaltung, Rechte- und Rollenkonzepte, Datenbankanbindung über ein ORM (Schicht zwischen dem Programmcode und der Datenbank) sowie Schutzmechanismen gegen typische Web-Schwachstellen.
+| Wir verwenden Django für das Backend, weil Django viele zentrale Funktionen für Webanwendungen bereits mitbringt. Dazu gehören unter anderem Benutzerverwaltung, Rechte- und Rollenkonzepte, Datenbankanbindung über ein ORM (Object-Relational Mapping: Schicht zwischen dem Programmcode und der Datenbank) sowie Schutzmechanismen gegen typische Web-Schwachstellen.
 
 Für die Kommunikation mit dem React-Frontend wird Django durch Django REST Framework ergänzt. Dadurch kann das Backend eine REST-API bereitstellen, über die das Frontend Inventardaten, Ausleihen, Reservierungen und Nutzerinformationen abrufen oder ändern kann.
 
@@ -589,58 +591,117 @@ gut: das Scannen und Lesen funktioniert direkt über Brwoser
 schwierig: Datentransfer zwsichen Frontend und Backend und entsprechende Kodierung]
 |===
 
-=== ADR-010: [Titel der Entscheidung]
+=== ADR-010: Einsatz von nginx als Reverse-Proxy
 
 [cols="1,3"]
 |===
 | *Status*
-| [Vorgeschlagen \| Akzeptiert \| Abgelehnt \| Ersetzt durch ADR-XXX]
+| Vorgeschlagen
 
 | *Datum*
-| [Datum]
+| 23.05.2026
 
 | *Kontext*
-| [Warum musste diese Entscheidung getroffen werden?
-  Welches Problem oder welche Anforderung hat sie ausgelöst?
-  Verweise auf Qualitätsziele oder Einschränkungen aus dem Produktkonzept falls relevant.]
+| Das System benötigt eine stabile und sichere Schnittstelle zwischen dem Frontend (React) und Backend (Django), um: +
+- HTTPS-Verschlüsselung für alle Kommunikationen zu erzwingen (Qualitätsziel: Cybersecurity) +
+- Lastverteilung bei mehreren Backend-Instanzen zu ermöglichen (Skalierbarkeit) +
+- Statische Dateien (z. B. React-Build) effizient auszuliefern (Performanceziel: Seitenladezeit < 2s) +
+
+Die Entscheidung setzt voraus, dass nginx auf der Hochschulinfrastruktur betrieben werden kann.
+
+Ohne Reverse-Proxy müssten diese Aufgaben entweder vom Backend-Framework übernommen werden (was dessen Komplexität erhöht) oder entfallen (was die Performance und Sicherheit beeinträchtigt).
 
 | *Entscheidung*
-| [Was wurde entschieden? Formuliere die Entscheidung als aktiven Satz:
-  „Wir verwenden X, weil..."]
+| Wir verwenden *nginx* als Reverse-Proxy, weil es: +
+- eine etablierte, performante und ressourcenschonende Lösung ist +
+- SSL/TLS-Terminierung nativ unterstützt (Vereinfachung der Zertifikatsverwaltung)
+- Statische Dateien direkt ausliefern kann (Reduktion der Backend-Last) *
+- einfache Konfiguration für Routing, Caching und Load-Balancing bietet
 
 | *Alternativen*
-| [Welche Alternativen wurden in Betracht gezogen und warum verworfen?]
+| *Apache httpd:* Ausgereifter Webserver mit Reverse-Proxy-Funktionalität. Verworfen, weil nginx bei vergleichbarer Funktionalität weniger Ressourcen verbraucht und einfacher zu konfigurieren ist.
+
+*Direkte Integration im Backend* (z. B. Django mit WhiteNoise): Statische Dateien werden direkt vom Backend ausgeliefert. Verworfen, weil dies die Performance beeinträchtigt (kein Caching, keine Lastverteilung) und keine SSL-Terminierung bietet.
 
 | *Konsequenzen*
-| [Was wird durch diese Entscheidung einfacher? Was wird schwieriger oder teurer?
-  Welche neuen Risiken entstehen?]
+|*Positiv:* +
+- Zentrale SSL/TLS-Verwaltung vereinfacht die Zertifikatsrotation +
+- Statische Dateien werden schneller ausgeliefert (geringere Latenz für Nutzende) +
+- Backend-Instanzen werden entlastet (Skalierbarkeit) +
+
+*Negativ:* +
+- Zusätzliche Komponente im Deployment erhöht die Komplexität des Setups +
+- Fehlkonfigurationen können zu Sicherheitslücken führen (z. B. offene Ports) +
+- Monitoring des nginx muss separat eingerichtet werden (z. B. Log-Analyse) -
+
+*Risiken:* +
+- Single Point of Failure: Bei Ausfall des nginx ist das gesamte System nicht erreichbar +
+- Maßnahme: Hochverfügbarkeits-Setup mit mehreren nginx-Instanzen +
+
+- Performance-Engpässe bei sehr hohem Traffic +
+- Maßnahme: Lasttests in späterem Sprint durchführen und ggf. Caching einrichten / optimieren
+
 |===
 
-=== ADR-011: [Titel der Entscheidung]
+=== ADR-011: Progressive Web App (PWA) als Client-Technologie
 
 [cols="1,3"]
 |===
 | *Status*
-| [Vorgeschlagen \| Akzeptiert \| Abgelehnt \| Ersetzt durch ADR-XXX]
+| Vorgeschlagen
 
 | *Datum*
-| [Datum]
+| 23.05.2026
 
 | *Kontext*
-| [Warum musste diese Entscheidung getroffen werden?
-  Welches Problem oder welche Anforderung hat sie ausgelöst?
-  Verweise auf Qualitätsziele oder Einschränkungen aus dem Produktkonzept falls relevant.]
+|Das System muss auf verschiedenen Endgeräten nutzbar sein (Qualitätsziel: Mobile Benutzbarkeit), insbesondere: +
+- Smartphones (z.B. für Ausleiher unterwegs) +
+- Desktops (z.B. für Verleiher und Admins) +
+- Tablets (z.B. für Check-in/Check-out-Prozesse) +
+Zudem soll die Nutzung ohne App-Store-Installation möglich sein (Einschränkung: Projektlaufzeit), um die Hürde für neue Nutzende zu senken. 
+
+*Offene Frage*: Sollen Offline-Funktionalitäten und Push-Benachrichtigungen unterstützt werden? (Falls ja sind auskommentierte Ergänzungen vorhanden.)
+
+
+// Gleichzeitig sollen Offline-Funktionalitäten (z. B. Anzeige der eigenen Ausleihen) und Push-Benachrichtigungen unterstützt werden.
 
 | *Entscheidung*
-| [Was wurde entschieden? Formuliere die Entscheidung als aktiven Satz:
-  „Wir verwenden X, weil..."]
+| Wir implementieren das Frontend als Progressive Web App (PWA), weil es: +
+- plattformunabhängig läuft (Browser-basiert, keine native App-Entwicklung nötig) +
+- wie eine native App installierbar ist (z. B. auf dem Homescreen) +
+// - Offline-Funktionalitäten unterstützt (z. B. Caching von Inventardaten) +
+// - Push-Benachrichtigungen ermöglicht (z. B. für Rückgabeerinnerungen) +
+- keine App-Store-Veröffentlichung erfordert (geringerer Aufwand) +
+- auf React aufbaut
 
 | *Alternativen*
-| [Welche Alternativen wurden in Betracht gezogen und warum verworfen?]
+| *Native Apps (Android/iOS):* Volle Integration mit Gerätefunktionen (z. B. Kamera für QR-Code-Scanning). Verworfen, weil der Entwicklungsaufwand für mehrere Plattformen die Projektlaufzeit und Team-Kompetenzen überschreitet, da die Veröffentlichung im App Store mit hohen Hürden verbunden sind.
+
+*Responsive Web App (ohne PWA-Features):* Läuft im Browser. Verworfen, weil ohne Installationsoption.
 
 | *Konsequenzen*
-| [Was wird durch diese Entscheidung einfacher? Was wird schwieriger oder teurer?
-  Welche neuen Risiken entstehen?]
+| *Positiv:* +
+- Geringerer Entwicklungsaufwand im Vergleich zu nativen Apps (ein Codebase für alle Plattformen) +
+- Nutzende können die App direkt aus dem Browser installieren (kein App-Store nötig) +
+// - Offline-Zugriff auf häufig genutzte Daten (z. B. eigene Ausleihen) verbessert die Benutzerfreundlichkeit +
+- Push-Benachrichtigungen erhöhen die Zuverlässigkeit (z. B. Rückgabeerinnerungen) +
+- geringere Wartungskosten (keine separaten App-Versionen) +
+
+*Negativ:* +
+- Begrenzte Integration mit Gerätefunktionen (z. B. Kamera nur über Browser-APIs) +
+- Performance kann auf älteren Geräten schlechter sein als bei nativen Apps +
+- Browser-Kompatibilität muss getestet werden (z. B. Safari vs. Chrome) +
+
+*Risiken:* +
+// - Offline-Funktionalitäten erfordern komplexes Caching (z. B. Service Worker) +
+// - Maßnahme: Priorisierung der wichtigsten Offline-Features (z. B. Anzeige der eigenen Ausleihen) und schrittweise Implementierung +
+//
+// - Push-Benachrichtigungen funktionieren nicht in allen Browsern +
+// - Maßnahme: Fallback auf  E-Mail-Benachrichtigungen für nicunht unterstützte Browser
+//
+- Installationshürde: Nutzer:innen müssen die PWA manuell installieren +
+- Maßnahme: Klare Anleitung im Onboarding-Flow (z. B. "App zum Homescreen hinzufügen") 
+
 |===
 
 === ADR-012: [Titel der Entscheidung]

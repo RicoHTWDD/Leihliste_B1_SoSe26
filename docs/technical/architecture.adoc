@@ -371,7 +371,7 @@ Die Entscheidung unterstützt außerdem die Wartbarkeit, da Django eine klare Pr
 Gleichzeitig entsteht eine gewisse Abhängigkeit vom Django-Ökosystem. Außerdem muss die REST-Schnittstelle zum React-Frontend sauber entworfen werden, damit Frontend und Backend klar getrennt und langfristig wartbar bleiben.
 |===
 
-=== ADR-003: Datenbankschnittstelle
+=== ADR-003: Datenbankschnittstelle via. MariaDB
 
 [cols="1,3"]
 |===
@@ -382,19 +382,36 @@ Gleichzeitig entsteht eine gewisse Abhängigkeit vom Django-Ökosystem. Außerde
 | 23.05.2026
 
 | *Kontext*
-| [Warum musste diese Entscheidung getroffen werden?
-  Welches Problem oder welche Anforderung hat sie ausgelöst?
-  Verweise auf Qualitätsziele oder Einschränkungen aus dem Produktkonzept falls relevant.]
+| Im Rahmen des Projekts Leihliste haben wir uns darauf festgelegt eine Datenbank als Speicher für verschiedene Daten zu verwenden. Dies ist relevant, da wir im Rahmen des Projekts zahlreiche Daten von Ausleihen, Nutzern und anderen Ressourcen speichern, bearbeiten, verarbeiten und strukturieren müssen. Diese sollte einfach einzurichten und gut dokumentiert sein mit niedriger Einstiegshürde für den Fall, dass man nicht auf bekannte Datenbanksysteme zurückgreift. Es handelt sich weiterhin um ein Projekt in kleinem Rahmen ohne große monitäre Unterstützung, weshalb wir versuchen die beste kostenlose Basis zu finden. Außerdem besitzen alle Beteiligten durch die Datenbanksysteme-Kurse Vorkenntnisse bezüglich SQL, obwohl es natürlich auch hier wieder verschiedene "SQL-Dialekte" gibt und man sich als Team einarbeiten muss in die jeweilig verwendete Datenbank. Die Verwendung einer Datenbank hilft hier insbesondere bei Nutzerrollen, denen man verschiedene Berechtigungen zuordnet, dem Mehrnutzerprinzip und der Datenkonsistenz.
 
 | *Entscheidung*
-| Wir verwenden MariaDB und damit einhergehend MySQL, weil...
+| Wir verwenden MariaDB und damit einhergehend MySQL, weil dies eben beschriebene Anforderungen wie gute Dokumentation, Open-Source, Lizenzkostenfreiheit und auch für unser Projekt, welches eine Webanwendung werden soll, etabliert ist. Dementsprechend wird man zu auftauchenden Problemen in Nutzerforen genug Informationen finden um diese zu beheben. Des Weiteren [läuft diese gut auf der Hochschulumgebung (ungewiss)] und eignet sich auf für den Projektumfang hervorragend.
 
 | *Alternativen*
-| [Welche Alternativen wurden in Betracht gezogen und warum verworfen?]
+| Mögliche Alternativen:
+PostgreSQL ist eine gute und größer aufsetzbare Alternative, die aber komplizierter ist als MariaDB und vorerst der Einfachheit halber abgelehnt wurde.
+SQLite ist eine sehr einfach Datenbank, die jedoch eingeschränkt skalierbar ist und auch die Mehrbenuztung limitiert.
+MongoDB wäre eine nicht relationale Option gewesen, jedoch sind die Teamkenntnise stark beschränkt auf diesem Bereich und dementsprechend hätte man potenzielle Einarbeitungsprobleme und höheren Zeitaufwand als ohnehin schon.
+Microsoft SQL Server ist die Datenbanksoftware die wir bis dato auch in der Universität verwendet haben, jedoch ist die Standardversion kostenpflichtig (es sei denn man könnte dies über die Hochschule lösen).
 
 | *Konsequenzen*
-| [Was wird durch diese Entscheidung einfacher? Was wird schwieriger oder teurer?
-  Welche neuen Risiken entstehen?]
+| Was wird einfacher?
+
+Die Nutzung von MariaDB als verbreitetes Open-Source-Datenbanksystem sorgt für eine geringe Einstiegshürde dank existierender Teamkenntnisse im Bereich SQL und einer umfangreichen Community.
+Das Lizenzkostenrisiko entfällt; die Lösung bleibt für das Projekt und zukünftige Erweiterungen kostenlos.
+Gute Dokumentation und zahlreiche Online-Ressourcen ermöglichen schnelle Problemlösungen im Team.
+Die Implementierung von Nutzerrollen, Mehrbenutzerbetrieb und Datenkonsistenz wird durch die relationale Struktur erleichtert.
+Das System ist leicht in typische Hochschul- und Webanwendungs-Infrastrukturen integrierbar.
+Was wird schwieriger oder teurer?
+
+Installation, Betrieb und Wartung der Datenbank erfordern Grundkenntnisse in Administration, Datensicherung sowie Zugriffsschutz.
+Die Unterschiede im SQL-Dialekt im Vergleich zu anderen Systemen (z. B. Microsoft SQL Server) können zu zusätzlichem Einarbeitungsaufwand und Fehlerquellen führen.
+Bei Änderungen oder einem späteren Technologiewechsel kann ein Migrationsaufwand entstehen, da die Anwendung auf MariaDB ausgerichtet ist.
+Neue Risiken:
+
+Fehlerhafte Konfiguration oder unzureichende Absicherung der Datenbank bergen Risiken hinsichtlich Datensicherheit (z. B. Benutzerrechte, Zugriffsmanagement, Backups).
+Abhängigkeit vom gewählten System: Bei spezifischen Erweiterungen oder bei wachsendem Projektumfang könnten spätere Limitationen auftreten, die einen Wechsel erschweren.
+Teamweite Umstellung auf MariaDB kann, trotz SQL-Vorkenntnissen, temporär zu kleinen Anpassungsproblemen führen.
 |===
 
 === ADR-004: [Titel der Entscheidung]
@@ -435,19 +452,37 @@ Gleichzeitig entsteht eine gewisse Abhängigkeit vom Django-Ökosystem. Außerde
 | 23.05.2026
 
 | *Kontext*
-| [Warum musste diese Entscheidung getroffen werden?
-  Welches Problem oder welche Anforderung hat sie ausgelöst?
-  Verweise auf Qualitätsziele oder Einschränkungen aus dem Produktkonzept falls relevant.]
+| Da es sich um ein Projekt mit vielen Neuheiten, unerfahrenem Team und trotzdem relativ großem Umfang handelt, ist es sinnvoll (notwendig?) für den insgesamten Workload und Zeitmanagement eine automatische Qualitätssicherung und Vereinfachung von Entwicklungsprozessen zu haben in Form von CI/CD. Entwicklungsschritte wie Build, Testing und (optionale) Deployments werden automatisiert um konsistente und nachvollziehbare Ergebnisse für das gesamte Team zu gewährleisten. Dabei werden auch hier wieder kostenpflichtige und sehr aufwändige Lösungen ausgeschlossen. Dies ist wichtig für Qualitätssicherung und einen transparenten Entwicklungsprozess.
 
 | *Entscheidung*
-| Wir verwenden zur Umsetzung von Continuous Integration (CI) bzw. Continuous Deployment (CD) Github Actions, weil...
+| Wir verwenden zur Umsetzung von Continuous Integration (CI) bzw. Continuous Deployment (CD) Github Actions, weil sie in Github (der wichtigsten Arbeitsumgebung) direkt integriert sind, für öffentliche Repositories kostenlos genutzt werden können, gute Einarbeitbarkeit durch eine niedrige Einstiegshürde bieten und auch gut dokumentiert sind. Sie ermöglichen es: Build, Testing, (optionale) Deployments als auch Analysen automatisiert direkt in das Repository einzupflegen.
 
 | *Alternativen*
-| [Welche Alternativen wurden in Betracht gezogen und warum verworfen?]
+| Mögliche Alternativen:
+GitLab CI ist kostenlos, aber nicht optimal integrierbar bei Nutzung von GitHub, was extrem wichtig ist.
+Travis CI war früher verbreitet aber mittlerweile weniger gepflegt und beschränkte Kapazitäten im Free-Tier.
+Jenkins erfordert einen eigenen Server und erheblichen Administrationsaufwand.
+Kommerzielle SaaS-Angebote (z. B. kostenpflichtiges CircleCI) sind wegen der Kosten ausgeschlossen.
 
 | *Konsequenzen*
-| [Was wird durch diese Entscheidung einfacher? Was wird schwieriger oder teurer?
-  Welche neuen Risiken entstehen?]
+| Was wird einfacher?
+
+Entwicklungsschritte wie Build, Test und (optionales) Deployment laufen automatisiert ab, was die Prozesssicherheit und Effizienz erhöht.
+Fehler und Probleme im Code werden früh erkannt; die Codequalität verbessert sich.
+Neue Teammitglieder können sich schneller orientieren, da die Qualitätssicherung und Abläufe standardisiert und dokumentiert sind.
+Alle automatisierten Prozesse sind direkt am Code im Repository sichtbar und nachvollziehbar – der Entwicklungsprozess wird transparenter.
+
+Was wird schwieriger oder teurer?
+
+Es entsteht ein initialer Aufwand für die Einarbeitung in die Erstellung von CI/CD-Workflows und für deren Einrichtung.
+Unerfahrene Teammitglieder könnten anfangs Schwierigkeiten bei der Fehleranalyse von fehlgeschlagenen Builds/Tests haben.
+Bei privaten Repositories oder sehr vielen Build-Minuten könnten langfristig Kosten entstehen, aktuell betrifft das aber nicht unser Projekt.
+
+Neue Risiken:
+
+Die Build-/Deployment-Prozesse werden zu einem zentralen Bestandteil des Workflows; falls die Pipeline Fehler enthält, kann dies die Entwicklung zeitweise blockieren.
+Falsche Konfigurationen könnten versehentlich zu fehlerhaften Deployments oder fehlender Testabdeckung führen.
+Bei hoher Nutzung können Limits der kostenlosen Nutzung erreicht werden
 |===
 
 === ADR-006: Automatisierte Tests mit pytest und Playwright

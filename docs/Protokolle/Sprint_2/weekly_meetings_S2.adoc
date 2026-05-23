@@ -52,7 +52,10 @@
 *Teilnehmende:* Alle Teammitglieder
 
 === Agenda
+. Absprachen -> siehe unter Punkt _Absprachen_ (15 min)
+. Ergebnisse Woche 2 zusammentragen (45 min)
 
+==== Abrasprachen
 - Terminplanung: wir haben aktuell die Retrospektive für Sprint 2 am 10.06. geplant und die Sprint-Planung am 14.06.2026
  - damit das mit den 4-wöchigen Sprints passt, müssten wir das aber eine Woche eher machen?
  - für die Retrospektive hattn wir aber keinen früheren Präsenz-Termin gefunden, online?
@@ -60,3 +63,5 @@
 - ToDo: Treffen mit Herrn Zirkelbach um Server-Auswahl zu besprechen
 
 - schon mal Terminumfrage für 2. Review-Termin für Woche ab 01.06. ausmachen?
+
+- Konsultationstermin Ringel

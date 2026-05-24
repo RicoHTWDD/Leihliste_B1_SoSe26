@@ -177,10 +177,10 @@ sind in <<Architekturentscheidungen>> dokumentiert._
 //| [z. B. Pflichtintegration; kein eigenes Nutzermanagement nötig]
 //| ADR-012
 
-| Containerisierung?   -> Adrian fragen
+| Containerisierung
 | Docker Compose
-| [z. B. Reproduzierbare Umgebung für alle Teammitglieder]
-| ADR-004
+| Reproduzierbare Umgebung für alle Teammitglieder; Alle Komponenten an einem Ort übersichtlich vereint;
+| ADR-004 tbD
 
 | CI/CD
 | GitHub Actions
@@ -203,7 +203,7 @@ sind in <<Architekturentscheidungen>> dokumentiert._
 | ADR-008 (Jevan, Review: Lidia)
 
 | QR-Code
-| Python (qrcode, tkinter - Bibliotheken)
+| Python (qrcode - Bibliotheken)
 | automatisierte Generierung zum  labeln von Ausleihobjekten
 | ADR-009 (Jevan, Review: Lidia)
 
@@ -310,10 +310,10 @@ NOTE: ADRs werden nicht gelöscht oder überschrieben — sie werden als
 [cols="1,3"]
 |===
 | *Status*
-| Vorgeschlagen
+| Akzeptiert
 
 | *Datum*
-| 22.05.2026
+| 24.05.2026
 
 | *Kontext*
 | LeihListe benötigt eine moderne, gut bedienbare Weboberfläche (Frontend) für unterschiedliche Nutzungsszenarien. Nutzer sollen zentrale Funktionen wie Suche, Verfügbarkeitsprüfung, Ausleihe und Rückgabe effizient ausführen können. Daraus ergeben sich Anforderungen an Benutzbarkeit, mobile Nutzbarkeit, kurze Ladezeiten und eine wartbare UI-Struktur. Die Anwendung soll für verschiedene Nutzergruppen einsetzbar sein. Deshalb muss das Frontend flexibel genug sein, um unterschiedliche Rollen, Ansichten und Workflows abzubilden. Zusätzlich soll das Frontend eine spätere Umsetzung als Progressive Web App unterstützen.
@@ -343,10 +343,10 @@ Gleichzeitig entsteht zusätzlicher technischer Aufwand, da ein separates Fronte
 [cols="1,3"]
 |===
 | *Status*
-| Vorgeschlagen
+| Akzeptiert
 
 | *Datum*
-| 22.05.2026
+| 24.05.2026
 
 | *Kontext*
 | LeihListe benötigt ein Backend zur Verwaltung von Nutzern, Rollen, Inventargegenständen, Ausleihen und Rückgaben. Dabei sind insbesondere Datenkonsistenz, Sicherheit, Wartbarkeit und eine klare Schnittstelle zum React-Frontend wichtig.
@@ -376,10 +376,10 @@ Gleichzeitig entsteht eine gewisse Abhängigkeit vom Django-Ökosystem. Außerde
 [cols="1,3"]
 |===
 | *Status*
-| Vorgeschlagen
+| Akzeptiert (Funktionert MariaDB auf Hochschulebene?)
 
 | *Datum*
-| 23.05.2026
+| 24.05.2026
 
 | *Kontext*
 | Im Rahmen des Projekts Leihliste haben wir uns darauf festgelegt eine Datenbank als Speicher für verschiedene Daten zu verwenden. Dies ist relevant, da wir im Rahmen des Projekts zahlreiche Daten von Ausleihen, Nutzern und anderen Ressourcen speichern, bearbeiten, verarbeiten und strukturieren müssen. Diese sollte einfach einzurichten und gut dokumentiert sein mit niedriger Einstiegshürde für den Fall, dass man nicht auf bekannte Datenbanksysteme zurückgreift. Es handelt sich weiterhin um ein Projekt in kleinem Rahmen ohne große monitäre Unterstützung, weshalb wir versuchen die beste kostenlose Basis zu finden. Außerdem besitzen alle Beteiligten durch die Datenbanksysteme-Kurse Vorkenntnisse bezüglich SQL, obwohl es natürlich auch hier wieder verschiedene "SQL-Dialekte" gibt und man sich als Team einarbeiten muss in die jeweilig verwendete Datenbank. Die Verwendung einer Datenbank hilft hier insbesondere bei Nutzerrollen, denen man verschiedene Berechtigungen zuordnet, dem Mehrnutzerprinzip und der Datenkonsistenz.
@@ -446,10 +446,10 @@ Teamweite Umstellung auf MariaDB kann, trotz SQL-Vorkenntnissen, temporär zu kl
 [cols="1,3"]
 |===
 | *Status*
-| Vorgeschlagen
+| Akzeptiert
 
 | *Datum*
-| 23.05.2026
+| 24.05.2026
 
 | *Kontext*
 | Da es sich um ein Projekt mit vielen Neuheiten, unerfahrenem Team und trotzdem relativ großem Umfang handelt, ist es sinnvoll (notwendig?) für den insgesamten Workload und Zeitmanagement eine automatische Qualitätssicherung und Vereinfachung von Entwicklungsprozessen zu haben in Form von CI/CD. Entwicklungsschritte wie Build, Testing und (optionale) Deployments werden automatisiert um konsistente und nachvollziehbare Ergebnisse für das gesamte Team zu gewährleisten. Dabei werden auch hier wieder kostenpflichtige und sehr aufwändige Lösungen ausgeschlossen. Dies ist wichtig für Qualitätssicherung und einen transparenten Entwicklungsprozess.
@@ -490,10 +490,10 @@ Bei hoher Nutzung können Limits der kostenlosen Nutzung erreicht werden
 [cols="1,3"]
 |===
 | *Status*
-| Vorgeschlagen
+| Vorgeschlagen (nächstes Semester werden direkt Tests für python durchgegangen - potenzielle Änderungen wahrscheinlich)
 
 | *Datum*
-| 23.05.2022
+| 24.05.2022
 
 | *Kontext*
 | Für Leihliste müssen Funktionen wie Inventarsuche, Reservierung, Ausleihe, Rückgabe und Rollenlogik zuverlässig überprüfbar sein. Da das System aus einem Python-Backend und einem React-Frontend besteht, werden zwei Testebenen benötigt: 
@@ -526,10 +526,10 @@ Schlecht gepflegte UI-Tests können instabil werden. Daher sollen robuste Selekt
 [cols="1,3"]
 |===
 | *Status*
-| Vorgeschlagen
+| Akzeptiert (noch nicht auf Anbieter festgelegt)
 
 | *Datum*
-| 23.05.2026
+| 24.05.2026
 
 | *Kontext*
 | LeihListe muss Nutzer:innen über wichtige Ereignisse informieren, z.B. Registrierung, Bestätigung einer Reservierung, Änderungen an einer Ausleihe, Erinnerungen an Rückgaben oder überfällige Gegenstände. Der Betrieb eines eigenen Mailservers wäre mit hohem Wartungsaufwand (Konfiguration,

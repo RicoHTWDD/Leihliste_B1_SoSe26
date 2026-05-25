@@ -86,3 +86,27 @@
 === Naechste Besprechung
 *Termin:* 31.05.2026, 15:00 Uhr  
 *Ziel:* Terminfestlegung und Besprechung der Lösungen und Fortschritte in Sprint 2
+
+
+== Meeting 31.05.2026
+:id: meeting31052026
+
+*Datum:* 31.05.2026  
+*Dauer:* 
+*Teilnehmende:* alle Teammitglieder, außer Rico
+
+=== Agenda
+
+
+==== Walking Skeleton für Mailversand
+* unter src/Walking_Skeleton/Mailversand liegt der Walking Skeleton, welcher 3 verschiedene Benachrichtigungstypen an eine eigegebene Mailadresse über den SMTP-Server von gmx.net sendet (zugehöriger Mailaacount: leihliste.b1@gmx.de)
+* in der readme.md steht, wie der Test reproduziert werden kann, dazu benötigt ihr die Datei ".env" mit den Zugangsdaten (steht im Dev-Chat)
+* *Antrag*: ADR-007 anpassen
+ . Beschreibung ändern: es ist kein Broadcast, weil wir ja nur an ein bis wenige Nutzer*innen eine Benachrichtigung schicken
+ . keine Spezialdienste für Marketing-Mails nutzen (wie z.B. Mailjet), sondern vorhandene Postausgangs-Server, da dies in der Praxis auch genutzt wird: bei einer informollen Gruppe eine private Maialdresse wie jetzt im Test oder bei einer Organisation eine Adresse verleihliste@organistion.de
+
+* *Ergebnis:* 
+ - Technische Aussage: Versand von E-Mail-Benachrichtigungen über externen SMTP-Dienst funktioniert (ADR-007).
+ - Evidenz: Test-E-Mail in Postfach erhalten
+ - Status: validiert
+ - Nächster Schritt: ?

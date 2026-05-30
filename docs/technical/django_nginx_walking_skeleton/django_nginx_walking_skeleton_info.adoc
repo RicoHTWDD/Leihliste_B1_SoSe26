@@ -1,0 +1,1116 @@
+= Django nginx Walking Skeleton: Erklärung der Projektstruktur
+:toc:
+:toc-title: Inhaltsverzeichnis
+:sectnums:
+:source-highlighter: rouge
+:last-update-label!:
+
+== Überblick
+
+Dieser Text erklärt die Projektstruktur des Walking-Skeleton-Prototyps mit einem Django-Backend und einem nginx Reverse Proxy.
+
+Die Walking-Skeletin sieht so aus:
+
+[source,text]
+----
+django-nginx-walking-skeleton/
+├── backend/
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   ├── manage.py
+│   ├── config/
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   ├── wsgi.py
+│   │   └── asgi.py
+│   └── core/
+│       ├── views.py
+│       ├── urls.py
+│       ├── models.py
+│       ├── apps.py
+│       └── ...
+├── nginx/
+│   └── nginx.conf
+├── docker-compose.yml
+└── README.md
+----
+
+== docker-compose.yml
+
+Das ist die zentrale Datei, die Docker sagt:
+
+[quote]
+____
+Starte zwei Services gleichzeitig: das Django-Backend und den nginx Reverse Proxy.
+____
+
+Beispiel:
+
+[source,yaml]
+----
+services:
+  backend:
+    build: ./backend
+    expose:
+      - "8000"
+
+  reverse-proxy:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+----
+
+*Was passiert hier?*
+
+==== backend
+
+[source,yaml]
+----
+backend:
+  build: ./backend
+----
+
+Das bedeutet:
+
+[quote]
+____
+Baue den Backend-Container aus dem Ordner `backend`.
+____
+
+Docker geht in den Ordner `backend`, sucht dort nach dem `Dockerfile` und baut daraus den Container.
+
+[source,yaml]
+----
+expose:
+  - "8000"
+----
+
+Das bedeutet:
+
+[quote]
+____
+Django läuft auf Port 8000, aber dieser Port ist nur innerhalb des Docker-Netzwerks sichtbar.
+____
+
+Das heißt: Ein Benutzer von außen soll nicht direkt auf Django zugreifen.
+
+==== reverse-proxy
+
+[source,yaml]
+----
+reverse-proxy:
+  image: nginx:latest
+----
+
+Das bedeutet:
+
+[quote]
+____
+Starte einen Container mit nginx.
+____
+
+[source,yaml]
+----
+ports:
+  - "8080:80"
+----
+
+Das bedeutet:
+
+[source,text]
+----
+localhost:8080 auf dem eigenen Computer
+        ↓
+Port 80 im nginx-Container
+----
+
+Deshalb öffnet man:
+
+[source,text]
+----
+http://localhost:8080/api/health/
+----
+
+und landet zuerst bei nginx.
+
+[source,yaml]
+----
+volumes:
+  - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+----
+
+Das bedeutet:
+
+[quote]
+____
+Nimm unsere Datei `nginx/nginx.conf` und lege sie im nginx-Container als Hauptkonfiguration ab.
+____
+
+`ro` bedeutet *read only*, also: Der Container darf die Datei lesen, aber nicht verändern.
+
+[source,yaml]
+----
+depends_on:
+  - backend
+----
+
+Das bedeutet:
+
+[quote]
+____
+Starte zuerst das Backend und danach nginx.
+____
+
+== nginx/nginx.conf
+
+Das ist die Konfigurationsdatei für nginx.
+
+[source,nginx]
+----
+events {}
+
+http {
+    upstream django_backend {
+        server backend:8000;
+    }
+
+    server {
+        listen 80;
+
+        location /api/ {
+            proxy_pass http://django_backend/api/;
+
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+}
+----
+
+*Was passiert hier?*
+
+[source,nginx]
+----
+events {}
+----
+
+Das ist ein technischer Pflichtblock für nginx. In unserem kleinen Beispiel bleibt er leer.
+
+[source,nginx]
+----
+http {
+    ...
+}
+----
+
+In diesem Block wird beschrieben, wie nginx mit HTTP-Anfragen umgeht.
+
+Eine HTTP-Anfrage entsteht zum Beispiel, wenn man eine Seite im Browser öffnet.
+
+[source,nginx]
+----
+upstream django_backend {
+    server backend:8000;
+}
+----
+
+Das bedeutet:
+
+[quote]
+____
+Erstelle den Namen `django_backend`, der auf den Django-Service `backend` auf Port 8000 zeigt.
+____
+
+Warum heißt der Service `backend`? Weil er in der `docker-compose.yml` genau so heißt:
+
+[source,yaml]
+----
+backend:
+----
+
+Docker Compose erstellt automatisch den internen Namen `backend`. Über diesen Namen kann nginx das Django-Backend finden.
+
+[source,nginx]
+----
+server {
+    listen 80;
+}
+----
+
+Das bedeutet:
+
+[quote]
+____
+nginx wartet im Container auf Anfragen auf Port 80.
+____
+
+Nach außen wird dieser Port als `localhost:8080` bereitgestellt.
+
+[source,nginx]
+----
+location /api/ {
+    ...
+}
+----
+
+Das bedeutet:
+
+[quote]
+____
+Wenn eine Anfrage mit `/api/` beginnt, dann soll nginx sie nach diesen Regeln behandeln.
+____
+
+Zum Beispiel passt diese Anfrage dazu:
+
+[source,text]
+----
+/api/health/
+----
+
+[source,nginx]
+----
+proxy_pass http://django_backend/api/;
+----
+
+Das ist die wichtigste Zeile.
+
+Sie bedeutet:
+
+[quote]
+____
+Leite die Anfrage an das Django-Backend weiter.
+____
+
+nginx bekommt also zum Beispiel:
+
+[source,text]
+----
+/api/health/
+----
+
+und leitet diese Anfrage an Django weiter.
+
+[source,nginx]
+----
+proxy_set_header Host $host;
+----
+
+nginx gibt an Django weiter, welcher Host in der Anfrage stand.
+
+Zum Beispiel:
+
+[source,text]
+----
+localhost:8080
+----
+
+[source,nginx]
+----
+proxy_set_header X-Real-IP $remote_addr;
+----
+
+Damit wird die echte IP-Adresse des Clients weitergegeben.
+
+In unserem lokalen Beispiel ist das nicht besonders wichtig, aber in einem echten Projekt kann es nützlich sein.
+
+[source,nginx]
+----
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+----
+
+Damit wird weitergegeben, über welche Stationen die Anfrage gelaufen ist.
+
+Deshalb sieht man in der Django-Antwort zum Beispiel:
+
+[source,json]
+----
+"x_forwarded_for": "..."
+----
+
+Das ist ein Hinweis darauf, dass die Anfrage wirklich über den Proxy gelaufen ist.
+
+[source,nginx]
+----
+proxy_set_header X-Forwarded-Proto $scheme;
+----
+
+Damit wird das verwendete Protokoll weitergegeben:
+
+[source,text]
+----
+http
+----
+
+oder später eventuell:
+
+[source,text]
+----
+https
+----
+
+== backend/Dockerfile
+
+Diese Datei sagt Docker, wie der Container für Django gebaut werden soll.
+
+[source,dockerfile]
+----
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+----
+
+*Was passiert hier?*
+
+[source,dockerfile]
+----
+FROM python:3.12-slim
+----
+
+Das bedeutet:
+
+[quote]
+____
+Verwende ein fertiges, kleines Linux-Image mit Python 3.12.
+____
+
+Im Container ist also bereits Python vorhanden.
+
+[source,dockerfile]
+----
+WORKDIR /app
+----
+
+Das bedeutet:
+
+[quote]
+____
+Der Arbeitsordner im Container ist `/app`.
+____
+
+Alle folgenden Befehle werden in diesem Ordner ausgeführt.
+
+[source,dockerfile]
+----
+COPY requirements.txt .
+----
+
+Das bedeutet:
+
+[quote]
+____
+Kopiere die Datei `requirements.txt` aus dem Backend-Ordner in den Container.
+____
+
+[source,dockerfile]
+----
+RUN pip install --no-cache-dir -r requirements.txt
+----
+
+Das bedeutet:
+
+[quote]
+____
+Installiere alle Python-Bibliotheken aus `requirements.txt`.
+____
+
+Zum Beispiel:
+
+[source,text]
+----
+Django
+gunicorn
+----
+
+[source,dockerfile]
+----
+COPY . .
+----
+
+Das bedeutet:
+
+[quote]
+____
+Kopiere das gesamte Django-Projekt in den Container.
+____
+
+Also zum Beispiel `manage.py`, `config`, `core` und weitere Dateien.
+
+[source,dockerfile]
+----
+EXPOSE 8000
+----
+
+Das dokumentiert:
+
+[quote]
+____
+Die Django-Anwendung läuft auf Port 8000.
+____
+
+[source,dockerfile]
+----
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+----
+
+Das ist der Befehl, der beim Start des Containers ausgeführt wird.
+
+Er bedeutet:
+
+[quote]
+____
+Starte Django über gunicorn auf Port 8000.
+____
+
+== backend/requirements.txt
+
+Das ist die Liste der Python-Bibliotheken, die das Projekt braucht.
+
+Zum Beispiel:
+
+[source,text]
+----
+Django
+gunicorn
+----
+
+Wenn Docker den Backend-Container baut, liest es diese Datei und installiert alles, was dort steht.
+
+Django wird für das Backend selbst benötigt.
+
+gunicorn wird benötigt, um Django im Container zu starten.
+
+In der lokalen Entwicklung wurde Django so gestartet:
+
+[source,bash]
+----
+python3 manage.py runserver
+----
+
+Im Container starten wir es aber so:
+
+[source,bash]
+----
+gunicorn config.wsgi:application --bind 0.0.0.0:8000
+----
+
+`runserver` ist eher für die Entwicklung gedacht.
+
+`gunicorn` ist für diesen technischen Prototypen mit Reverse Proxy besser geeignet.
+
+
+== Gunicorn
+
+Gunicorn ist ein Application Server für Python-Webanwendungen.
+
+In unserem Prototyp wird Gunicorn verwendet, um die Django-Anwendung innerhalb des Backend-Containers zu starten und Anfragen von nginx entgegenzunehmen.
+
+Die vereinfachte Reihenfolge sieht so aus:
+
+[source,text]
+----
+Browser oder curl
+  ↓
+nginx Reverse Proxy
+  ↓
+Gunicorn
+  ↓
+Django Backend
+----
+
+[discrete]
+=== Warum brauchen wir Gunicorn?
+
+Während der lokalen Entwicklung kann Django mit folgendem Befehl gestartet werden:
+
+[source,bash]
+----
+python3 manage.py runserver
+----
+
+Dieser Entwicklungsserver ist praktisch zum Testen während der Entwicklung.
+
+In einem Container oder in einer serverähnlichen Umgebung wird Django aber normalerweise nicht mit `runserver` gestartet, sondern über einen Application Server wie Gunicorn.
+
+In unserem Dockerfile steht deshalb:
+
+[source,dockerfile]
+----
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+----
+
+Dieser Befehl bedeutet:
+
+[source,text]
+----
+Starte die Django-Anwendung mit Gunicorn auf Port 8000.
+----
+
+[discrete]
+=== Was bedeutet config.wsgi:application?
+
+Der Teil
+
+[source,text]
+----
+config.wsgi:application
+----
+
+bedeutet:
+
+[source,text]
+----
+Verwende die Datei config/wsgi.py und darin das Objekt application.
+----
+
+Diese Datei wird von Django automatisch erzeugt und dient als Einstiegspunkt für WSGI-Server wie Gunicorn.
+
+Einfach gesagt:
+
+[source,text]
+----
+Gunicorn fragt wsgi.py:
+„Wie starte ich diese Django-Anwendung?“
+
+wsgi.py stellt die Django-Anwendung bereit.
+----
+
+[discrete]
+=== Was bedeutet --bind 0.0.0.0:8000?
+
+Der Teil
+
+[source,bash]
+----
+--bind 0.0.0.0:8000
+----
+
+bedeutet:
+
+[source,text]
+----
+Gunicorn soll auf Port 8000 Verbindungen annehmen.
+----
+
+`0.0.0.0` bedeutet, dass Gunicorn nicht nur auf lokale Anfragen innerhalb des Containers hört, sondern auch Anfragen aus dem Docker-Netzwerk annehmen kann.
+
+Das ist wichtig, weil nginx in einem anderen Container läuft und das Backend über das Docker-Netzwerk anspricht.
+
+[discrete]
+=== Rolle von Gunicorn im Prototyp
+
+Gunicorn übernimmt in diesem Prototyp folgende Aufgaben:
+
+[source,text]
+----
+1. Gunicorn startet die Django-Anwendung.
+2. Gunicorn hört im Backend-Container auf Port 8000.
+3. nginx leitet API-Anfragen an Gunicorn weiter.
+4. Gunicorn gibt die Anfrage an Django.
+5. Django erzeugt die Antwort.
+6. Gunicorn gibt die Antwort zurück an nginx.
+----
+
+Kurz gesagt:
+
+[source,text]
+----
+nginx nimmt die Anfrage von außen entgegen.
+Gunicorn betreibt Django im Backend-Container.
+Django verarbeitet die eigentliche Backend-Logik.
+----
+
+== backend/manage.py
+
+Das ist die zentrale Verwaltungsdatei von Django.
+
+Sie wurde zum Beispiel schon so benutzt:
+
+[source,bash]
+----
+python3 manage.py runserver
+----
+
+oder:
+
+[source,bash]
+----
+python3 manage.py startapp core
+----
+
+[discrete]
+=== Wofür ist diese Datei da?
+
+Über `manage.py` kann man Django-Befehle ausführen:
+
+[source,bash]
+----
+python3 manage.py runserver
+python3 manage.py migrate
+python3 manage.py createsuperuser
+python3 manage.py startapp core
+----
+
+Beim Docker-Start wird `manage.py` nicht direkt benutzt, weil die Anwendung über `gunicorn` gestartet wird.
+
+Die Datei gehört aber trotzdem zu einem Django-Projekt dazu.
+
+== backend/config/settings.py
+
+Das ist die zentrale Einstellungsdatei von Django.
+
+Dort erfährt Django zum Beispiel:
+
+[quote]
+____
+Welche Apps sind aktiviert? Welche Hosts sind erlaubt? Wo ist die Datenbank? Welche Middleware wird verwendet?
+____
+
+Für uns waren vor allem zwei Stellen wichtig.
+
+=== INSTALLED_APPS
+
+[source,python]
+----
+INSTALLED_APPS = [
+    ...
+    "core",
+]
+----
+
+Wir haben `"core"` hinzugefügt, damit Django weiß:
+
+[quote]
+____
+Es gibt eine App namens `core`, die eingebunden werden soll.
+____
+
+`core` ist der kleine Teil des Backends, in dem wir unseren Health-Endpoint erstellt haben.
+
+=== ALLOWED_HOSTS
+
+[source,python]
+----
+ALLOWED_HOSTS = ["*"]
+----
+
+Das bedeutet:
+
+[quote]
+____
+Anfragen von allen Hosts erlauben.
+____
+
+Für einen Lernprototyp ist das in Ordnung.
+
+In einem echten Production-Projekt sollte man das nicht so machen. Dort würde man konkrete Domains eintragen, zum Beispiel:
+
+[source,python]
+----
+ALLOWED_HOSTS = ["example.com", "www.example.com"]
+----
+
+== backend/config/urls.py
+
+Das ist die zentrale Routing-Datei von Django.
+
+[source,python]
+----
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("api/", include("core.urls")),
+]
+----
+
+*Was passiert hier?*
+
+[source,python]
+----
+path("admin/", admin.site.urls)
+----
+
+Das ist die standardmäßige Django-Admin-Seite.
+
+[source,python]
+----
+path("api/", include("core.urls"))
+----
+
+Das bedeutet:
+
+[quote]
+____
+Alle Anfragen, die mit `/api/` beginnen, werden an die Datei `core/urls.py` weitergegeben.
+____
+
+Zum Beispiel kommt diese Anfrage:
+
+[source,text]
+----
+/api/health/
+----
+
+Django schaut in `config/urls.py`:
+
+[source,text]
+----
+/api/ → an core.urls weitergeben
+----
+
+Danach verarbeitet `core/urls.py` den restlichen Teil:
+
+[source,text]
+----
+health/
+----
+
+== backend/core/urls.py
+
+Das ist die Routing-Datei der App `core`.
+
+[source,python]
+----
+from django.urls import path
+from .views import health_check
+
+urlpatterns = [
+    path("health/", health_check),
+]
+----
+
+*Was passiert hier?*
+
+[source,python]
+----
+from .views import health_check
+----
+
+Wir importieren die Funktion `health_check` aus der Datei `views.py`.
+
+[source,python]
+----
+path("health/", health_check)
+----
+
+Das bedeutet:
+
+[quote]
+____
+Wenn eine Anfrage auf `health/` kommt, rufe die Funktion `health_check` auf.
+____
+
+Da in `config/urls.py` bereits der Präfix `api/` festgelegt wurde, ergibt sich die vollständige Adresse:
+
+[source,text]
+----
+/api/health/
+----
+
+== backend/core/views.py
+
+In dieser Datei liegt die Logik für die Antwort.
+
+[source,python]
+----
+from django.http import JsonResponse
+
+
+def health_check(request):
+    return JsonResponse({
+        "status": "ok",
+        "service": "django-backend",
+        "message": "Request successfully reached Django backend",
+        "host": request.headers.get("Host"),
+        "x_forwarded_for": request.headers.get("X-Forwarded-For"),
+        "x_forwarded_proto": request.headers.get("X-Forwarded-Proto"),
+    })
+----
+
+*Was passiert hier?*
+
+[source,python]
+----
+from django.http import JsonResponse
+----
+
+Wir verwenden eine spezielle Django-Klasse, mit der man eine JSON-Antwort zurückgeben kann.
+
+JSON ist ein Antwortformat wie dieses:
+
+[source,json]
+----
+{
+  "status": "ok"
+}
+----
+
+[source,python]
+----
+def health_check(request):
+----
+
+Das ist die Funktion, die aufgerufen wird, wenn jemand diese Adresse öffnet:
+
+[source,text]
+----
+/api/health/
+----
+
+`request` ist ein Objekt mit Informationen über die Anfrage.
+
+Zum Beispiel:
+
+[source,text]
+----
+Wer hat angefragt?
+Welche Adresse wurde aufgerufen?
+Welche Header wurden mitgeschickt?
+----
+
+[source,python]
+----
+return JsonResponse({...})
+----
+
+Die Funktion gibt eine JSON-Antwort zurück.
+
+[source,json]
+----
+"status": "ok"
+----
+
+Das bedeutet:
+
+[quote]
+____
+Das Backend funktioniert.
+____
+
+[source,json]
+----
+"service": "django-backend"
+----
+
+Das zeigt:
+
+[quote]
+____
+Die Antwort kommt vom Django-Backend.
+____
+
+[source,json]
+----
+"message": "Request successfully reached Django backend"
+----
+
+Das ist eine lesbare Nachricht:
+
+[quote]
+____
+Die Anfrage hat das Django-Backend erfolgreich erreicht.
+____
+
+[source,python]
+----
+"host": request.headers.get("Host")
+----
+
+Das zeigt den Host aus der Anfrage.
+
+[source,python]
+----
+"x_forwarded_for": request.headers.get("X-Forwarded-For")
+----
+
+Das zeigt den Proxy-Header, den nginx hinzugefügt hat.
+
+Wenn dieses Feld vorhanden ist, ist das ein gutes Zeichen:
+
+[quote]
+____
+nginx hat die Anfrage wirklich an Django weitergegeben.
+____
+
+[source,python]
+----
+"x_forwarded_proto": request.headers.get("X-Forwarded-Proto")
+----
+
+Das zeigt, über welches Protokoll die Anfrage kam:
+
+[source,text]
+----
+http
+----
+
+oder später vielleicht:
+
+[source,text]
+----
+https
+----
+
+== backend/config/wsgi.py
+
+WSGI steht für *Web Server Gateway Interface*.
+
+Einfach gesagt beschreibt WSGI, wie ein Webserver oder Application Server eine Anfrage an eine Python-Webanwendung wie Django weitergibt und wie die Antwort zurückgegeben wird.
+
+Das ist die Datei, über die gunicorn Django startet.
+
+Im Dockerfile stand:
+
+[source,dockerfile]
+----
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+----
+
+Dieser Teil:
+
+[source,text]
+----
+config.wsgi:application
+----
+
+bedeutet:
+
+[quote]
+____
+Suche die Datei `config/wsgi.py` und nimm daraus das Objekt `application`.
+____
+
+Einfach gesagt:
+
+[source,text]
+----
+gunicorn fragt wsgi.py:
+„Wie kann ich Django starten?“
+----
+
+Und `wsgi.py` antwortet:
+
+[source,text]
+----
+„Hier ist die Django-Anwendung, starte sie.“
+----
+
+== backend/config/asgi.py
+
+ASGI steht für *Asynchronous Server Gateway Interface*.
+
+ASGI ist ähnlich wie WSGI, unterstützt aber zusätzlich asynchrone Kommunikation. Das ist zum Beispiel wichtig für WebSockets, Echtzeitfunktionen, Chats, Benachrichtigungen oder andere länger laufende Verbindungen.
+
+Das ist eine ähnliche Datei, aber für ASGI.
+
+In unserem Prototyp wird sie im Moment nicht verwendet.
+
+ASGI wird zum Beispiel gebraucht, wenn das Projekt später WebSockets oder asynchrone Funktionen verwenden soll.
+
+Django erstellt diese Datei automatisch.
+
+Kurz zusammengefasst:
+
+[source,text]
+----
+WSGI = Web Server Gateway Interface
+       klassischer Weg, um Python-Webanwendungen wie Django zu starten
+
+ASGI = Asynchronous Server Gateway Interface
+       neuerer, asynchroner Weg, zum Beispiel für WebSockets und Echtzeitfunktionen
+----
+
+In unserem Prototyp wird WSGI verwendet, weil Django über Gunicorn mit `config.wsgi:application` gestartet wird. `asgi.py` existiert zwar, wird in diesem Walking Skeleton aber nicht aktiv genutzt.
+
+== backend/core/models.py
+
+In unserem Prototyp ist diese Datei fast leer.
+
+Normalerweise beschreibt man hier die Datenbankmodelle.
+
+In unserem späteren Projekt könnte dort zum Beispiel so etwas stehen:
+
+[source,python]
+----
+class Item(models.Model):
+    name = models.CharField(max_length=255)
+----
+
+Für den Reverse-Proxy-Walking-Skeleton brauchen wir aber keine Datenbank.
+
+Deshalb spielt `models.py` im Moment keine wichtige Rolle.
+
+== backend/core/apps.py
+
+Das ist eine Hilfsdatei der App `core`.
+
+Django verwendet sie, um die Einstellungen der App zu kennen.
+
+In einem kleinen Prototyp muss man diese Datei normalerweise nicht bearbeiten.
+
+
+== Der gesamte Weg der Anfrage
+
+Wenn man diese Adresse öffnet:
+
+[source,text]
+----
+http://localhost:8080/api/health/
+----
+
+passiert Folgendes:
+
+[source,text]
+----
+1. Browser oder curl sendet eine Anfrage an localhost:8080.
+2. Docker leitet diese Anfrage in den nginx-Container auf Port 80 weiter.
+3. nginx erkennt den Pfad /api/health/.
+4. nginx leitet die Anfrage mit der Regel proxy_pass an backend:8000 weiter.
+5. backend ist der Django-Container.
+6. gunicorn im Backend-Container gibt die Anfrage an Django weiter.
+7. Django schaut in config/urls.py.
+8. config/urls.py erkennt /api/ und gibt die Anfrage an core/urls.py weiter.
+9. core/urls.py erkennt health/ und ruft health_check auf.
+10. health_check gibt eine JSON-Antwort zurück.
+11. Die JSON-Antwort geht zurück: Django → gunicorn → nginx → Browser.
+----
+
+Kurz gesagt:
+
+[source,text]
+----
+Browser
+  ↓
+localhost:8080
+  ↓
+Docker
+  ↓
+nginx
+  ↓
+backend:8000
+  ↓
+gunicorn
+  ↓
+Django
+  ↓
+health_check()
+  ↓
+JSON response
+----

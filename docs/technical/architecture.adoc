@@ -414,31 +414,37 @@ Abhängigkeit vom gewählten System: Bei spezifischen Erweiterungen oder bei wac
 Teamweite Umstellung auf MariaDB kann, trotz SQL-Vorkenntnissen, temporär zu kleinen Anpassungsproblemen führen.
 |===
 
-=== ADR-004: [Titel der Entscheidung]
+=== ADR-004: Docker
 
 [cols="1,3"]
 |===
-| *Status*
-| [Vorgeschlagen \| Akzeptiert \| Abgelehnt \| Ersetzt durch ADR-XXX]
-
-| *Datum*
-| [Datum]
-
 | *Kontext*
-| [Warum musste diese Entscheidung getroffen werden?
-  Welches Problem oder welche Anforderung hat sie ausgelöst?
-  Verweise auf Qualitätsziele oder Einschränkungen aus dem Produktkonzept falls relevant.]
+| Das Projekt LeihListe besteht aus mehreren unterschiedlichen Komponenten: einem Frontend, einem Backend, einer Datenbank und einem Reverse-Proxy.
+Da das Entwickler-Team unterschiedliche Betriebssysteme und lokale Setups nutzt, besteht die Gefahr von "Works on my machine"-Problemen, was die Entwicklung und das Onboarding erschwert. 
+Zudem muss sichergestellt werden, dass das System am Ende reibungslos auf der Hochschulinfrastruktur betrieben werden kann (Einschränkung aus Produktkonzept). Die manuelle Installation und Verknüpfung all dieser Laufzeitumgebungen und Abhängigkeiten für lokale Tests, automatisierte Tests (CI/CD) und das finale Deployment ist zu fehleranfällig und aufwendig.
 
 | *Entscheidung*
-| [Was wurde entschieden? Formuliere die Entscheidung als aktiven Satz:
-  „Wir verwenden X, weil..."]
+| Wir verwenden **Docker Compose** für die Containerisierung und Orchestrierung aller Systemkomponenten, weil es eine reproduzierbare, isolierte und identische Umgebung für alle Teammitglieder, die CI/CD-Pipeline und den Produktionsserver garantiert. 
+Mit Docker Compose kann der gesamte Technologie-Stack (Frontend, Backend, Datenbank, Proxy) mit einem einzigen Befehl lokal gestartet und vernetzt werden, was die Entwicklung des Walking Skeletons und späterer Features massiv beschleunigt.
 
 | *Alternativen*
-| [Welche Alternativen wurden in Betracht gezogen und warum verworfen?]
+| Eine Alternative wäre die **manuelle lokale Installation** aller Abhängigkeiten (Laufzeitumgebungen, Datenbankserver etc.) durch jeden Entwickler. Dies wurde verworfen, da es extrem fehleranfällig ist, zu Versionskonflikten im Team führt und das finale Deployment auf dem Hochschul-Server unnötig verkompliziert.
+Eine weitere Alternative wäre **Kubernetes (K8s)** zur Container-Orchestrierung. Dies wurde verworfen, da es für den Rahmen und die Skalierungsanforderungen dieses Hochschulprojekts völlig überdimensioniert ist und einen viel zu hohen administrativen Einarbeitungsaufwand erfordert.
 
 | *Konsequenzen*
-| [Was wird durch diese Entscheidung einfacher? Was wird schwieriger oder teurer?
-  Welche neuen Risiken entstehen?]
+| *Positiv:*
+- Das "Works on my machine"-Problem wird eliminiert; der Code verhält sich auf jedem Rechner und Server exakt gleich.
+- Neue Entwickler können das gesamte Projekt innerhalb von Minuten aufsetzen, ohne Datenbanken oder Webserver manuell konfigurieren zu müssen.
+- Das spätere Deployment auf dem Hochschul-Server wird stark vereinfacht, da nur die Docker-Umgebung als Voraussetzung gegeben sein muss.
+- Automatisierte Tests (Integrationstests) können in einer sauberen, jederzeit reproduzierbaren Container-Umgebung in GitHub Actions laufen.
+
+*Negativ/Schwierig:*
+- Es entsteht initialer Aufwand, um `docker-compose.yml` (inkl. Netzwerke und Volumes) zu schreiben.
+- Das Team muss grundlegende Docker-Konzepte (Images, Container, Volumes) verstehen und bei Fehlern debuggen können.
+
+*Risiken:*
+- Bei lokaler Entwicklung können Container viele Systemressourcen (RAM/CPU) binden.
+- Fehlerhafte Volume-Konfigurationen (z. B. bei der Datenbank) können lokal zu Datenverlust bei Neustarts führen. (Gegenmaßnahme: Saubere Dokumentation in der `deployment.adoc`).
 |===
 
 === ADR-005: CI/CD-Umsetzung während des Projekts

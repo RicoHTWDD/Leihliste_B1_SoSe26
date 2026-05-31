@@ -97,6 +97,14 @@
 
 === Agenda
 
+. Termine (10 min)
+. ADR 004 vorstellen (5 min)
+. Ergebnisse Woche 3 zusammentragen (80 min)
+ - Walking Skeleton Mailversand
+ - Walking Skeleton Reverse Proxy & QR-Code
+ - Walking Skeleton Frontend-Backend-Interaktion
+ - Walking Skeleton Persistenz
+. Planung Woche 4 (15 min)
 
 ==== Walking Skeleton für Mailversand
 * unter src/Walking_Skeleton/Mailversand liegt der Walking Skeleton, welcher 3 verschiedene Benachrichtigungstypen an eine eigegebene Mailadresse über den SMTP-Server von gmx.net sendet (zugehöriger Mailaacount: leihliste.b1@gmx.de)

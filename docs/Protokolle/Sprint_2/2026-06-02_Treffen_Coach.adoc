@@ -7,19 +7,51 @@ Ort:: Z355
 
 == Fragen des Teams
 
+=== Unit-Tests: Sind diese jetzt schon relevant?
+- nein erst im nächsten Semester
+- Testen fängt an, sobald ich ein Architeturkonzet habe, ab da Gednaken machen, an welcher Stelle Tests sinnvoll sind
+- was für Tests an welchen Stellen mit welchen Zielen sollte schon irgendwo beschrieben sein
+
+- wie werden Test in Build-Pipeline/Framework integriert, damit diese bei Pull-Request automatisch durchlaufen werden
+- Build-Pipeline ist in Github integriert, über github actions
+
+- github actions selbst wird aber erst im nächsten Semester behandelt
+
+=== Speichern in Datenbank statt externe Cloud
+- ist okay Bilder und Dateien auch in der relationalen Datenbank zu speichern
+- müssen nur begründen, warum das für unsere Skalierungsstufe ausreicht: einie Bilder, 
+
+=== Walking Skeleton
+- wäre gut, wenn das in einer Anwendung funktiniert
 
 == Stand der Arbeit / Ergebnisse
-
+- ADRs werden diese Woche finanlisiert
+- Walkig Skeleton gibt es
+- haben Architekturtreiber, müssen aber ggf. noch abgrenzen zu nicht-funktionalen Rahmenbedingungen
+- Ziel für Sprint 2: 
 
 == Reflexion
 === Stärken
+- fehlerfreundlicher, kollegialer Umgang
+- Probleme ansprechen, adressieren und schnell lösen
+- diverses Team, verschiededene Erfahrungsbereiche
 
-
-=== Probleme
-
-
-=== Gründe
-
-
+=== Probleme, Gründe und Folgeerung
+- technische Risiken und Schulden erst mal zur Seite geschoben
+- Zeitprobleme, Timeboxing funktiniert nicht gut: Ziel jedes Meetings ist Entscheidungen zu treffen
+ - Entscheidungsgrundlagen müssen vorher bekannt sein
+ - wenn Entscheidung nicht entscheidugnsreif, dann werden Personen beauftragt, dass bis zum nächsten Meeting vorzubereiten
+ - vor dem Meeting schon Erklärungen 
+ - "im Meeting wird nichts besprochen, da werden Arbeitsstände vorgestellt und Entscheidungen getroffen"
+- verschiedene zeitlichen Verfügbarkeiten, manche Entscheidungen/Rückmeldungen ziehen sich in die Länge
+ - Vereinbarung von ein bis 2 Slots für mögliche Kern-Arbeitzeit pro Woche?
+ - jetzt schon für Wintersemester solche Slots ausmachen 
+- verschiedene Begriffsverstädnisse / Wissensstände: wichtige Begriffe in Agenda von Tagesordnung mit erklären
 
 == Ausblick Wintersemester
+- in jedem Sprint ein neues Main-Feature
+ - es entsteht mehr Regelmäßigkeit
+- Rollen und Zuständigkeiten werden verfestigt
+ - mensch kann sich auf Schwerpunkte / Kernarbeitsbereiche vertiefen
+ - mögliche Rollen: Team-Lead als Entscheider*in für technische *und* organisatorische Dinge (oder Technical Lead und Scrum Master?), Frontend-Dev, Backend-Dev, Integration-Testing, Frontend-Testing, Middleware-Dev
+ - Product-Owner können auch mit programmieren

@@ -253,7 +253,7 @@ diesen Anforderungen ergeben, und verweist auf die zugehörigen Entscheidungen.
 | DSGVO-Konformität
 | Keine personenbezogenen Daten in Logs (Anonymisierung); Datensparsamkeit im Datenbankmodell;
   Recht auf Löschung muss implementierbar sein
-| To-Do
+| ADR-012
 
 | Betrieb auf Hochschulinfrastruktur
 | Keine Cloud-only-Dienste; Containerisierung für Portabilität erforderlich
@@ -745,7 +745,88 @@ Zudem soll die Nutzung ohne App-Store-Installation möglich sein (Einschränkung
 |===
 // Review Kommentar: Vorschlag akzeptiert, Alternativen gut beschrieben. Single Page Application (SPA) wäre eine weitere Alternative gewesen, aber die PWA-Features bieten klare Vorteile was Offline Anzeige und das Installieren auf Homepage angeht somit betriebssystemübergreifend. Ebenso ist Push-Benachrichtigungen ein Vorteil. Achtung KI: PWA soll auf iOS/Safari hat bekannte Einschränkungen haben. Inwieweit das stimmt, können wir im Meeting besprechen. Ansonsten wieder sehr solide.
 
-=== ADR-012: [Titel der Entscheidung]
+=== ADR-012: DSGVO-konformes Datenmanagement durch Anonymisierung, Soft-Deletes und Datensparsamkeit
+
+[cols="1,3"]
+|===
+| *Status*
+| Vorgeschlagen
+
+| *Datum*
+| 02.06.2026
+
+| *Kontext*
+| [Warum musste diese Entscheidung getroffen werden?
+  Welches Problem oder welche Anforderung hat sie ausgelöst?
+  Verweise auf Qualitätsziele oder Einschränkungen aus dem Produktkonzept falls relevant.]
+
+| *Entscheidung*
+| [Was wurde entschieden? Formuliere die Entscheidung als aktiven Satz:
+  „Wir verwenden X, weil..."]
+
+| *Alternativen*
+| [Welche Alternativen wurden in Betracht gezogen und warum verworfen?]
+
+| *Konsequenzen*
+| [Was wird durch diese Entscheidung einfacher? Was wird schwieriger oder teurer?
+  Welche neuen Risiken entstehen?]
+|===
+
+=== ADR-016: [Hosting-Strategie (On-Premise vs. Cloud)]
+
+[cols="1,3"]
+|===
+| *Status*
+| Vorgeschlagen
+
+| *Datum*
+| 02.06.2026
+
+| *Kontext*
+| [Warum musste diese Entscheidung getroffen werden?
+  Welches Problem oder welche Anforderung hat sie ausgelöst?
+  Verweise auf Qualitätsziele oder Einschränkungen aus dem Produktkonzept falls relevant.]
+
+| *Entscheidung*
+| [Was wurde entschieden? Formuliere die Entscheidung als aktiven Satz:
+  „Wir verwenden X, weil..."]
+
+| *Alternativen*
+| [Welche Alternativen wurden in Betracht gezogen und warum verworfen?]
+
+| *Konsequenzen*
+| [Was wird durch diese Entscheidung einfacher? Was wird schwieriger oder teurer?
+  Welche neuen Risiken entstehen?]
+|===
+
+=== ADR-017: [Make-or-Buy (Eigenentwicklung vs. Outsourcing)]
+
+[cols="1,3"]
+|===
+| *Status*
+| Vorgeschlagen
+
+| *Datum*
+| 02.06.2026
+
+| *Kontext*
+| [Warum musste diese Entscheidung getroffen werden?
+  Welches Problem oder welche Anforderung hat sie ausgelöst?
+  Verweise auf Qualitätsziele oder Einschränkungen aus dem Produktkonzept falls relevant.]
+
+| *Entscheidung*
+| [Was wurde entschieden? Formuliere die Entscheidung als aktiven Satz:
+  „Wir verwenden X, weil..."]
+
+| *Alternativen*
+| [Welche Alternativen wurden in Betracht gezogen und warum verworfen?]
+
+| *Konsequenzen*
+| [Was wird durch diese Entscheidung einfacher? Was wird schwieriger oder teurer?
+  Welche neuen Risiken entstehen?]
+|===
+
+=== ADR-0XY: [Titel der Entscheidung]
 
 [cols="1,3"]
 |===
@@ -771,6 +852,7 @@ Zudem soll die Nutzung ohne App-Store-Installation möglich sein (Einschränkung
 | [Was wird durch diese Entscheidung einfacher? Was wird schwieriger oder teurer?
   Welche neuen Risiken entstehen?]
 |===
+
 
 NOTE: Weitere ADRs nach demselben Schema hinzufügen. Die Nummerierung ist
 fortlaufend und wird nie wiederverwendet.

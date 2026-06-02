@@ -25,7 +25,7 @@ include::../_includes/default-attributes.inc.adoc[]
 | (Woche 2)| Dev-Treffen ✓ | Do 21.05.26 | 15:00 – 18:00 | Discord | link:../technical/architecture.adoc[Architekturdokument 1.-4.]
 | (Woche 3)| Standup (Weekly) ✓ | So 24.05.26 | 15:00 – 16:00 | Discord | link:../Protokolle/Sprint_2/weekly_meetings_S2.adoc#meeting24052026[Weekly]
 | (Woche 4)| Standup (Weekly) ✓ | So 31.05.26 | 15:00 – 16:30 | Discord | link:../Protokolle/Sprint_2/weekly_meetings_S2.adoc#meeting31052026[Weekly]
-| (Woche 4)| *Treffen mit Coach Herr Ringel* | Di 02.06.26 | 13:35 – 14:30 | Raum folgt |
+| (Woche 4)| *Treffen mit Coach Herr Ringel* | Di 02.06.26 | 13:35 – 14:30 | Z355 | link:../Protokolle/Sprint_2/2026-06-02_Treffen_Coach.adoc[2. Coach-Treffen]
 | (Woche 4)| Sprint-Review | Fr 05.06. | Uhrzeit folgt | Raum folgt | 
 | (Woche 4)| Retrospektive | Sa 06.06. | Uhrzeit folgt| Discord | 
 

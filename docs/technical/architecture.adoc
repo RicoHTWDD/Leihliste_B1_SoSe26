@@ -1191,7 +1191,7 @@ braucht, was wiederum einen eigenen Server braucht) nötig wäre
 
 *Negativ/Schwierig:*
 - Atomare Sperren funktionieren nur mit Datenbanken die Row-Level 
-  Locking unterstützen — MariaDB unterstützt dies ✅ (siehe ADR-003)
+  Locking unterstützen — MariaDB unterstützt dies (siehe ADR-003)
 - Bei sehr hoher gleichzeitiger Last können kurze Wartezeiten entstehen 
   während eine Zeile gesperrt ist
 - Optimistic Locking erfordert saubere Fehlerbehandlung im Frontend — 

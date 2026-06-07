@@ -63,22 +63,22 @@ Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 2 be
 
 | Domänenmodell erstellen oder überarbeiten
 | Erstellung eines Domänenglossars zur Klärung zentraler Begriffe und zur Zerlegung des Leihprozesses.
-| `docs/product/domain_glossary.adoc`
+| https://github.com/RicoHTWDD/Leihliste_B1_SoSe26/blob/main/docs/product/domain_glossary.adoc[`docs/product/domain_glossary.adoc`]
 | Schaffen einer gemeinsamen Sprache. Wichtige Unterscheidungen und Prozessabfolgen (Anfrage -> Reservierung -> Ausleihe) wurden geklärt; ohne dies wäre eine technische Umsetzung unmöglich gewesen.
 
 | Architekturtreiber ableiten
 | Identifikation von Randbedingungen, Qualitätsanforderungen und Nutzerflüssen, die das System maßgeblich formen.
-| `docs/technical/architecture.adoc`
+| https://github.com/RicoHTWDD/Leihliste_B1_SoSe26/blob/main/docs/technical/architecture.adoc[`docs/technical/architecture.adoc`]
 | Erkenntnis, dass die Unterscheidung zwischen harten Randbedingungen und reinen Anforderungen komplex ist. Es bedarf der Einbringung des gesamten Teams, um sinnvolle Leitplanken zu definieren.
 
 | ADRs schreiben
 | Dokumentation grundlegender technologischer Weichenstellungen (z.B. Mailversand und DSGVO-Konzept).
-| `docs/technical/architecture.adoc`
+| https://github.com/RicoHTWDD/Leihliste_B1_SoSe26/blob/main/docs/technical/architecture.adoc[`docs/technical/architecture.adoc`]
 | Schafft Begründbarkeit und Nachvollziehbarkeit von Architekturentscheidungen, selbst wenn diese teils noch auf Recherche statt tiefer Erfahrung beruhen. Vermeidet Missverständnisse.
 
 | Walking Skeleton aufbauen
 | Aufbau eines grundlegenden Gerüsts zur Verknüpfung der Technologien (Frontend, Backend, Persistenz, Mailversand).
-| `src/Walking_Skeleton/`
+| https://github.com/RicoHTWDD/Leihliste_B1_SoSe26/blob/main/src/Walking_Skeleton[`src/Walking_Skeleton/`]
 | Bewies die tatsächliche Kompatibilität des Stacks. Deckte auf, wo Entwickler:innen noch Wissenslücken haben und zeigte, dass das System schlanker gehalten werden kann als anfangs befürchtet.
 |===
 

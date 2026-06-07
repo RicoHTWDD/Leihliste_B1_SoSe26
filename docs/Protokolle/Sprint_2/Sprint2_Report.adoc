@@ -3,9 +3,10 @@
 // Bitte fügen Sie hier die Informationen zu Ihrem Team, Projekt, Datum und Repository ein.
 Team:: Leihliste B1
 Projektname:: Leihliste
-Datum:: 08.06.2024
+Datum:: 07.06.2026
 Repository-Link:: https://github.com/RicoHTWDD/Leihliste_B1_SoSe26
 
+//// 
 ====
 Dieser Report soll auf maximal einer Seite zeigen, wie Ihr Team in Sprint 2 gearbeitet hat,
 welche Praktiken Sie angewendet haben, welche technischen Artefakte entstanden sind und was Sie daraus gelernt haben.
@@ -13,15 +14,16 @@ welche Praktiken Sie angewendet haben, welche technischen Artefakte entstanden s
 Der Report ist kein Tätigkeitsprotokoll und kein vollständiges Architekturdokument. Beschreiben Sie nicht nur, _was_ Sie gemacht haben,
 sondern vor allem, _warum_ Sie es gemacht haben, welche Evidenz dadurch entstanden ist und wie diese Evidenz Ihren technischen Ansatz begründet oder verändert hat.
 ====
+////
 
 == 1. Sprintziel und zentrale Fragestellung
-
+////
 Formulieren Sie Ihr Sprintziel in 1–2 Sätzen. Leitfragen:
 
 * Welche technische Fragestellung oder Unsicherheit wollte Ihr Team in diesem Sprint klären?
 * Welche Annahme zum technischen Ansatz sollte Sprint 2 überprüfen?
 * Warum ist Ihr technischer Ansatz nach diesem Sprint besser begründet als vorher?
-
+////
 [cols="1,3", options="header"]
 |===
 | Kriterium | Ihre Antwort
@@ -35,7 +37,7 @@ Formulieren Sie Ihr Sprintziel in 1–2 Sätzen. Leitfragen:
 
 
 == 2. Erwartete Praktiken in Sprint 2
-
+////
 Wählen Sie 3–5 Praktiken aus, die für Ihren Sprint besonders relevant waren.
 Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 2 beschrieben werden. Mögliche Praktiken:
 
@@ -53,7 +55,7 @@ Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 2 be
 * Walking Skeleton als lauffähigen Nachweis des technischen Konzepts aufbauen
 * technische Risiken identifizieren und dokumentieren
 * Kandidaten für einen ersten nützlichen MVP-Ausschnitt in Sprint 3 identifizieren
-
+////
 [cols="1,2,2,2", options="header"]
 |===
 | Praktik
@@ -84,13 +86,13 @@ Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 2 be
 
 
 == 3. Wichtigste technische Lernergebnisse aus Sprint 2
-
+////
 Beschreiben Sie 2–3 zentrale Erkenntnisse aus Sprint 2. Leitfragen:
 
 * Was hat Ihr Team über die technische Machbarkeit des Produkts gelernt?
 * Welche Annahme zum Architekturansatz, Technologie-Stack oder Projektaufbau wurde bestätigt, widerlegt oder präzisiert?
 * Welche technische Evidenz hatte den größten Einfluss auf Ihre Entscheidungen?
-
+////
 [cols="1,3", options="header"]
 |===
 | Kriterium | Ihre Antwort
@@ -106,9 +108,9 @@ Beschreiben Sie 2–3 zentrale Erkenntnisse aus Sprint 2. Leitfragen:
 |===
  
 == 4. Änderungen am technischen Ansatz
-
+////
 Beschreiben Sie konkret anhand von drei Beispielen, was sich durch Ihre Modellierung, Entscheidungen, Spikes oder den Walking Skeleton verändert hat.
-
+////
 [cols="2,2,2", options="header"]
 |===
 | Ursprüngliche Annahme / Option
@@ -130,14 +132,14 @@ Beschreiben Sie konkret anhand von drei Beispielen, was sich durch Ihre Modellie
 
 
 == 5. Architekturtreiber, Entscheidungen und technische Evidenz
-
+////
 Beschreiben Sie kurz, welche Treiber, Entscheidungen und Nachweise für Ihren technischen Ansatz besonders wichtig sind. Leitfragen:
 
 * Welche Qualitätsanforderungen, Randbedingungen oder Nutzerflüsse haben Ihre technischen Entscheidungen besonders geprägt?
 * Welche Architektur- oder Technologieentscheidungen sind für das weitere Projekt besonders wichtig?
 * Welche Evidenz zeigt, dass der gewählte technische Ansatz grundsätzlich tragfähig ist?
 * Welche technischen Risiken oder offenen Fragen bleiben bestehen?
-
+////
 [cols="1,3", options="header"]
 |===
 | Kriterium | Ihre Antwort
@@ -165,14 +167,14 @@ Beschreiben Sie kurz, welche Treiber, Entscheidungen und Nachweise für Ihren te
 
 
 == 6. Anpassung der Arbeitsweise für Sprint 3
-
+////
 Beschreiben Sie, was Ihr Team im nächsten Sprint beibehalten, ändern oder gezielt verbessern will. Leitfragen:
 
 * Welche technische oder organisatorische Arbeitsweise hat gut funktioniert?
 * Was hat Ihre technische Zusammenarbeit, Entscheidungsfindung oder Umsetzung behindert?
 * Was wollen Sie in Sprint 3 konkret anders machen?
 * Welcher erste nützliche MVP-Ausschnitt soll in Sprint 3 umgesetzt oder weiter validiert werden?
-
+////
 [cols="1,3", options="header"]
 |===
 | Kriterium | Ihre Antwort

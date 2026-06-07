@@ -1,10 +1,10 @@
 = Sprint-2-Report: Technischer Ansatz und agile Arbeitsweise
 
 // Bitte fügen Sie hier die Informationen zu Ihrem Team, Projekt, Datum und Repository ein.
-Team::
-Projektname::
-Datum::
-Repository-Link::
+Team:: Leihliste B1
+Projektname:: Leihliste
+Datum:: 08.06.2024
+Repository-Link:: https://github.com/RicoHTWDD/Leihliste_B1_SoSe26
 
 ====
 Dieser Report soll auf maximal einer Seite zeigen, wie Ihr Team in Sprint 2 gearbeitet hat,
@@ -27,10 +27,10 @@ Formulieren Sie Ihr Sprintziel in 1–2 Sätzen. Leitfragen:
 | Kriterium | Ihre Antwort
 
 | Sprintziel
-| 
+| Validierung des technischen Ansatzes für "LeihListe" durch die Klärung der fachlichen Domäne, die Festlegung zentraler Architekturentscheidungen (ADRs) und den praktischen Nachweis der Machbarkeit des gewählten Technologie-Stacks (React, Django, MariaDB, Docker) mithilfe eines lauffähigen Walking Skeletons.
 
 | Zentrale technische Unsicherheit / Annahme
-| 
+| Die Kernunsicherheit lag in der Frage, ob die gewählten Einzeltechnologien im Zusammenspiel funktionieren und den Anforderungen gerecht werden. Durch das praktische Testen im Walking Skeleton und die theoretische Fundierung über ADRs ist das Risiko schwerwiegender Designfehler minimiert und unser Architekturansatz nun praxiserprobt.
 |===
 
 
@@ -61,30 +61,25 @@ Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 2 be
 | Nachweis / Artefakt (Link einfügen)
 | Nutzen, Erkenntnis oder Anpassung
 
-| 
-| 
-| 
-| 
+| Domänenmodell erstellen oder überarbeiten
+| Erstellung eines Domänenglossars zur Klärung zentraler Begriffe und zur Zerlegung des Leihprozesses.
+| `docs/product/domain_glossary.adoc`
+| Schaffen einer gemeinsamen Sprache. Wichtige Unterscheidungen und Prozessabfolgen (Anfrage -> Reservierung -> Ausleihe) wurden geklärt; ohne dies wäre eine technische Umsetzung unmöglich gewesen.
 
-| 
-| 
-| 
-| 
+| Architekturtreiber ableiten
+| Identifikation von Randbedingungen, Qualitätsanforderungen und Nutzerflüssen, die das System maßgeblich formen.
+| `docs/technical/architecture.adoc`
+| Erkenntnis, dass die Unterscheidung zwischen harten Randbedingungen und reinen Anforderungen komplex ist. Es bedarf der Einbringung des gesamten Teams, um sinnvolle Leitplanken zu definieren.
 
-| 
-| 
-| 
-| 
+| ADRs schreiben
+| Dokumentation grundlegender technologischer Weichenstellungen (z.B. Mailversand und DSGVO-Konzept).
+| `docs/technical/architecture.adoc`
+| Schafft Begründbarkeit und Nachvollziehbarkeit von Architekturentscheidungen, selbst wenn diese teils noch auf Recherche statt tiefer Erfahrung beruhen. Vermeidet Missverständnisse.
 
-| 
-| 
-| 
-| 
-
-| 
-| 
-| 
-| 
+| Walking Skeleton aufbauen
+| Aufbau eines grundlegenden Gerüsts zur Verknüpfung der Technologien (Frontend, Backend, Persistenz, Mailversand).
+| `src/Walking_Skeleton/`
+| Bewies die tatsächliche Kompatibilität des Stacks. Deckte auf, wo Entwickler:innen noch Wissenslücken haben und zeigte, dass das System schlanker gehalten werden kann als anfangs befürchtet.
 |===
 
 
@@ -101,13 +96,13 @@ Beschreiben Sie 2–3 zentrale Erkenntnisse aus Sprint 2. Leitfragen:
 | Kriterium | Ihre Antwort
 
 | Erkenntnis 1
-| 
+| **Overengineering vermeiden:** Wir haben gelernt, dass die technische Umsetzung oft einfacher geht als anfänglich gedacht. Annahmen, dass wir zwingend komplexe externe Dienste (z.B. Cloud-Speicher für Bilder oder kostenpflichtige Mail-Services) benötigen, haben sich nicht bestätigt.
 
 | Erkenntnis 2
-| 
+| **Machbarkeit des Tech-Stacks:** Das theoretische Konzept ("Wir glauben, dass Django + React funktionieren") wurde durch den lauffähigen Walking Skeleton in die Praxis überführt. Die Kernkomponenten lassen sich erfolgreich verknüpfen.
 
 | Erkenntnis 3
-| 
+| **Einarbeitungsbedarf erkannt:** Die praktische Arbeit hat gezeigt, dass im Dev-Team noch deutliche Wissenslücken bezüglich der neuen Frameworks herrschen. Architektur kann nur dann erfolgreich implementiert werden, wenn das Team gezielt Zeit in das Erlernen der spezifischen Technologien investiert.
 |===
  
 == 4. Änderungen am technischen Ansatz
@@ -120,17 +115,17 @@ Beschreiben Sie konkret anhand von drei Beispielen, was sich durch Ihre Modellie
 | Neue Erkenntnis oder Evidenz
 | Anpassung am technischen Ansatz, an der Architektur oder am Backlog
 
-| 
-| 
-| 
+| Wir benötigen einen externen, spezialisierten (und potenziell kostenpflichtigen) E-Mail-Dienstleister für Systembenachrichtigungen.
+| Das Walking Skeleton hat praktisch bewiesen, dass ein herkömmlicher SMTP-Postausgangsserver (z.B. über GMX) ausreicht.
+| Anpassung von ADR-007: Wir nutzen Standard-SMTP-Server anstatt dedizierter Mailing-Dienste für Broadcasts.
 
-| 
-| 
-| 
+| Wir benötigen eine externe Cloud-Lösung für die Datenspeicherung und Backups (insbesondere für Bilder).
+| Der Projektrahmen wurde initial überschätzt; lokale Speicherung bzw. die Nutzung der Datenbank sind ausreichend.
+| Anpassung von ADR-008: Entscheidung zugunsten einer Datenbank- / On-Premise-Speicherung statt Cloud-Anbindung.
 
-| 
-| 
-| 
+| Aus DSGVO-Gründen müssen Daten von Nutzer:innen bei Account-Auflösung physisch ("hard") gelöscht werden.
+| Eine harte Löschung würde die Historie der Ausleihen und die Konsistenz der Datenbank zerstören.
+| Anpassung von ADR-012: Wir setzen auf ein Konzept der Anonymisierung der Personendaten anstatt einer vollständigen Löschung, um die Konsistenz zu wahren.
 |===
 
 
@@ -148,16 +143,24 @@ Beschreiben Sie kurz, welche Treiber, Entscheidungen und Nachweise für Ihren te
 | Kriterium | Ihre Antwort
 
 | Wichtigste Architekturtreiber
-| 
+| **Qualitätsziele:** Benutzbarkeit (insbesondere mobile Nutzbarkeit / PWA) und DSGVO-Konformität. **Randbedingungen:** Vorgeschriebener Betrieb auf den Hochschulservern, was Cloud-Lösungen ausschließt, sowie der aktuelle Kenntnisstand des Teams.
 
 | Wichtigste Entscheidungen / ADRs
-| 
+| - **ADR-001 & ADR-002:** React und Django definieren als Fundament unseren primären "Arbeitsplatz".
+
+- **ADR-004:** Docker Compose erlaubt die saubere Kapselung der Komponenten und verhindert Konflikte ("Works on my machine").
+
+- **ADR-008 & ADR-012:** Die Entscheidung gegen die Cloud und für Anonymisierung statt Löschung sichern den Projektrahmen und die Datenkonsistenz.
 
 | Technische Evidenz
-| 
+| Die lauffähigen Bausteine des Walking Skeletons liefern den Beweis, dass der Mailversand, die Interaktion zwischen Frontend und Backend sowie die Datenbankpersistenz in der gewählten Konstellation fehlerfrei miteinander kommunizieren können.
 
 | Verbleibende Risiken / offene Fragen
-| 
+| - **Skalierbarkeit:** Wie verhält sich MariaDB bei über 1.000 Gegenständen und mehr als 100 gleichzeitigen Nutzer:innen?
+
+- **Limitierungen:** Wie viele gleichzeitige SMTP-Verbindungen lässt unser gewählter Mailserver (GMX / HTW) zu?
+
+- **Integrationstests:** Die Einzelteile (z.B. QR-Code Generierung) funktionieren isoliert, müssen aber noch im Zusammenspiel mit der Datenbank und Dateiablage validiert werden.
 |===
 
 
@@ -175,11 +178,15 @@ Beschreiben Sie, was Ihr Team im nächsten Sprint beibehalten, ändern oder gezi
 | Kriterium | Ihre Antwort
 
 | Beibehalten
-| 
+| Den kollegialen, fehlerfreundlichen Umgang im Team sowie die gemeinsame Arbeitssession im Dev-Team. Die Nutzung des GitHub Project Boards mit klaren Zuständigkeiten und die gezielte fachliche Klärung in Remote-Treffen haben sich bewährt.
 
 | Ändern / verbessern
-| 
+| **Meeting-Kultur:** Meetings sollen strikter moderiert und auf 30-45 Minuten begrenzt werden (Fokus auf Entscheidungsfindung statt langem Status-Reporting). 
+
+**Vorbereitung:** Jedes Teammitglied muss sich individuell zielgerichteter vorbereiten.
+
+**Ganzheitlicher Blick:** ADRs dürfen nicht isoliert betrachtet werden, um Widersprüche zu vermeiden. Terminumfragen müssen früher ausgewertet werden.
 
 | Kandidat für Sprint 3
-| 
+| TO-DO
 |===

@@ -188,5 +188,5 @@ Beschreiben Sie, was Ihr Team im nächsten Sprint beibehalten, ändern oder gezi
 **Ganzheitlicher Blick:** ADRs dürfen nicht isoliert betrachtet werden, um Widersprüche zu vermeiden. Terminumfragen müssen früher ausgewertet werden.
 
 | Kandidat für Sprint 3
-| TO-DO
+| Ausleiher können Gegenstände finden und eine Ausleihanfrage stellen.
 |===

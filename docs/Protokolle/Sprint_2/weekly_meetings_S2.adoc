@@ -133,5 +133,18 @@
 
 
 === Naechste Besprechung
-*Termin:* 07.06.2026, 15:00 Uhr 
+*Termin:* 07.06.2026, 14:00 Uhr 
 *Ziel:* Abschluss von Sprint 2, Sprint Planning für Sprint 3
+
+== Meeting 07.06.2026
+:id: meeting07062026
+
+*Datum:* 07.06.2026  
+*Dauer:* 
+*Teilnehmende:* 
+
+=== Agenda
+
+. Weekly Meeting umverlegen? (5 min)
+. Sprint 2 Report absegnen (10 min)
+. Sprint 3 Planung (45 min)

@@ -15,7 +15,7 @@ Dieses Dokument referenziert sie und dokumentiert ausschließlich die technische
 Konsequenzen, die sich daraus ergeben._
 
 _Detaillierte Beschreibungen der internen Softwarestruktur, z.B. Schichten, Komponenten,
-Datenmodell, Interaktionsflüsse, sind im link:design.adoc[Designdokument] (`design.adoc`)beschrieben._
+Datenmodell, Interaktionsflüsse, sind im link:design.adoc[Designdokument] (`design.adoc`) beschrieben._
 
 ---
 
@@ -44,7 +44,7 @@ title System Context Diagram – [Leihliste]
 Person(user, "Nutzer:in", "Verleiher/Ausleiher - Verwendet das System über Web oder Mobile")
 Person(admin, "Administrator:in", "Verwaltet und konfiguriert das System")
 
-System(system, "[Leihliste]", "Kerfunktionalitäten des Systems")
+System(system, "[Leihliste]", "Kernfunktionalitäten des Systems")
 
 System_Ext(ext1, "Externer Dienst\n[z.B. Cloud-Speicher]", "NextCloud, HTW-Dateisystem - speichert Dokumente und Bilder")
 System_Ext(ext2, "Externer Dienst\n[z. B. E-Mail-Server]", "Brevo, MailJet - Versand von Benachrichtigungen")
@@ -180,7 +180,7 @@ sind in <<Architekturentscheidungen>> dokumentiert._
 | Containerisierung
 | Docker Compose
 | Reproduzierbare Umgebung für alle Teammitglieder; Alle Komponenten an einem Ort übersichtlich vereint;
-| ADR-004 tbD
+| ADR-004
 
 | CI/CD
 | GitHub Actions
@@ -200,7 +200,7 @@ sind in <<Architekturentscheidungen>> dokumentiert._
 | Cloud-Speicher
 | über Datenbank
 | ausreichend für die aktuelle Skalierung des Produkts
-| ADR-008 (Jevan, Review: Lidia)
+| ADR-008 (Jevan, Review: Lidia), ADR-013 (Jevan, Review: Lidia)
 
 | QR-Code
 | Python (qrcode - Bibliotheken)
@@ -217,7 +217,7 @@ sind in <<Architekturentscheidungen>> dokumentiert._
 | läuft im Browser; kann wie eine native App installiert werden
 | ADR-011 (Rico, Review: Jevan)
 
-//|Monitioring?; Cloudflare? -> Datenschutz
+//|Monitoring?; Cloudflare? -> Datenschutz
 |===
 
 == Architekturrelevante Anforderungen
@@ -239,41 +239,41 @@ diesen Anforderungen ergeben, und verweist auf die zugehörigen Entscheidungen.
 | ggf. ADR-001, 
 
 | Verfügbarkeit ≥ 99 % während Betriebszeiten
-| Server muss konstant laufen bzw erreichbar sein-> Inwiefern beeinflussen die HTW-Serverwartungen den Proxy-Server?; Fallback-Server? -> Macht das in unserem Rahmen Sinn?; verbreitete Programmiersprache verwenden um allgemeine Verfügbarkeit zu garantieren; Ausfälle und kleinere Fehler werden automatisch erkannt und behoben; fehlertolerante Verarbeitung; Grundfunktionalität bleibt dauerhaft erhalten; Statusüberwachung;
-| To-Do
+| Server muss konstant laufen bzw. erreichbar sein -> Inwiefern beeinflussen die HTW-Serverwartungen den Proxy-Server?; Fallback-Server? -> Macht das in unserem Rahmen Sinn?; verbreitete Programmiersprache verwenden um allgemeine Verfügbarkeit zu garantieren; Ausfälle und kleinere Fehler werden automatisch erkannt und behoben; fehlertolerante Verarbeitung; Grundfunktionalität bleibt dauerhaft erhalten; Statusüberwachung;
+| ADR-004, ADR-010, ADR-016
 
 | Performanceziel: Seitenladezeit < 2 s
 | Python nicht das performanteste -> an Schnittstellen spezialisierte Bibliotheken einbeziehen; Ladezeiten von Daten aus Datenbank optimieren bspw. durch Verwendung von Maria-DB und man bräuchte performante Abfragen; keine vollständige Vorabladung großer Inventarlisten oder Bilder; serverseitige Suche/Filterung mit Pagination
-| ADR-010, ggf. ADR-001, 
+| ADR-010, ADR-003, ggf. ADR-001
 
 | Max. 5 Interaktionen für Standardausleihe
 | Minimalistische Ausleihoberfläche (Effizienz); Eingaben können gespeichert werden und als Nutzer-Standard vorausgefüllt; möglichst wenige Masken; rollenabhängige UI - Wichtigste Kernfunktionen werden direkt angezeigt;
-| To-Do
+| ADR-001, ADR-011
 
 | DSGVO-Konformität
 | Keine personenbezogenen Daten in Logs (Anonymisierung); Datensparsamkeit im Datenbankmodell;
   Recht auf Löschung muss implementierbar sein
-| ADR-012
+| ADR-012, ADR-013
 
 | Betrieb auf Hochschulinfrastruktur
 | Keine Cloud-only-Dienste; Containerisierung für Portabilität erforderlich
-| ggf. ADR-010, 
+| ADR-004, ADR-010, ADR-013, ADR-016
 
 | Cybersecurity
 | sicherer Code -> Schutz vor Datenmanipulation, Diebstahl; Strikte Eingabeüberprüfung; Principle of Least Privilege;
-| ADR-010, 
+| ADR-010, ADR-002, ADR-014, ADR-018
 
 | Infrastrukturvorgaben
 | Rücksprache mit Herr Ringel bzw. Zirkelbach bezüglich der Kompatibilität mit Server;
-| To-Do
+| ADR-004, ADR-010, ADR-013, ADR-016
 
 | Skalierbarkeit
 | Technologieauswahl muss Wachstum ohne grundlegenden Architekturwechsel ermöglichen;
-| ADR-010, 
+| ADR-010, ADR-015, ADR-016, ADR-004
 
 | Datenkonsistenz
 | Statuszeile in Datenbank wo der Objektstatus dokumentiert und ausgelesen wird; Race Conditions (Speicherkonflikte) vermeiden;
-| To-Do
+| ADR-003, ADR-015, ADR-018
 
 | mobile Nutzbarkeit
 | touchfreundliche Bedienung; optimierte Darstellung bei variierender Bildschirmgröße; Nutzung von Browserfunktionen;
@@ -281,11 +281,11 @@ diesen Anforderungen ergeben, und verweist auf die zugehörigen Entscheidungen.
 
 | Rollenmodell
 | Admin -> Alle Rechte; Verleiher -> Lese- und Bearbeitungsrechte an eigenen Ausleihobjekten sowie Genehmigung von Anfragen; Ausleiher -> Leserechte auf das Inventar und eingeschränkte Schreibrechte zur Erstellung eigener Buchungsanfragen;
-| To-Do
+| ADR-002, ADR-014
 
 | Nachvollziehbarkeit
 | Ausleihdaten auf eine eindeutige User-ID speichern in Datenbank; Lückenlose Verleihhistorie -> Transparenz in Schadenfällen;
-| To-Do
+| ADR-012, ADR-018
 
 | Nutzungskontexte
 | Unterscheidung bei Ausleiher und Verleiher über Abfrage was diese tun wollen -> Risiko dass sehr viele Nutzerkonten erstellt werden?; Module? Freundessystem? Lobbies?;
@@ -376,7 +376,7 @@ Gleichzeitig entsteht eine gewisse Abhängigkeit vom Django-Ökosystem. Außerde
 [cols="1,3"]
 |===
 | *Status*
-| Akzeptiert (Funktionert MariaDB auf Hochschulebene?)
+| Akzeptiert (Funktioniert MariaDB auf Hochschulebene?)
 
 | *Datum*
 | 24.05.2026
@@ -390,8 +390,8 @@ Gleichzeitig entsteht eine gewisse Abhängigkeit vom Django-Ökosystem. Außerde
 | *Alternativen*
 | Mögliche Alternativen:
 PostgreSQL ist eine gute und größer aufsetzbare Alternative, die aber komplizierter ist als MariaDB und vorerst der Einfachheit halber abgelehnt wurde.
-SQLite ist eine sehr einfach Datenbank, die jedoch eingeschränkt skalierbar ist und auch die Mehrbenuztung limitiert.
-MongoDB wäre eine nicht relationale Option gewesen, jedoch sind die Teamkenntnise stark beschränkt auf diesem Bereich und dementsprechend hätte man potenzielle Einarbeitungsprobleme und höheren Zeitaufwand als ohnehin schon.
+SQLite ist eine sehr einfache Datenbank, die jedoch eingeschränkt skalierbar ist und auch die Mehrbenutzung limitiert.
+MongoDB wäre eine nicht relationale Option gewesen, jedoch sind die Teamkenntnisse stark beschränkt auf diesem Bereich und dementsprechend hätte man potenzielle Einarbeitungsprobleme und höheren Zeitaufwand als ohnehin schon.
 Microsoft SQL Server ist die Datenbanksoftware die wir bis dato auch in der Universität verwendet haben, jedoch ist die Standardversion kostenpflichtig (es sei denn man könnte dies über die Hochschule lösen).
 
 | *Konsequenzen*
@@ -418,6 +418,12 @@ Teamweite Umstellung auf MariaDB kann, trotz SQL-Vorkenntnissen, temporär zu kl
 
 [cols="1,3"]
 |===
+| *Status*
+| Akzeptiert
+
+| *Datum*
+| 31.05.2026
+
 | *Kontext*
 | Das Projekt LeihListe besteht aus mehreren unterschiedlichen Komponenten: einem Frontend, einem Backend, einer Datenbank und einem Reverse-Proxy.
 Da das Entwickler-Team unterschiedliche Betriebssysteme und lokale Setups nutzt, besteht die Gefahr von "Works on my machine"-Problemen, was die Entwicklung und das Onboarding erschwert. 
@@ -428,21 +434,23 @@ Zudem muss sichergestellt werden, dass das System am Ende reibungslos auf der Ho
 Mit Docker Compose kann der gesamte Technologie-Stack (Frontend, Backend, Datenbank, Proxy) mit einem einzigen Befehl lokal gestartet und vernetzt werden, was die Entwicklung des Walking Skeletons und späterer Features massiv beschleunigt.
 
 | *Alternativen*
-| Eine Alternative wäre die **manuelle lokale Installation** aller Abhängigkeiten (Laufzeitumgebungen, Datenbankserver etc.) durch jeden Entwickler. Dies wurde verworfen, da es extrem fehleranfällig ist, zu Versionskonflikten im Team führt und das finale Deployment auf dem Hochschul-Server unnötig verkompliziert.
+| Eine Alternative wäre die **manuelle lokale Installation** aller Abhängigkeiten (Laufzeitumgebungen, Datenbankserver etc.) durch jeden Entwickler. Dies wurde verworfen, da es extrem fehleranfällig ist, zu Versionskonflikten im Team führt und das finale Deployment auf dem Hochschulserver unnötig verkompliziert.
 Eine weitere Alternative wäre **Kubernetes (K8s)** zur Container-Orchestrierung. Dies wurde verworfen, da es für den Rahmen und die Skalierungsanforderungen dieses Hochschulprojekts völlig überdimensioniert ist und einen viel zu hohen administrativen Einarbeitungsaufwand erfordert.
 
 | *Konsequenzen*
 | *Positiv:*
 - Das "Works on my machine"-Problem wird eliminiert; der Code verhält sich auf jedem Rechner und Server exakt gleich.
 - Neue Entwickler können das gesamte Projekt innerhalb von Minuten aufsetzen, ohne Datenbanken oder Webserver manuell konfigurieren zu müssen.
-- Das spätere Deployment auf dem Hochschul-Server wird stark vereinfacht, da nur die Docker-Umgebung als Voraussetzung gegeben sein muss.
+- Das spätere Deployment auf dem Hochschulserver wird stark vereinfacht, da nur die Docker-Umgebung als Voraussetzung gegeben sein muss.
 - Automatisierte Tests (Integrationstests) können in einer sauberen, jederzeit reproduzierbaren Container-Umgebung in GitHub Actions laufen.
 
 *Negativ/Schwierig:*
+
 - Es entsteht initialer Aufwand, um `docker-compose.yml` (inkl. Netzwerke und Volumes) zu schreiben.
 - Das Team muss grundlegende Docker-Konzepte (Images, Container, Volumes) verstehen und bei Fehlern debuggen können.
 
 *Risiken:*
+
 - Bei lokaler Entwicklung können Container viele Systemressourcen (RAM/CPU) binden.
 - Fehlerhafte Volume-Konfigurationen (z. B. bei der Datenbank) können lokal zu Datenverlust bei Neustarts führen. (Gegenmaßnahme: Saubere Dokumentation in der `deployment.adoc`).
 |===
@@ -458,10 +466,10 @@ Eine weitere Alternative wäre **Kubernetes (K8s)** zur Container-Orchestrierung
 | 24.05.2026
 
 | *Kontext*
-| Da es sich um ein Projekt mit vielen Neuheiten, unerfahrenem Team und trotzdem relativ großem Umfang handelt, ist es sinnvoll (notwendig?) für den insgesamten Workload und Zeitmanagement eine automatische Qualitätssicherung und Vereinfachung von Entwicklungsprozessen zu haben in Form von CI/CD. Entwicklungsschritte wie Build, Testing und (optionale) Deployments werden automatisiert um konsistente und nachvollziehbare Ergebnisse für das gesamte Team zu gewährleisten. Dabei werden auch hier wieder kostenpflichtige und sehr aufwändige Lösungen ausgeschlossen. Dies ist wichtig für Qualitätssicherung und einen transparenten Entwicklungsprozess.
+| Da es sich um ein Projekt mit vielen Neuheiten, unerfahrenem Team und trotzdem relativ großem Umfang handelt, ist es sinnvoll (notwendig?) für den gesamten Workload und Zeitmanagement eine automatische Qualitätssicherung und Vereinfachung von Entwicklungsprozessen zu haben in Form von CI/CD. Entwicklungsschritte wie Build, Testing und (optionale) Deployments werden automatisiert um konsistente und nachvollziehbare Ergebnisse für das gesamte Team zu gewährleisten. Dabei werden auch hier wieder kostenpflichtige und sehr aufwändige Lösungen ausgeschlossen. Dies ist wichtig für Qualitätssicherung und einen transparenten Entwicklungsprozess.
 
 | *Entscheidung*
-| Wir verwenden zur Umsetzung von Continuous Integration (CI) bzw. Continuous Deployment (CD) Github Actions, weil sie in Github (der wichtigsten Arbeitsumgebung) direkt integriert sind, für öffentliche Repositories kostenlos genutzt werden können, gute Einarbeitbarkeit durch eine niedrige Einstiegshürde bieten und auch gut dokumentiert sind. Sie ermöglichen es: Build, Testing, (optionale) Deployments als auch Analysen automatisiert direkt in das Repository einzupflegen.
+| Wir verwenden zur Umsetzung von Continuous Integration (CI) bzw. Continuous Deployment (CD) GitHub Actions, weil sie in GitHub (der wichtigsten Arbeitsumgebung) direkt integriert sind, für öffentliche Repositories kostenlos genutzt werden können, gute Einarbeitbarkeit durch eine niedrige Einstiegshürde bieten und auch gut dokumentiert sind. Sie ermöglichen es: Build, Testing, (optionale) Deployments als auch Analysen automatisiert direkt in das Repository einzupflegen.
 
 | *Alternativen*
 | Mögliche Alternativen:
@@ -573,20 +581,20 @@ Kostenpflichtig bei Überschreiten des Freikontingents.
 [cols="1,3"]
 |===
 | *Status*
-| [Akzeptiert aber bedingt]
+| Abgelehnt, ersetzt durch ADR-013
 
 | *Datum*
 | [22.05.2026]
 
 | *Kontext*
-| [Gegenstände haben viele Daten die in relationalen Datenbanken schlecht nicht oder sogar nicht gespeichern werden können wie Bilder und Dokumente. Daher die Idee der Cloud als Speicherplatz.]
+| [Gegenstände haben viele Daten, die in relationalen Datenbanken schlecht oder gar nicht gespeichert werden können wie Bilder und Dokumente. Daher die Idee der Cloud als Speicherplatz.]
 
 | *Entscheidung*
-| [Wir müssen die Daten so speichern dass wir dabei DSGVO einhalten und daher
-   würden wir Cloud schon nehmen, aber nicht für alle Daten. Personenbezogene Daten sind sensibel und werden daher auf HTW-Server gespeichert. Daten von Gegenstände sowie die Bilder können wir auf Cloud übertragen, sie sind auch ziemlich schwergewichtig und viel Speicherplatz brauchen im Vergleich zu den personenbezogenen Daten, daher passen sie am besten in die Cloud.]
+| [Wir müssen die Daten so speichern, dass wir dabei DSGVO einhalten und daher
+   würden wir die Cloud schon nehmen, aber nicht für alle Daten. Personenbezogene Daten sind sensibel und werden daher auf HTW-Server gespeichert. Daten von Gegenständen sowie die Bilder können wir in die Cloud übertragen, sie sind auch ziemlich schwergewichtig und viel Speicherplatz brauchen, im Vergleich zu den personenbezogenen Daten, daher passen sie am besten in die Cloud.]
 
 | *Alternativen*
-| [Die Alternative dass wir alles in relationaler DB speichern, kann nicht verwirklicht werden wegen Bildern und Dokumenten von Gegenstände und es können auch nicht alle Daten in Cloud gespeichert werden wegen DSGVO-konforme Speicherung der Daten]
+| [Die Alternative, dass wir alles in relationaler DB speichern, kann nicht verwirklicht werden wegen Bildern und Dokumenten von Gegenständen und es können auch nicht alle Daten in der Cloud gespeichert werden wegen DSGVO-konformer Speicherung der Daten]
 
 | *Konsequenzen*
 | [gut: DSGVO-konforme Speicherung
@@ -609,7 +617,7 @@ kritisch: zwei Speichersysteme müssen synchron gehalten werden]
 
 | *Kontext*
 | [Ausleihobjekte sollen per QR-Code schnell
-identifizierbar sein um den Ausleihprozess
+identifizierbar sein, um den Ausleihprozess
 vor Ort zu beschleunigen. Manuelles Suchen
 im Inventar kostet Zeit.]
 
@@ -618,7 +626,7 @@ im Inventar kostet Zeit.]
 Python-Bibliothek qrcode im Backend, weil sie
 einfach integrierbar ist und keine externen
 Dienste benötigt. Die Anzeige erfolgt im
-React Frontend. Das Scannen erfolgt über
+React-Frontend. Das Scannen erfolgt über
 die Kamera]
 
 | *Alternativen*
@@ -626,8 +634,8 @@ die Kamera]
 
 | *Konsequenzen*
 | [gut: keine externen Dienste nötig
-gut: das Scannen und Lesen funktioniert direkt über Brwoser
-schwierig: Datentransfer zwsichen Frontend und Backend und entsprechende Kodierung]
+gut: das Scannen und Lesen funktioniert direkt über Browser
+schwierig: Datentransfer zwischen Frontend und Backend und entsprechende Kodierung]
 |===
 
 === ADR-010: Einsatz von nginx als Reverse-Proxy
@@ -737,7 +745,7 @@ Zudem soll die Nutzung ohne App-Store-Installation möglich sein (Einschränkung
 - Maßnahme: Priorisierung der wichtigsten Offline-Features (z. B. Anzeige der eigenen Ausleihen) und schrittweise Implementierung +
 
 // - Push-Benachrichtigungen funktionieren nicht in allen Browsern +
-// - Maßnahme: Fallback auf  E-Mail-Benachrichtigungen für nicunht unterstützte Browser
+// - Maßnahme: Fallback auf  E-Mail-Benachrichtigungen für nicht unterstützte Browser
 //
 - Installationshürde: Nutzer:innen müssen die PWA manuell installieren +
 - Maßnahme: Klare Anleitung im Onboarding-Flow (z. B. "App zum Homescreen hinzufügen") 
@@ -745,7 +753,7 @@ Zudem soll die Nutzung ohne App-Store-Installation möglich sein (Einschränkung
 |===
 // Review Kommentar: Vorschlag akzeptiert, Alternativen gut beschrieben. Single Page Application (SPA) wäre eine weitere Alternative gewesen, aber die PWA-Features bieten klare Vorteile was Offline Anzeige und das Installieren auf Homepage angeht somit betriebssystemübergreifend. Ebenso ist Push-Benachrichtigungen ein Vorteil. Achtung KI: PWA soll auf iOS/Safari hat bekannte Einschränkungen haben. Inwieweit das stimmt, können wir im Meeting besprechen. Ansonsten wieder sehr solide.
 
-=== ADR-012: DSGVO-konformes Datenmanagement durch Anonymisierung, Soft-Deletes und Datensparsamkeit
+=== ADR-012: DSGVO-konformes Datenmanagement durch Anonymisierung und Datensparsamkeit
 
 [cols="1,3"]
 |===
@@ -761,7 +769,7 @@ Zudem soll die Nutzung ohne App-Store-Installation möglich sein (Einschränkung
 - Datensparsamkeit: Nur absolut notwendige personenbezogene Daten speichern. +
 - Zweckbindung: Daten dürfen nur für den definierten Zweck (Ausleihverwaltung) genutzt werden. +
 
-Daraus ergeben sind folgende Herausforderungen: +
+Daraus ergeben sich folgende Herausforderungen: +
 - Die Ausleihhistorie muss für Verleihende erhalten bleiben (z.B. für Schadensfälle), darf aber keine personenbezogenen Daten enthalten. +
 - Nutzerkonten sind für den Ausleihprozess essenziell, aber Felder wie z.B. Adresse sind nicht zwingend nötig. +
 - Auch nach der Löschung von Nutzer*innen muss die Integrität der Datenbank gewahrt bleiben (z.B. Fremdschlüssel in der Ausleihe-Tabelle).
@@ -772,7 +780,7 @@ Daraus ergeben sind folgende Herausforderungen: +
 - Wir vermeiden redundante Daten: Ausleihhistorie speichert nur Nutzer-ID +
 
 Wir ersetzen bei Account-Löschung und Löschanfragen personenbezogene Daten (Anonymisierung), wenn diese aus anderen Gründen nicht mehr gespeichert werden müssen: +
-- z.B. Name wird zu "Gelöschter Nutzer #<UUID>", anderen Daten werden gelöscht +
+- z.B. Name wird zu "Gelöschter Nutzer #<UUID>", andere Daten werden gelöscht +
 - Nutzer-ID bleibt in der Ausleihhistorie erhalten, um die Integrität der Datenbank zu wahren +
 - gelöschte Nutzer*innen können keine Aktivitäten mehr durchführen +
 Wir definieren Gründe, warum eine Löschung noch ausgesetzt wird: +
@@ -781,9 +789,9 @@ Wir definieren Gründe, warum eine Löschung noch ausgesetzt wird: +
 | *Alternativen*
 | *Hard-Deletes mit Datenbank-Backups:* Physische Löschung aller Nutzerdaten und die Ausleihhistorie wird in separaten Backups archiviert. Verworfen, weil verlagert Problem nur, denn Backups sind dann nicht DSGVO-konform. Außerdem würden Fremdschlüssel auf nicht-existente Nutzer*innen verweisen. +
 
-*Soft-Deletes:* Markieren von Daten als "gelöscht" statt physischer Löschung. Verworfen, weil nuicht DSGVO-konform, da die personenbezogenen Daten physisch erhalten bleiben.
+*Soft-Deletes:* Markieren von Daten als "gelöscht" statt physischer Löschung. Verworfen, weil nicht DSGVO-konform, da die personenbezogenen Daten physisch erhalten bleiben.
 
-*Pseudonymisierun statt Anonymisierung:* Personenbezogene Daten werden durch reversible Pseudonyme ersetzt. Verworfen, weil Re-Identifizierung bleibt möglich, sodass auch nicht DSGVO-konform.
+*Pseudonymisierung statt Anonymisierung:* Personenbezogene Daten werden durch reversible Pseudonyme ersetzt. Verworfen, weil Re-Identifizierung bleibt möglich, sodass auch nicht DSGVO-konform.
 
 | *Konsequenzen*
 | *Positiv:* +
@@ -792,69 +800,139 @@ Wir definieren Gründe, warum eine Löschung noch ausgesetzt wird: +
 - Wartbarkeit: Keine manuellen Backups oder Archivierungen nötig +
 
 *Negativ:* +
-- Umgang mit Lösch-Anfragen, die zeitlich noch gegen Speicher-Gründe widersprechen: Nutzer*innen müssen warten bevor sie Account löschen können bzw. Lösch-Anfragen müssen von Betreiber*innen aufbewahrt und später umgesetzt werden
+- Umgang mit Lösch-Anfragen, die zeitlich noch gegen Speicher-Gründe widersprechen: Nutzer*innen müssen warten, bevor sie den Account löschen können bzw. Lösch-Anfragen müssen von Betreiber*innen aufbewahrt und später umgesetzt werden
 
 *Risiken:* +
 - Re-Identifizierung anonymisierter Daten, also nicht nur Nutzer-ID hochzählen, sodass rekonstruiert werden kann, wer Nutzer 1 war
+|===
+
+
+=== ADR-013: Speicherung von Medien und Dokumenten über die Datenbank statt Cloud-Speicher
+
+[cols="1,3"]
+|===
+| *Status*
+| Vorgeschlagen
+
+| *Datum*
+| 07.06.2026
+
+| *Kontext*
+a| Für Ausleihobjekte können neben Stammdaten auch Bilder oder Dokumente benötigt werden, z. B. Fotos eines Gegenstands, Zustandsdokumentationen oder einfache Nachweise.
+
+Ursprünglich wurde in ADR-008 eine getrennte Datenspeicherung mit Cloud-Speicher für Mediendaten vorgeschlagen. Dieses Vorgehen wurde verworfen, weil es zusätzliche Komplexität, Datenschutzfragen, mögliche Kosten und Synchronisationsaufwand zwischen Datenbank und Cloud-Speicher erzeugt.
+
+Für die aktuelle Skalierung des Produkts ist kein externer Cloud-Speicher notwendig. Die Anwendung soll zunächst auf Hochschulinfrastruktur betrieben werden und möglichst einfach, nachvollziehbar und wartbar bleiben.
+
+| *Entscheidung*
+a| Wir speichern Medien und Dokumente nicht in einem externen Cloud-Speicher, sondern verwalten sie über die bestehende Datenbank bzw. das Datenbankmodell.
+
+Damit bleibt die Datenhaltung für die aktuelle Projektgröße einfach und zentral. Bilder, Dokumente und zugehörige Metadaten können gemeinsam mit den fachlichen Daten des Ausleihobjekts verwaltet, gesichert und gelöscht werden.
+
+Wir verwenden diese Lösung, weil sie:
+
+- zur aktuellen Skalierung des Produkts passt
+- keine zusätzliche Cloud-Infrastruktur benötigt
+- besser zu On-Premise-Hosting auf Hochschulinfrastruktur passt
+- die technische Komplexität reduziert
+- die Nachvollziehbarkeit von Datenhaltung, Backups und Löschung vereinfacht
+
+| *Alternativen*
+a| - *Externer Cloud-Speicher für Mediendaten:* Diese Alternative wurde verworfen, weil zusätzliche Kosten, Datenschutzprüfung, Anbieterabhängigkeit und Synchronisation zwischen Datenbank und Cloud-Speicher entstehen würden.
+- *Getrennte Speicherung personenbezogener Daten in der Datenbank und Mediendaten in der Cloud:* Diese Alternative entspricht dem abgelehnten ADR-008. Sie wurde verworfen, weil zwei Speichersysteme konsistent gehalten werden müssten und dadurch mehr Fehlerquellen entstehen.
+- *Dateisystem auf dem Server ohne klare Datenbankanbindung:* Diese Alternative wurde verworfen, weil Dateien und Datenbankeinträge leichter auseinanderlaufen können, wenn Löschung, Backup oder Migration nicht sauber koordiniert werden.
+
+| *Konsequenzen*
+a| *Positiv:*
+
+- keine Abhängigkeit von einem externen Cloud-Anbieter
+- geringerer Implementierungs- und Wartungsaufwand
+- einfachere DSGVO-Prüfung, weil Daten auf der vorgesehenen Infrastruktur bleiben
+- einfachere lokale Entwicklung und Tests mit Docker Compose
+- Medien und fachliche Daten können gemeinsam verwaltet werden
+
+*Negativ/Schwierig:*
+
+- große Dateien können die Datenbank belasten
+- Ladezeiten können schlechter werden, wenn Bilder nicht optimiert oder zu groß gespeichert werden
+- Speicherbedarf der Datenbank wächst mit der Anzahl der Medien
+
+*Risiken:*
+
+- Bei starkem Wachstum kann die Datenbank durch viele oder große Mediendateien zu groß werden
+  Gegenmaßnahme: Dateigrößen begrenzen, Bildkomprimierung nutzen und bei späterem Wachstum eine neue ADR für objektbasierten Speicher prüfen.
+- Backups können größer und langsamer werden
+  Gegenmaßnahme: Backup-Strategie früh mit dem Betrieb auf Hochschulinfrastruktur abstimmen.
 |===
 
 === ADR-014: Client-Server Webanwendung als grundlegender Architekturstil
 
 [cols="1,3"]
 |===
+| *Status*
+| Vorgeschlagen
+
+| *Datum*
+| 04.06.2026
+
 | *Kontext*
-| Unser Projekt soll eine Plattform zur Verwaltung und Nachverfolgung 
+a| Unser Projekt soll eine Plattform zur Verwaltung und Nachverfolgung 
 von Ausleihen für Hochschulen und private Nutzergruppen bereitstellen.
 Bei der grundlegenden Architekturentscheidung stellt sich die Frage, ob das 
 System als native Desktop-Software, als mobile App oder als Client-Server 
 Webanwendung realisiert werden soll.
 
-Die Anforderungen aus dem Produktkonzept sind eindeutig: +
+Die Anforderungen aus dem Produktkonzept sind eindeutig:
+
 - Betrieb auf Hochschulinfrastruktur (kein App-Store, keine lokale Installation)
 - Plattformunabhängigkeit (Windows, macOS, Linux, Android, iOS)
 - Mehrere Nutzerrollen (Admin, Verleiher, Ausleiher) mit zentraler Datenhaltung
 - Mobile Nutzung für schnelle Ausleihe vor Ort (z. B. mit Smartphone)
-- Zentrale Inventarverwaltung die für alle Nutzer gleichzeitig aktuell ist
+- Zentrale Inventarverwaltung, die für alle Nutzer gleichzeitig aktuell ist
 
 Eine lokale Desktop-Anwendung kann diese Anforderungen strukturell nicht 
 erfüllen, da sie keine zentrale Datenhaltung und keinen plattformübergreifenden 
 Zugriff ermöglicht.
 
 | *Entscheidung*
-| Wir bauen LeihListe als **Client-Server Webanwendung**, weil sie:
+a| Wir bauen LeihListe als **Client-Server Webanwendung**, weil sie:
 
-- **Plattformunabhängig** ist — jedes Gerät mit Browser kann das System 
+- **Plattformunabhängig** ist: jedes Gerät mit Browser kann das System 
   nutzen ohne Installation
-- **Zentrale Datenhaltung** ermöglicht — alle Nutzer sehen denselben 
+- **Zentrale Datenhaltung** ermöglicht: alle Nutzer sehen denselben 
   aktuellen Inventarstand
-- **Rollenbasierter Zugriff** einfach umsetzbar ist — Authentifizierung 
+- **Rollenbasierter Zugriff** einfach umsetzbar ist: Authentifizierung 
   und Autorisierung erfolgen serverseitig
-- **Auf Hochschulinfrastruktur** betreibbar ist — nur ein Server nötig, 
+- **Auf Hochschulinfrastruktur** betreibbar ist: nur ein Server nötig, 
   kein App-Store, keine Verteilung
 - **Mobile Nutzung** Browser auf Smartphone reicht aus (PWA)
-- **Wartung zentralisiert** ist — Updates werden einmal auf dem Server 
+- **Wartung zentralisiert** ist: Updates werden einmal auf dem Server 
   eingespielt, alle Nutzer profitieren sofort
 
 | *Alternativen*
-| Eine Alternative wäre eine **native Desktop-Anwendung** (z.B. mit Java 
+a| Eine Alternative wäre eine **native Desktop-Anwendung** (z.B. mit Java 
 Swing oder Electron). Dies wurde verworfen, weil:
+
 - Jeder Nutzer die Software manuell installieren und aktualisieren müsste
 - Keine zentrale Datenhaltung ohne zusätzlichen Server möglich ist
 - Plattformspezifische Builds für Windows, macOS und Linux nötig wären
-Mobile Nutzung vor Ort nicht möglich wäre
-| Eine weitere Alternative wäre **App Store Applikation oder Play Store Applikation*
- (z.B. mit Kotlin für Andorid oder Swift für Apple/MacOS)
+- Mobile Nutzung vor Ort nicht möglich wäre
+
+Eine weitere Alternative wäre **App-Store-Applikation oder Play-Store-Applikation**
+ (z.B. mit Kotlin für Android oder Swift für Apple/macOS)
 Dies wurde verworfen, weil:
+
 - Separate Entwicklung für Android und iOS den Projektrahmen sprengt
 - Veröffentlichung im App-Store mit hohen Hürden und Kosten verbunden ist
 - Das Team keine nativen App-Entwicklungskenntnisse (Swift, Kotlin) besitzt
 
 | *Konsequenzen*
-| *Positiv:*
-- Jeder Nutzer kann das System sofort über den Browser nutzen — keine 
+a| *Positiv:*
+
+- Jeder Nutzer kann das System sofort über den Browser nutzen, keine 
   Installation, kein Update-Aufwand
 - Zentrale Datenhaltung garantiert konsistenten Inventarstand für alle 
-  Nutzer gleichzeitig — Race Conditions werden serverseitig behandelt
+  Nutzer gleichzeitig, Race Conditions werden serverseitig behandelt
 - Ein einziger Deployment-Prozess auf dem Hochschulserver reicht für 
   alle Plattformen
 - PWA ermöglicht Installation auf dem Homescreen ohne App-Store
@@ -862,71 +940,118 @@ Dies wurde verworfen, weil:
   sauber trennbar
 
 *Negativ/Schwierig:*
-- Internetverbindung ist Voraussetzung — Offline-Nutzung nur eingeschränkt 
+
+- Internetverbindung ist Voraussetzung, Offline-Nutzung nur eingeschränkt 
   möglich (Gegenmaßnahme: PWA-Caching für Kernfunktionen, offline-Ansicht, siehe ADR-011)
-- Serverseitige Sicherheit muss sorgfältig implementiert werden — 
+- Serverseitige Sicherheit muss sorgfältig implementiert werden: 
   Eingabevalidierung, Authentifizierung, HTTPS zwingend erforderlich
-- Seitenladezeit < 2s muss aktiv optimiert werden.
+- Seitenladezeit < 2s muss aktiv optimiert werden
 
 *Risiken:*
+
 - Bei Serverausfall ist das System für alle Nutzer gleichzeitig nicht 
   erreichbar (Gegenmaßnahme: Verfügbarkeitsziel ≥ 99% durch stabile 
   Hochschulinfrastruktur, siehe Produktkonzept)
 - Browser-Kompatibilität muss aktiv getestet werden, insbesondere 
   Safari auf iOS (Gegenmaßnahme: Cross-Browser-Tests ab Sprint 3, 
   siehe ADR-011)
-|===
 
+|===
 === ADR-015: Monolithische Backend-Struktur statt Microservices
 
 [cols="1,3"]
 |===
+| *Status*
+| Vorgeschlagen
+
+| *Datum*
+| 04.06.2026
+
 | *Kontext*
-| Das Backend von unserem Projekt muss mehrere fachliche Domänen abdecken: Nutzerverwaltung, Inventarverwaltung, Ausleihprozess, Benachrichtigungen und QR-Code-Generierung.
+| Das Backend von unserem Projekt muss mehrere fachliche Domänen abdecken:
+Nutzerverwaltung, Inventarverwaltung, Ausleihprozess, Benachrichtigungen 
+und QR-Code Generierung.
 
-Bei der Strukturentscheidung des Backends stellt sich die Frage, ob diese  Domänen als einzelne unabhängige Microservices oder als ein zusammenhängender  Monolith realisiert werden sollen.
+Bei der Strukturentscheidung des Backends stellt sich die Frage, ob diese 
+Domänen als einzelne unabhängige Microservices oder als ein zusammenhängender 
+Monolith realisiert werden sollen.
 
-Die Rahmenbedingungen des Projekts sind: +
-- Hochschulprojekt mit begrenzter Projektlaufzeit (6 Sprints über zwei Semester) +
-- Entwicklerteam 7 Personen ohne Microservices-Erfahrung +
-- Betrieb auf Hochschulinfrastruktur mit begrenzten Serverressourcen +
+Die Rahmenbedingungen des Projekts sind:
+- Hochschulprojekt mit begrenzter Projektlaufzeit (6 Sprints über zwei Semester)
+- Entwicklerteam 7 Personen ohne Microservices-Erfahrung
+- Betrieb auf Hochschulinfrastruktur mit begrenzten Serverressourcen
 - Überschaubare Nutzerzahl (Hochschule + private Nutzergruppen)
 
-Eine Microservices-Architektur würde bedeuten, dass z.B. Nutzerverwaltung, Ausleihservice und Benachrichtigungsservice als separate deploybare Einheiten mit eigener Datenbank und eigenem Container betrieben werden müssten.
+Eine Microservices-Architektur würde bedeuten, dass z.B. 
+Nutzerverwaltung, Ausleihservice und Benachrichtigungsservice als 
+separate deploybare Einheiten mit eigener Datenbank und eigenem 
+Containern betrieben werden müssten.
 
 | *Entscheidung*
-| Wir verwenden eine *monolithische Backend-Struktur* mit Django, weil sie:
+| Wir verwenden eine **monolithische Backend-Struktur** mit Django, 
+weil sie:
 
-- *Entwicklungskomplexität reduziert*: ein Codebase, ein Deployment,  eine Datenbank statt verteilte Systeme +
-- *zum Projektrahmen passt*: Hochschulprojekt mit begrenzter Zeit und Ressource sowie kleine Teamgröße mit bescheidenen Programmiererfahrung würde das wahrscheinlich nicht schaffen +
-- *intern modular strukturiert ist*: fachliche Domänen werden als Module (Dateien) getrennt, ohne verteilte Komplexität
-- *auf Hochschulinfrastruktur* problemlos betreibbar ist: ein einziger Backend-Container reicht +
-- *Datenkonsistenz vereinfacht*: alle Domänen teilen eine Datenbank,keine verteilten Transaktionen nötig +
-- *spätere Migration ermöglicht*: bei Bedarf können einzelne Module später zu Microservices extrahiert werden
+- **Entwicklungskomplexität reduziert** — ein Codebase, ein Deployment, 
+  eine Datenbank statt verteilte Systeme
+- **Zum Projektrahmen passt** — Hochschulprojekt mit begrenzter Zeit und 
+  Ressourcen sowie kleine Teamgröße mit bescheidener Programmiererfahrung
+  würde das höchstwahrscheinlich nicht schaffen
+- **Intern modular strukturiert** ist — fachliche Domänen werden als 
+  Module (Dateien) getrennt, ohne verteilte Komplexität
+- **Auf Hochschulinfrastruktur** problemlos betreibbar ist — ein 
+  einziger Backend-Container reicht
+- **Datenkonsistenz vereinfacht** — alle Domänen teilen eine Datenbank, 
+  keine verteilten Transaktionen nötig
+- **Spätere Migration ermöglicht** — bei Bedarf können einzelne Module 
+  später zu Microservices extrahiert werden
 
 | *Alternativen*
-| Eine Alternative wäre eine *Microservices-Architektur* mit separaten Services pro Domäne (z. B. Auth-Service, Inventory-Service, Notification-Service). Dies wurde verworfen, weil: +
-- der operative Aufwand (Service Discovery, API Gateway, verteiltes Logging, Inter-Service-Kommunikation) den Projektrahmen bei weitem überschreitet +
-- das Team keine Erfahrung mit verteilten Systemen hat: Einarbeitungsaufwand zu hoch +
-- Datenkonsistenz zwischen Services (verteilte Transaktionen, Eventual Consistency) für ein Ausleihsystem kritisch und komplex ist +
-- für den uns zur Verfügung gestellten Server könnte diese Architekur einfach viel zu schwer sein, so dass auch das Programm beim Benutzen nicht flüssig läuft
+| Eine Alternative wäre eine **Microservices-Architektur** mit separaten 
+Services pro Domäne (z. B. Auth-Service, Inventory-Service, 
+Notification-Service). Dies wurde verworfen, weil:
+- Der operative Aufwand (Service Discovery, API Gateway, verteiltes 
+  Logging, Inter-Service-Kommunikation) den Projektrahmen bei weitem 
+  überschreitet
+- Das Team keine Erfahrung mit verteilten Systemen hat — 
+  Einarbeitungsaufwand zu hoch
+- Datenkonsistenz zwischen Services (verteilte Transaktionen, 
+  Eventual Consistency) für ein Ausleihsystem kritisch und komplex ist
+- Für uns zur Verfügung gestellter Server könnte diese Architektur einfach
+viel zu schwer sein, sodass auch das Programm beim Benutzen nicht flüssig ist.
 
 | *Konsequenzen*
-| *Positiv:* +
-- ein einziger `python manage.py runserver` Befehl startet das gesamte Backend — kein verteiltes Setup nötig
-- Datenbankzugriffe über Django ORM sind direkt und konsistent: keine verteilten Transaktionen +
-- neue Teammitglieder verstehen die gesamte Backend-Logik in einem Codebase ohne verteilte Systemkenntnisse +
-- Deployment auf Hochschulserver ist ein einziger Container (siehe ADR-004 Docker) +
-- Fachliche Trennung bleibt erhalten durch Django Apps als Module: 'users', 'Inventar', 'Ausleihe', 'Benachrichtigungen', 'QR-Code'
+| *Positiv:*
+- Ein einziger `python manage.py runserver` Befehl startet das gesamte 
+  Backend — kein verteiltes Setup nötig
++
+Hinweis: `runserver` wird für die lokale Ausführung, für die Entwicklung und im nächsten Semester auch für das Testen gebraucht. Beim Deployment auf dem HTW-Server und bei der Inbetriebnahme der Webanwendung für Nutzer wird `runserver` nicht gebraucht, weil die Anwendung mit Docker Compose in Containern ausgeführt wird.
+- Datenbankzugriffe über Django ORM sind direkt und konsistent — 
+  keine verteilten Transaktionen
+- Neue Teammitglieder verstehen die gesamte Backend-Logik in einem 
+  Codebase ohne verteilte Systemkenntnisse
+- Deployment auf Hochschulserver ist ein einziger Container 
+  (siehe ADR-004 Docker)
+- Fachliche Trennung bleibt erhalten durch Django Apps als Module:
+  'users', 'Inventar', 'Ausleihe', 'Benachrichtigungen', 'QR-Code'
 
-*Negativ/Schwierig:* +
-- bei starkem Wachstum der Nutzerzahl kann das gesamte Backend zum Flaschenhals werden: einzelne Domänen können nicht unabhängig skaliert werden +
-- Fehler in einer Domäne können potenziell das gesamte Backend beeinflussen: sorgfältige Fehlerbehandlung nötig +
-- Codebase wächst mit der Zeit: Modulgrenzen müssen diszipliniert eingehalten werden
+*Negativ/Schwierig:*
 
-*Risiken:* +
-- Unklare Modulgrenzen können später zu Problemen führen: unkontrolliertes Verwachsen der Domänen. Als Gegenmaßnahme: klare Django App Struktur von Beginn an +
-- Datenbankschema wächst mit allen Domänen gemeinsam: Migrationen müssen sorgfältig koordiniert werden (Gegenmaßnahme: Jede Django App verwaltet eigene Migrationen)
+- Bei starkem Wachstum der Nutzerzahl kann das gesamte Backend zum 
+  Flaschenhals werden — einzelne Domänen können nicht unabhängig 
+  skaliert werden
+- Fehler in einer Domäne können potenziell das gesamte Backend 
+  beeinflussen — sorgfältige Fehlerbehandlung nötig
+- Codebase wächst mit der Zeit — Modulgrenzen müssen diszipliniert 
+  eingehalten werden
+
+*Risiken:*
+
+- Unklare Modulgrenzen können später zu Problemen führen — 
+  unkontrolliertes Verwachsen der Domänen. Als Gegenmaßnahme: Klare
+   Django App Struktur von Beginn an
+- Datenbankschema wächst mit allen Domänen gemeinsam — 
+  Migrationen müssen sorgfältig koordiniert werden +
+  (Gegenmaßnahme: Jede Django App verwaltet eigene Migrationen)
 |===
 
 
@@ -944,15 +1069,15 @@ Eine Microservices-Architektur würde bedeuten, dass z.B. Nutzerverwaltung, Ausl
 | *Kontext*
 |  Unser System muss auf einer stabilen, sicheren und kostengünstigen Infrastruktur betrieben werden. Dabei haben wir folgende Rahmenbedingungen identifiziert: +
 - Es gibt kein finanzielles Projektbudget.
-- Die initiale Nutzer*innen zahl ist gering, aber das System soll später auf andere Organisationen erweiterbar sein.
+- Die initiale Nutzer*innenzahl ist gering, aber das System soll später auf andere Organisationen erweiterbar sein.
 - Das Team hat keine Erfahrung mit Cloud-Infrastrukturen.
 
 | *Entscheidung*
 | Wir hosten das System On-Premise auf einem Server der HTW Dresden weil: +
 - kostenfrei +
 - Daten bleiben innerhalb der EU und unter Kontrolle der Hochschule +
-- keine komplexe Cloud-Infrastruktur nötig +
-- nötigenfalls technischen Support für Server und Netzwerk durch Hochschule 
+- das Kernsystem (Backend, Datenbank, Proxy) On-Premise auf der Hochschulinfrastruktur läuft +
+- nötigenfalls technischer Support für Server und Netzwerk durch Hochschule 
 - Hardware der Hochschule reicht für die initiale Nutzerzahl aus und durch Containerisierung ist Umzug auf andere Hardware später möglich
 
 | *Alternativen*
@@ -970,7 +1095,7 @@ Eine Microservices-Architektur würde bedeuten, dass z.B. Nutzerverwaltung, Ausl
 - On-Premise-Hosting ist in der Regel einfacher zu debuggen +
 
 *Negativ:* +
-- bei Saklierung (z.B. > 1.000 Nutzer*innen) Umzug auf andere Hardware nötig +
+- bei Skalierung (z.B. > 1.000 Nutzer*innen) Umzug auf andere Hardware nötig +
 - keine automatische Lastverteilung +
 
 *Risiken:* +
@@ -992,7 +1117,7 @@ Eine Microservices-Architektur würde bedeuten, dass z.B. Nutzerverwaltung, Ausl
 | Bei der Entwicklung eines Software-Projektes stellt sich die Frage, ob wir das System selbst entwickeln (Make) oder bestehende Dienste (Buy) nutzen und anpassen sollten. 
 
 | *Entscheidung*
-| Wir entwickeln das gesamte Verleih-System selbst (Make), weil Eigenentwicklung: +
+| Wir entwickeln das gesamte Verleih-System selbst (Make). Wir entwickeln die fachliche Kernanwendung selbst. Für technische Basisfunktionen nutzen wir etablierte Frameworks und Dienste. Eigenentwicklung ist sinnvoll, weil sie: +
 - ermöglicht eine einfache, nutzerfreundliche Oberfläche, die genau auf die Anforderungen der Aufgabenstellung zugeschnitten ist +
 - garantiert volle Kontrolle über die Datenverarbeitung (DSGVO-Konformität: ADR-012) +
 - ist kostenlos +
@@ -1019,38 +1144,17 @@ Eine Microservices-Architektur würde bedeuten, dass z.B. Nutzerverwaltung, Ausl
 
 |===
 
-=== ADR-0XY: [Titel der Entscheidung]
-
-[cols="1,3"]
-|===
-| *Status*
-| [Vorgeschlagen \| Akzeptiert \| Abgelehnt \| Ersetzt durch ADR-XXX]
-
-| *Datum*
-| [Datum]
-
-| *Kontext*
-| [Warum musste diese Entscheidung getroffen werden?
-  Welches Problem oder welche Anforderung hat sie ausgelöst?
-  Verweise auf Qualitätsziele oder Einschränkungen aus dem Produktkonzept falls relevant.]
-
-| *Entscheidung*
-| [Was wurde entschieden? Formuliere die Entscheidung als aktiven Satz:
-  „Wir verwenden X, weil..."]
-
-| *Alternativen*
-| [Welche Alternativen wurden in Betracht gezogen und warum verworfen?]
-
-| *Konsequenzen*
-| [Was wird durch diese Entscheidung einfacher? Was wird schwieriger oder teurer?
-  Welche neuen Risiken entstehen?]
-|===
-
 === ADR-018: Datenkonsistenz und Vermeidung von Race Conditions 
 beim Ausleihprozess
 
 [cols="1,3"]
 |===
+| *Status*
+| Vorgeschlagen
+
+| *Datum*
+| 06.06.2026
+
 | *Kontext*
 | unsere LeihListe verwaltet einen zentralen Inventarbestand, auf den mehrere 
 Nutzer gleichzeitig zugreifen können. Eine kritische Situation entsteht 
@@ -1155,6 +1259,7 @@ braucht, was wiederum einen eigenen Server braucht) nötig wäre
   vergeben ist
 
 *Negativ/Schwierig:*
+
 - Atomare Sperren funktionieren nur mit Datenbanken die Row-Level 
   Locking unterstützen — MariaDB unterstützt dies (siehe ADR-003)
 - Bei sehr hoher gleichzeitiger Last können kurze Wartezeiten entstehen 
@@ -1163,6 +1268,7 @@ braucht, was wiederum einen eigenen Server braucht) nötig wäre
   Nutzer muss informiert werden wenn die Ausleihe fehlschlägt
 
 *Risiken:*
+
 - Deadlocks können entstehen wenn eine Transaktion mehrere Sperren 
   gleichzeitig hält und zwei Transaktionen gegenseitig aufeinander 
   warten — keine kann weitermachen +
@@ -1173,6 +1279,33 @@ braucht, was wiederum einen eigenen Server braucht) nötig wäre
   Backend und erhöht die Last unnötig +
   (Gegenmaßnahme: Button nach dem ersten Klick sofort deaktivieren 
   bis das Backend geantwortet hat — Umsetzung durch das Frontend-Team)
+|===
+
+=== ADR-0XY: [Titel der Entscheidung]
+
+[cols="1,3"]
+|===
+| *Status*
+| [Vorgeschlagen \| Akzeptiert \| Abgelehnt \| Ersetzt durch ADR-XXX]
+
+| *Datum*
+| [Datum]
+
+| *Kontext*
+| [Warum musste diese Entscheidung getroffen werden?
+  Welches Problem oder welche Anforderung hat sie ausgelöst?
+  Verweise auf Qualitätsziele oder Einschränkungen aus dem Produktkonzept falls relevant.]
+
+| *Entscheidung*
+| [Was wurde entschieden? Formuliere die Entscheidung als aktiven Satz:
+  „Wir verwenden X, weil..."]
+
+| *Alternativen*
+| [Welche Alternativen wurden in Betracht gezogen und warum verworfen?]
+
+| *Konsequenzen*
+| [Was wird durch diese Entscheidung einfacher? Was wird schwieriger oder teurer?
+  Welche neuen Risiken entstehen?]
 |===
 
 

@@ -1,0 +1,39 @@
+[plantuml, "{diagramsdir}/system-context", svg]
+@startuml
+' source: https://github.com/plantuml-stdlib/C4-PlantUML
+' C4 Model
+!include <c4/C4_Context.puml>
+
+' Images
+!include <office/Users/user.puml>
+!include <office/Users/mobile_user.puml>
+!include <c4/C4_Container.puml>
+
+LAYOUT_WITH_LEGEND()
+
+skinparam rectangle {
+  BackgroundColor White
+  BorderColor Black
+  BorderStyle dashed
+}
+
+title  Container Diagram – [Leihliste]
+
+Person(user, "Nutzer:in", "Verleiher/Ausleiher - Verwendet das System über Web oder Mobile")
+Person(admin, "Administrator:in", "Verwaltet und konfiguriert das System")
+
+rectangle "Leihliste\n<<System>>" as system {
+  Container(web, "Web-Frontend", "React - UI für Suche, Reservierung, Ausleihe")
+  Container(api, "Backend API", "Domänenmodule")
+  ContainerDb(db, "Datenbank", "MariaDB - Persistente Datenhaltung des Systems")
+  }
+
+System_Ext(ext2, "Externer Dienst\n[E-Mail-Server]", "SMTP-Mailserver - Versand von Benachrichtigungen")
+
+Rel(user, web, "nutzt", "Web / Mobile")
+Rel(admin, web, "verwaltet")
+Rel(web, api, "ruft auf", "JSON/HTTPS")
+Rel(api, db, "liest/schreibt", "SQL")
+Rel(api, ext2, "sendet Benachrichtigungen über", "SMTP")
+
+@enduml

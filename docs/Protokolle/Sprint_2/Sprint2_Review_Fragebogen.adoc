@@ -1,14 +1,14 @@
 = Sprint-Review 2: {project-name}
-include::../_includes/default-attributes.inc.adoc[]
+include::../../_includes/default-attributes.inc.adoc[]
 
-Bitte gebt uns zu den beiden Themen-Gebieten jeweils eine Rückmeldung.
+Bitte gebt uns zu den drei Themen-Gebieten jeweils eine Rückmeldung.
 Dargestellt sind die zentralen Entscheidungen bzw. Erkenntnisse aus diesem Sprint.
 
-== 1. Domain-Entscheidungen
+== Domain-Entscheidungen
 
 [plantuml, domain-model, svg]
 
-image::../../product/images/domaenenmodell1.svg[Domänenmodell, 800, align="center"]
+image::../../../product/images/domaenenmodell1.svg[Domänenmodell, 800, align="center"]
 
 Die Anwendung von Leihliste erfolgt innerhalb einer *Organisation*. Dies kann eine WG, eine Hochschule oder ein Unternehmen sein. 
 
@@ -27,55 +27,11 @@ Alle getätigten Ausleihen werden in einer *Ausleihhistorie* gespeichert. Dazu k
 - Ist diese Ablauf für dich schlüssig? +
 - Siehst du Widersprüche in dem Konzept oder Vereinfachungs-Potential? 
 
-== 2. Architektur-Entscheidungen
+== Architektur-Entscheidungen
 
+[plantuml, architecture, svg]
 
-[plantuml, "{diagramsdir}/system-context", svg]
-....
-@startuml
-' source: https://github.com/plantuml-stdlib/C4-PlantUML
-' C4 Model
-!include <c4/C4_Context.puml>
-
-' Images
-!include <office/Users/user.puml>
-!include <office/Users/mobile_user.puml>^
-!include <c4/C4_Container.puml>
-
-LAYOUT_WITH_LEGEND()
-
-skinparam rectangle {
-  BackgroundColor White
-  BorderColor Black
-  BorderStyle dashed
-}
-
-title  Container Diagram – [Leihliste]
-
-Person(user, "Nutzer:in", "Verleiher/Ausleiher - Verwendet das System über Web oder Mobile")
-Person(admin, "Administrator:in", "Verwaltet und konfiguriert das System")
-
-rectangle "Leihliste\n<<System>>" as system {
-  Container(web, "Web-Frontend", "React - UI für Suche, Reservierung, Ausleihe")
-  Container(api, "Backend API", "Domänenmodule")
-  ContainerDb(db, "Datenbank", "MariaDB - Persistente Datenhaltung des Systems")
-  }
-
-/'System_Ext(ext1, "Externer Dienst\n[z.B. Cloud-Speicher]", "NextCloud, HTW-Dateisystem - speichert Dokumente und Bilder")'/
-System_Ext(ext2, "Externer Dienst\n[E-Mail-Server]", "SMTP-Mailserver - Versand von Benachrichtigungen")
-/'System_Ext(ext3, "Externer Dienst\n[z.B. Kalender-API]", "Google-Kalender - Reservierungen/Ausleihen in Nutzer-Kalender exportieren")'/
-/'System_Ext(ext, "Externer Dienst\n[z. B. LDAP / SSO]", "über Hochschule - Authentifizierung und Identitätsverwaltung")'/
-
-Rel(user, web, "nutzt", "Web / Mobile")
-Rel(admin, web, "verwaltet")
-Rel(web, api, "ruft auf", "JSON/HTTPS")
-Rel(api, db, "liest/schreibt", "SQL")
-/'Rel(api, ext1, "lädt Fotos & Dokumente hoch/herunter", "WebDAV / HTTPS")'/
-Rel(api, ext2, "sendet Benachrichtigungen über", "SMTP")
-'Rel(api, ext3, "exportiert Termine/Buchungen", "iCal/RestAPI")
-
-@enduml
-....
+image::../../../technical/images/c2modell.svg[Architektur, 400, align="center"]
 
 1) Nutzer interagieren mit Leihliste über ihren Browser oder eine Desktop-Verknüpfung. Dafür bauen wir die Anwendung als *Progressive Web App*, die palttformunabhängig im Browser funktioniert, aber auch lokal installiert werden kann. 
 
@@ -96,7 +52,7 @@ Rel(api, ext2, "sendet Benachrichtigungen über", "SMTP")
 - Sind diese Komponenten und Werkzeuge für dich schlüssig? +
 - Siehst du Widersprüche in dem Konzept oder Vereinfachungs-Potential? 
 
-== 3. Architekturtreiber
+== Architekturtreiber
 
 [cols="2,3", options="header"]
 |===

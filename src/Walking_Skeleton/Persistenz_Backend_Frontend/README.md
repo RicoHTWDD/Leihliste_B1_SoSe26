@@ -327,8 +327,8 @@ http://localhost:5173
 python manage.py runserver
 ```
 
-9. Browser neu laden.
-10. Die Notiz ist weiterhin sichtbar.
+10. Browser neu laden.
+11. Die Notiz ist weiterhin sichtbar.
 
 Damit ist gezeigt, dass Daten über die Persistenzschicht dauerhaft in der lokalen SQLite-Datenbank gespeichert werden.
 

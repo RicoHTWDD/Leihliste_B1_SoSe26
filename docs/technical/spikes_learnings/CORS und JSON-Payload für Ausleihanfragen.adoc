@@ -1,0 +1,265 @@
+= Technischer Spike: CORS und JSON-Payload für Ausleihanfragen
+
+== Leitfrage
+
+Wie konfigurieren wir CORS und strukturieren das JSON-Payload für den REST-Endpunkt, um eine „Ausleihanfrage“ inklusive komplexer Daten wie dem Ausleihzeitraum vom React-Frontend fehlerfrei an das Django-Backend zu übertragen?
+
+Vereinfacht soll der Spike klären:
+
+* Welche CORS-Einstellungen benötigt das Django-Backend?
+* Welche Daten muss das React-Frontend senden?
+* Wie müssen Startdatum und Enddatum formatiert sein?
+* Wie nimmt Django REST Framework diese Daten entgegen und validiert sie?
+
+== Hintergrund und Motivation
+
+Nina möchte eine Ausleihanfrage für einen definierten Zeitraum stellen. Frontend und Backend laufen lokal auf verschiedenen Ports, was zu CORS-Fehlern führen kann. Zudem muss geklärt werden, wie React die Datumsangaben für den Ausleihzeitraum formatiert, damit das Django REST Framework sie nahtlos verarbeiten und über das Django-ORM in die vorgesehene MariaDB schreiben kann.
+
+Das React-Frontend und das Django-Backend laufen lokal auf unterschiedlichen Ports:
+
+* Frontend: `http://localhost:5173`
+* Backend: `http://127.0.0.1:8000`
+
+Der Browser behandelt diese Adressen als unterschiedliche Origins. Deshalb muss das Django-Backend Anfragen des React-Frontends ausdrücklich erlauben.
+
+
+Zusätzlich muss festgelegt werden, in welchem Format React die Ausleihdaten überträgt, damit Django REST Framework die Daten validieren und später in der Datenbank speichern kann.
+
+---
+
+Blockierte Story / Entscheidung:
+
+Als Nina Nutzerin möchte ich eine Ausleihanfrage für einen Gegenstand mit allen relevanten Angaben erstellen können...
+
+---
+
+Für den Spike bedeutet das konkret:
+
+* Das React-Frontend muss eine Ausleihanfrage an das Django-Backend senden können.
+* Django muss Anfragen des lokalen Frontends über CORS erlauben.
+* Die Ausleihanfrage muss mindestens die Gegenstands-ID, das Startdatum und das Enddatum enthalten.
+* Die Datumsangaben müssen in einem Format übertragen werden, das Django REST Framework validieren und verarbeiten kann.
+* Es soll geklärt werden, ob diese Daten anschließend über das Django-ORM in die vorgesehene MariaDB geschrieben werden können.
+
+
+== Art des Spikes
+
+Technischer Spike zur Klärung technischer Unsicherheiten bei:
+
+* der Kommunikation zwischen React und Django,
+* der CORS-Konfiguration,
+* der Struktur des JSON-Payloads,
+* der Übertragung und Validierung von Start- und Enddatum.
+
+== Time-Box
+
+Maximale Dauer: 3 Stunden
+
+Geplant für Sprint: Sprint 3
+
+Bearbeitet von: Til
+
+== Verwendetes Walking Skeleton
+
+Für den Spike wird das Walking Skeleton `Persistenz_Backend_Frontend` verwendet.
+
+Es enthält bereits:
+
+* ein React-Frontend mit Vite,
+* ein Django-Backend,
+* Django REST Framework,
+* eine Inventar-API,
+* einen einfachen POST-Endpunkt für Ausleihanfragen,
+* eine lokale SQLite-Datenbank als Entwicklungsdatenbank,
+* das Paket `django-cors-headers`.
+
+Der vorhandene Endpunkt ändert bisher nur den Status eines Gegenstands von `available` auf `requested`.
+
+Ein Startdatum und ein Enddatum werden aktuell noch nicht übertragen.
+
+== Abgrenzung
+
+Der Spike soll nur nachweisen, dass die technische Übertragung einer Ausleihanfrage funktioniert.
+
+Nicht Bestandteil des Spikes sind:
+
+* eine vollständige Ausleihverwaltung,
+* die Genehmigung oder Ablehnung einer Anfrage,
+* eine Benutzeranmeldung,
+* E-Mail-Benachrichtigungen,
+* ein vollständiges UX-Design.
+
+== Vorgehensweise
+
+. Walking Skeleton starten und den Ausgangszustand prüfen.
+. Vorhandenen POST-Request und die CORS-Konfiguration analysieren.
+. JSON-Payload mit Gegenstands-ID, Startdatum und Enddatum festlegen.
+. React so erweitern, dass das Payload als JSON gesendet wird.
+. Django so erweitern, dass die Daten validiert werden.
+. Gültige und ungültige Eingaben testen.
+. Ergebnis und Empfehlung dokumentieren.
+
+== Festgelegtes JSON-Payload
+
+Für den Proof of Concept wird folgendes Payload verwendet:
+
+## [source,json]
+
+{
+"item_id": 2,
+"start_date": "2026-06-20",
+"end_date": "2026-06-25"
+}
+-
+
+Die Datumswerte werden im ISO-Format `YYYY-MM-DD` übertragen. Dieses Format kann Django REST Framework mit `DateField` direkt validieren.
+
+== Testprotokoll
+
+=== Test 1: Ausgangszustand
+
+Status: erfolgreich
+
+Das React-Frontend und das Django-Backend konnten lokal gestartet werden. Die Testgegenstände wurden im Frontend angezeigt.
+
+Beim Klick auf „Ausleihe anfragen“ wurde folgender Request gesendet:
+
+`POST http://127.0.0.1:8000/api/items/2/request-loan/`
+
+Das Backend antwortete mit `200 OK`.
+
+Der Request enthielt im Ausgangszustand keinen Request-Body. Dies war am Header `Content-Length: 0` erkennbar. Die Gegenstands-ID wurde nur über die URL übergeben. Startdatum und Enddatum wurden noch nicht übertragen.
+
+=== Test 2: CORS
+
+Status: erfolgreich
+
+Getestete Adressen:
+
+* Frontend: `http://localhost:5173`
+* Backend: `http://127.0.0.1:8000`
+
+Das Backend akzeptierte den Request des Frontends. Es trat kein CORS-Fehler auf.
+
+Die Antwort enthielt den Header:
+
+`Access-Control-Allow-Origin: http://localhost:5173`
+
+Damit ist bestätigt, dass das Django-Backend Requests des lokalen React-Frontends erlaubt. Auch der spätere JSON-POST wurde nicht durch CORS blockiert.
+
+=== Test 3: Gültiges JSON-Payload
+
+Status: erfolgreich
+
+Verwendetes Payload:
+
+## [source,json]
+
+{
+"item_id": 2,
+"start_date": "2026-06-20",
+"end_date": "2026-06-25"
+}
+-
+
+React sendete den Request mit `Content-Type: application/json`.
+
+Im Browser war erkennbar, dass alle drei Felder vollständig im Request-Payload enthalten waren. Das Backend antwortete mit `200 OK`.
+
+Django REST Framework akzeptierte Start- und Enddatum im ISO-Format `YYYY-MM-DD`. Der Status des Gegenstands wurde anschließend von `available` auf `requested` geändert.
+
+=== Test 4: Ungültiger Zeitraum
+
+Status: offen
+
+Für diesen Test wird ein Enddatum verwendet, das vor dem Startdatum liegt:
+
+## [source,json]
+
+{
+"item_id": 2,
+"start_date": "2026-06-25",
+"end_date": "2026-06-20"
+}
+-
+
+Erwartetes Ergebnis:
+
+Das Backend lehnt die Anfrage mit `400 Bad Request` ab und gibt eine verständliche Fehlermeldung zurück.
+
+Beobachtung:
+
+[Nach dem Test ausfüllen]
+
+=== Test 5: Ungültiges Datumsformat
+
+Status: offen
+
+Für diesen Test wird ein deutsches Datumsformat verwendet:
+
+## [source,json]
+
+{
+"item_id": 2,
+"start_date": "20.06.2026",
+"end_date": "25.06.2026"
+}
+-
+
+Erwartetes Ergebnis:
+
+Das Backend lehnt das Format mit `400 Bad Request` ab. Für die API wird ausschließlich das ISO-Format `YYYY-MM-DD` verwendet.
+
+Beobachtung:
+
+[Nach dem Test ausfüllen]
+
+== Bisherige Erkenntnisse
+
+* Die Kommunikation zwischen React und Django funktioniert.
+* CORS ist für `http://localhost:5173` korrekt eingerichtet.
+* React kann ein JSON-Payload mit Gegenstands-ID, Startdatum und Enddatum senden.
+* Django REST Framework kann die Datumswerte im Format `YYYY-MM-DD` validieren.
+* Der Zeitraum wird im Proof of Concept bisher nur validiert und zurückgegeben, aber noch nicht dauerhaft als eigene Ausleihanfrage gespeichert.
+
+== Ergebnis
+
+=== Antwort auf die Leitfrage
+
+[Nach Abschluss der beiden Negativtests ausfüllen]
+
+=== Empfehlung und Entscheidung
+
+[Nach Abschluss der beiden Negativtests ausfüllen]
+
+=== Einschränkungen
+
+Das Walking Skeleton verwendet aktuell SQLite als lokale Entwicklungsdatenbank.
+
+Der Spike weist die Übertragung und Validierung durch React, Django REST Framework und das Django-ORM nach. Eine Speicherung in MariaDB ist erst dann vollständig nachgewiesen, wenn derselbe Ablauf zusätzlich mit einer MariaDB-Verbindung getestet wurde.
+
+== Proof of Concept
+
+Branch: `spike/cors-and-payload`
+
+Geänderte Dateien:
+
+* `frontend/src/App.jsx`
+* `backend/inventory/serializers.py`
+* `backend/inventory/views.py`
+
+Geprüfte Konfiguration:
+
+* `backend/leihliste_api/settings.py`
+
+Nachgewiesener Ablauf:
+
+`React -> JSON-POST -> CORS-Prüfung -> Django REST Framework -> Validierung -> Antwort an React`
+
+== Vorläufige Folgeaufgaben
+
+* Eigenes Datenmodell für Ausleihanfragen ergänzen.
+* Ausleihanfragen dauerhaft in der vorgesehenen MariaDB speichern.
+* Frontend-Formular mit Start- und Enddatum erstellen.
+* Automatisierte Tests für gültige und ungültige Ausleihanfragen ergänzen.
+

@@ -34,29 +34,49 @@ function App() {
       });
   }
 
-  function requestLoan(itemId) {
-    setRequestingId(itemId);
-    setItemsError("");
+function requestLoan(itemId) {
+  setRequestingId(itemId);
+  setItemsError("");
 
-    fetch(`${API_URL}/items/${itemId}/request-loan/`, {
-      method: "POST",
+  const loanRequest = {
+    item_id: itemId,
+    start_date: "2026-06-20",
+    end_date: "2026-06-25",
+  };
+
+  fetch(`${API_URL}/items/${itemId}/request-loan/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(loanRequest),
+  })
+    .then(async (response) => {
+      const data = await response.json();
+
+      if (!response.ok) {
+        const errorMessage =
+          data.end_date?.[0] ||
+          data.item_id ||
+          data.detail ||
+          "Ausleihe konnte nicht angefragt werden.";
+
+        throw new Error(errorMessage);
+      }
+
+      return data;
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Ausleihe konnte nicht angefragt werden.");
-        }
-        return response.json();
-      })
-      .then(() => {
-        loadItems();
-      })
-      .catch((error) => {
-        setItemsError(error.message);
-      })
-      .finally(() => {
-        setRequestingId(null);
-      });
-  }
+    .then((data) => {
+      console.log("Ausleihanfrage erfolgreich:", data);
+      loadItems();
+    })
+    .catch((error) => {
+      setItemsError(error.message);
+    })
+    .finally(() => {
+      setRequestingId(null);
+    });
+}
 
   function loadNotes() {
     setNotesLoading(true);

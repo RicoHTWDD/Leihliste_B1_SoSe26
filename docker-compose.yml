@@ -1,0 +1,61 @@
+# docker-compose.yml
+# Orchestriert alle Container für LeihListe.
+# Startet MariaDB, dann Django mit Migrations und Seed-Data.
+#
+# Starten: docker compose up
+# Stoppen: docker compose down
+
+services:
+
+  # MariaDB Datenbank Container
+  # Startet zuerst — Django braucht die DB zum Verbinden
+  datenbank:
+    image: mariadb:11
+    environment:
+      MYSQL_DATABASE: leihliste        # Name der Datenbank
+      MYSQL_ROOT_PASSWORD: rootpassword # Root Passwort
+      MYSQL_USER: leihliste_user        # Django Nutzer
+      MYSQL_PASSWORD: leihliste_pass    # Django Passwort
+    ports:
+      - "3306:3306"
+    # Volume verhindert Datenverlust bei Neustart
+    # Echte Daten bleiben erhalten auch nach docker compose down
+    volumes:
+      - db_daten:/var/lib/mysql
+    # Healthcheck — Django wartet bis DB wirklich bereit ist
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Django Backend Container
+  # Startet nach MariaDB — wegen depends_on
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    # Wartet bis Datenbank wirklich bereit ist
+    depends_on:
+      datenbank:
+        condition: service_healthy
+    environment:
+      # Datenbankverbindung
+      DB_NAME: leihliste
+      DB_USER: leihliste_user
+      DB_PASSWORD: leihliste_pass
+      DB_HOST: datenbank      # Name des DB-Containers
+      DB_PORT: 3306
+    # Befehle die bei jedem Start ausgeführt werden:
+    # 1. migrate    → Tabellen erstellen
+    # 2. seed_data  → Testdaten einfügen
+    # 3. runserver  → Server starten
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py seed_data &&
+             python manage.py runserver 0.0.0.0:8000"
+
+# Persistente Datenspeicherung
+# Daten bleiben auch nach docker compose down erhalten
+volumes:
+  db_daten:

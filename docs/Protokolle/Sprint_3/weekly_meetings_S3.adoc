@@ -2,14 +2,15 @@
 
 = Weekly Meetings - Sprint 3
 
-== Meeting 15.06.2026
-:id: meeting15062026
+== Meeting 14.06.2026
+:id: meeting14062026
 
-*Datum:* 15.06.2026  
+*Datum:* 14.06.2026  
 *Dauer:* 
 *Teilnehmende:* 
 
 === Agenda
+. Aktueller Stand Feedback / Review?
 . Vorschlag ADR-012 beschließen: DSGVO-konformes Datenmanagement durch Anonymisierung und Datensparsamkeit
 . Vorschlag ADR-019 beschließen: Nutzung von Mypy für statische Typprüfung in Python
 . Spikes auswerten (10 min)

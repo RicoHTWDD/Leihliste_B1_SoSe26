@@ -1,0 +1,99 @@
+== Spike: Frontend – State Management für Filter & Anfragen
+
+=== Leitfrage
+
+Reicht die integrierte React Context API aus, um die aktiven Filter ("nach Verfügbarkeit filtern") sowie den Status der gestellten Ausleihanfragen global über verschiedene Ansichten hinweg im Frontend zu verwalten?
+
+=== Hintergrund & Motivation
+
+Nina wird zwischen der Übersichtsseite (Liste filtern) und der Detailansicht wechseln. Wenn sie zurück navigiert, sollen ihre Filtereinstellungen nicht verloren gehen. Gleichzeitig muss die App wissen, wenn sich der aktuelle Bearbeitungsstatus ihrer Ausleihanfragen ändert. Wir müssen klären, wie React diesen Zustand speichert, bevor wir die Navigation bauen.
+
+=== Blockierte Story / Entscheidung
+
+Blockiert die Frontend-Architektur für die Stories:
+
+* "... nach Verfügbarkeit filtern können..."
+* "... aktuellen Bearbeitungsstatus meiner Ausleihanfragen einsehen..."
+
+=== Testprotokoll
+
+Für den Proof of Concept wurde ein kleiner isolierter React-Prototyp mit Vite erstellt. Dafür wurde im Ordner `spike_learnings` ein eigener Spike-Projektordner angelegt. Das Ziel war, die Verwaltung von Filterzuständen und Anfrage-Status unabhängig vom Backend zu testen.
+
+Der Prototyp wurde lokal mit `npm run dev` gestartet. Die Anwendung lief anschließend lokal unter `http://localhost:5173`.
+
+Im Prototyp wurden mehrere Routen angelegt: `/gegenstaende`, `/gegenstaende/:id`, `/anfragen` und `/anfragen/:id`.
+
+Für die Gegenstände wurden künstliche Testdaten direkt im Frontend definiert. Es wurden mehrere Gegenstände mit unterschiedlichen Typen, Standorten und Verfügbarkeitsstatus verwendet, zum Beispiel Mikroskope, Laptop, Beamer und Tablet. Dadurch konnten mehrere Filter gleichzeitig getestet werden.
+
+Getestete Filter:
+
+* Nur verfügbare Gegenstände anzeigen
+* Nur Mikroskope anzeigen
+* Nur Gegenstände im Labor A.101 anzeigen
+
+Die Filter wurden über React Context API global gespeichert. Anschließend wurde geprüft, ob die Filter beim Wechsel zwischen der Übersichtsliste und der Detailansicht erhalten bleiben.
+
+Testablauf für Filter:
+
+* Die Seite `/gegenstaende` wurde geöffnet.
+* Mehrere Filter wurden aktiviert.
+* Die angezeigte Liste wurde geprüft.
+* Eine Detailansicht eines Gegenstands wurde über `/gegenstaende/:id` geöffnet.
+* In der Detailansicht wurde geprüft, ob die aktiven Filter weiterhin im Context vorhanden sind.
+* Danach wurde zurück zur Übersicht navigiert.
+* Es wurde geprüft, ob die Filter weiterhin aktiv sind.
+
+Ergebnis des Filtertests:
+
+Die Filter blieben beim Wechsel zwischen Übersicht und Detailansicht erhalten. Auch mehrere kombinierte Filter konnten gleichzeitig im React Context gespeichert und wiederverwendet werden.
+
+Für die Ausleihanfragen wurden ebenfalls künstliche Testdaten direkt im Frontend definiert. Jede Anfrage hatte einen Gegenstand, einen Ausleiher und einen Bearbeitungsstatus.
+
+Getestete Anfrage-Status:
+
+* gesendet
+* in Bearbeitung
+* bestätigt
+* abgelehnt
+
+Der Anfrage-Status wurde ebenfalls im React Context gespeichert. Zusätzlich wurde eine Funktion zum Ändern des Status implementiert.
+
+Testablauf für Anfrage-Status:
+
+* Die Seite `/anfragen` wurde geöffnet.
+* Der Status einer Anfrage wurde geändert.
+* Die Detailansicht der Anfrage wurde über `/anfragen/:id` geöffnet.
+* In der Detailansicht wurde geprüft, ob der geänderte Status erhalten blieb.
+* Der Status wurde in der Detailansicht erneut geändert.
+* Danach wurde zurück zur Anfrageübersicht navigiert.
+* Es wurde geprüft, ob der neue Status auch in der Übersicht angezeigt wird.
+* Zusätzlich wurde zwischen den Bereichen `Gegenstände` und `Anfragen` gewechselt, um zu prüfen, ob der Status weiterhin erhalten bleibt.
+
+Ergebnis des Anfrage-Status-Tests:
+
+Der Anfrage-Status blieb beim Wechsel zwischen Anfrageübersicht, Detailansicht und anderen Routen erhalten. Änderungen am Status wurden über React Context API global geteilt.
+
+Zusätzlich wurde die Einschränkung des Ansatzes geprüft. Nach einem vollständigen Browser-Reload oder nach dem erneuten Öffnen der Anwendung wird der Context-State zurückgesetzt, da React Context API den Zustand nur im Arbeitsspeicher der laufenden Anwendung hält.
+
+
+=== Antwort auf die Leitfrage
+
+Der Proof of Concept zeigt, dass React Context API ausreicht, um Filterzustände und Anfrage-Status während der laufenden Nutzung der React-App global zu verwalten. Die Zustände bleiben beim Wechsel zwischen Übersicht, Detailansicht und anderen Routen erhalten. Eine zusätzliche State-Management-Bibliothek wie Redux oder Zustand ist aktuell nicht notwendig.
+
+Getestet wurden mehrere kombinierte Filter für Gegenstände sowie Statusänderungen bei Anfragen. Beide Zustände konnten über React Context API erfolgreich zwischen verschiedenen Ansichten geteilt und beibehalten werden.
+
+Einschränkung: Der Context-State ist nur im Arbeitsspeicher der laufenden Anwendung gespeichert. Bei einem Browser-Reload oder nach dem Schließen der PWA geht dieser Zustand verloren.
+
+=== Empfehlung / Entscheidung
+
+Da die Anwendung als PWA genutzt werden soll, sollten wichtige Zustände nicht ausschließlich im React Context gespeichert werden. Filterzustände können zusätzlich z. B. im localStorage oder über URL-Parameter gespeichert werden, damit sie nach einem Reload oder nach dem erneuten Öffnen der PWA erhalten bleiben.
+
+Anfrage-Status sollten dauerhaft im Backend und in der Datenbank gespeichert werden, da sie fachliche Daten sind und für mehrere Nutzer konsistent sein müssen. React Context API kann hier nur den aktuellen Zustand während der Nutzung im Frontend halten.
+
+=== Folgeaufgaben
+
+* Entscheidung treffen, ob Filterzustände und Anfrage-Status nach einem Browser-Reload bzw. nach dem erneuten Öffnen der PWA erhalten bleiben müssen.
+* Falls Filterzustände dauerhaft erhalten bleiben sollen: entscheiden, ob dafür localStorage oder URL-Parameter verwendet werden.
+* Falls Anfrage-Status dauerhaft erhalten bleiben sollen: Anfrage-Status im Backend modellieren und über eine API mit dem Frontend verbinden.
+* Falls Offline-Nutzung relevant wird: prüfen, ob eine lokale Zwischenspeicherung und spätere Synchronisation mit dem Backend notwendig ist.
+* Ergebnis der Entscheidung in der technischen Dokumentation oder in einem ADR festhalten.

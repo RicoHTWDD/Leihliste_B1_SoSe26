@@ -1110,10 +1110,10 @@ Notification-Service). Dies wurde verworfen, weil: +
 [cols="1,3"]
 |===
 | *Status*
-| Akzeptiert
+| Vorgeschlagen
 
 | *Datum*
-| 07.06.2026
+| 13.06.2026
 
 | *Kontext*
 | unsere LeihListe verwaltet einen zentralen Inventarbestand, auf den mehrere  Nutzer gleichzeitig zugreifen können. Eine kritische Situation entsteht  wenn zwei oder mehr Nutzer denselben Gegenstand zeitgleich ausleihen wollen.
@@ -1214,6 +1214,76 @@ Dies wurde verworfen, weil: +
   Backend und erhöht die Last unnötig +
   (Gegenmaßnahme: Button nach dem ersten Klick sofort deaktivieren 
   bis das Backend geantwortet hat — Umsetzung durch das Frontend-Team)
+|===
+
+=== ADR-019: Handhabung von Initial- und Testdaten (Seed Data)beim Container-Start
+
+[cols="1,3"]
+|===
+| *Status*
+| Vorgeschlagen
+
+| *Datum*
+| 13.06.2026
+
+| *Kontext*
+| Damit das Entwicklerteam und die Persona Nina die App direkt nach
+"docker compose up" nutzen können, darf die Datenbank nicht leer sein.
+Jedes Teammitglied und spätere Tester beim Sprint Review brauchen sofort
+Beispieldaten im System, sogeannte Seed-Daten. Gleichzeitig dürfen echte Daten 
+unter keinen Umständen überschrieben oder gelöscht werden.
+Es wurde untersucht auf welcher Ebene das Seeding am sinnvollsten durchgeführt
+werden kann.
+
+| *Entscheidung*
+| Wir verwenden einen *Django Management Command* ("python manage.py seed_data")
+für das automatische Befüllen der Datenbank mit Testdaten, weil er als einziger
+Ansatz echte Nutzerdaten schützt und bei jedem Start zuverlässig funktioniert.
+Jeder Gegenstand bekommt das Kennzeichen "is_seed" in der Datenbank:
+"is_seed=True" kennzeichnet Testdaten die bei jedem Start gelöscht und neu
+eingefügt werden. "is_seed=False" kennzeichnet echte Nutzerdaten die nie
+angefasst werden. Der Command wird automatisch über die "docker-compose.yml"
+beim Container-Start ausgeführt.
+
+| *Alternativen*
+| *MariaDB Init-Skripte ("/docker-entrypoint-initdb.d/"):*
+SQL-Skripte werden automatisch beim ersten Start ausgeführt. Verworfen, weil
+sie nur laufen wenn das Volume leer ist — nicht bei jedem Start. Sobald das
+Volume Daten enthält werden die Skripte übersprungen. Für unser Ziel
+„frische Testdaten bei jedem Start" ist dieser Ansatz nicht geeignet.
+Zusätzlich gehen bei "docker compose down -v" alle echten Daten verloren
+da das Volume komplett gelöscht wird.
+
+*Django-Fixtures ("python manage.py loaddata"):*
+Vordefinierte JSON-Dateien werden beim Container-Start in die Datenbank
+geladen. Verworfen, weil Fixtures blind alle Daten einfügen ohne zu prüfen
+was schon in der Datenbank vorhanden ist. Es gibt keinen Mechanismus um
+zwischen Testdaten und echten Nutzerdaten zu unterscheiden — Duplikate
+entstehen bei jedem Neustart und echte Daten können nicht geschützt werden.
+
+| *Konsequenzen*
+| *Positiv:* +
+- Jedes "docker compose up" liefert sofort frische Testdaten — kein
+  manueller Aufwand für das Team +
+- Echte Nutzerdaten sind durch das "is_seed" Kennzeichen zu jeder Zeit
+  geschützt und werden nie überschrieben +
+- Keine Duplikate — alte Testdaten werden vor dem Einfügen gelöscht +
+- Flexibel anpassbar — Testdaten können jederzeit in "seed_data.py"
+  erweitert oder geändert werden +
+- Nina kann die App direkt nach dem Start nutzen und nach Verfügbarkeit
+  filtern ohne manuell Daten eingeben zu müssen 
+
+*Negativ:* +
+- Das "is_seed" Feld/Attribut/Spalte muss in der Datenbank vorhanden sein — erfordert
+  eine zusätzliche Migration +
+- Entwickler müssen beim manuellen Eintragen von Testdaten daran denken
+  "is_seed=True" zu setzen 
+
+*Risiken:* +
+- Wenn ein Entwickler echte Daten versehentlich mit "is_seed=True" markiert
+  werden diese beim nächsten Start gelöscht +
+  (Gegenmaßnahme: "is_seed=False" ist der Standardwert — nur explizit
+  gesetzte Testdaten werden gelöscht)
 |===
 
 //// 

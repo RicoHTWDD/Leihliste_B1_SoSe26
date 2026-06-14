@@ -1,0 +1,60 @@
+## Zu beantwortende Frage
+
+**Leitfrage:** Wie übergeben wir die Nutzeridentität sicher vom React-Frontend an das Django-Backend, damit eine eingehende Ausleihanfrage eindeutig "Nina" als Ausleiherin zugeordnet werden kann?
+
+---
+
+## Hintergrund & Motivation
+
+Nina möchte ihre *eigenen* Ausleihanfragen einsehen können. Wenn sie eine Anfrage an das Backend sendet, muss Django wissen, wer dieser Nutzer ist (Identifikation). Da React und Django getrennt sind, müssen wir klären, wie wir Session-Tokens oder JWTs generieren und beim POST-Request sicher mitsenden.
+
+**Blockierte Story / Entscheidung:**
+Blockiert die User Stories:
+- "Als Nina Nutzerin möchte ich eine Ausleihanfrage... erstellen können"
+- "... den aktuellen Bearbeitungsstatus meiner Ausleihanfragen einsehen..."
+
+---
+
+## Time-Box
+
+<!--
+Ein Spike hat immer eine feste Zeitgrenze.
+Wenn die Zeit abläuft, wird das Ergebnis dokumentiert — auch wenn die Frage
+nicht vollständig beantwortet werden konnte. In diesem Fall wird eine Folge-Entscheidung
+getroffen: Spike verlängern, anders vorgehen, oder mit Unsicherheit leben.
+-->
+
+**Maximale Dauer:** 5 Stunden
+**Geplant für Sprint:** Sprint 3
+**Bearbeitet von:** Julius
+
+---
+
+## Vorgehensweise
+
+<!--
+Skizziere kurz den geplanten Ansatz. Das zwingt zur Konkretisierung
+und verhindert zielloses Ausprobieren.
+-->
+
+- [ ] Authentifizierungsmöglichkeiten im Django REST Framework (SimpleJWT oder TokenAuthentication) recherchieren.
+- [ ] Im Frontend evaluieren, wie der Token beim Login gespeichert (Local Storage vs. HttpOnly Cookie) und im Header (`Authorization: Bearer <token>`) angehängt wird.
+- [ ] Proof of Concept: Einen geschützten Django-Endpunkt bauen, der nur antwortet, wenn ein gültiger Token mitgesendet wird.
+
+---
+
+## Ergebnis
+
+<!--
+Dieser Abschnitt wird NACH Abschluss des Spikes ausgefüllt — vor dem Schließen des Issues.
+Ein Spike ohne dokumentiertes Ergebnis gilt nicht als abgeschlossen.
+-->
+
+**Antwort auf die Leitfrage:**
+[Nach Abschluss ausfüllen]
+
+**Empfehlung / Entscheidung:**
+[Nach Abschluss ausfüllen]
+
+**Folgeaufgaben:**
+[Nach Abschluss ausfüllen]

@@ -6,8 +6,8 @@
 :id: meeting14062026
 
 *Datum:* 14.06.2026  
-*Dauer:* 
-*Teilnehmende:* 
+*Dauer:* 75 min.
+*Teilnehmende:* Alle Teammitglieder, außer Adrian
 
 === Agenda
 . Vorschlag ADR-012 beschließen: DSGVO-konformes Datenmanagement durch Anonymisierung und Datensparsamkeit (5 min)

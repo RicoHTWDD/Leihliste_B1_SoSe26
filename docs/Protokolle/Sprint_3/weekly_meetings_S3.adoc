@@ -16,3 +16,41 @@
 . Feedback Tasks   (10 min)
 . Rollenzuweisung  (10 min)
 . Woche 2 planen   (10 min)
+
+=== Beschluesse
+
+==== 1) Vorschlag ADR-012 beschließen
+* Der Primärschlüssel in der Datenbank ist nicht fortlaufend, weshalb es bei der Anonymisierung der Nutzerdaten keine Nachvollziehbarkeit gibt. 
+* Diese Änderung (Anonymisierung statt Pseudonymisierung) wurde besprochen und vom Team akzeptiert.
+
+==== 2) Vorschlag ADR-019 beschließen
+* Es wird keine native Typprüfung in Python geben. 
+* Stattdessen soll das Add-On MyPy in VSCode (Extension von Microsoft) verwendet werden, welches Hinweise bei potenziellen Fehlern gibt. 
+* Dies ist relevant für die Backend-Entwickler. Die Erweiterung ist sinnvoll für die Fehlerprävention und wurde akzeptiert, da unklare Datentypen sonst zu Problemen während des Developments und der Komponenteninteraktion führen könnten.
+
+==== 3) Spikes auswerten
+* *Jevan (Datenbank & Docker):* Hat eine andere Vorgehensweise gewählt und Kommentare in Github gelesen. Dies ist relevant für das gesamte Projekt und das Datenbank-Testing. Erkenntnis: Es gibt potenzielle Probleme durch Datenbank-Duplikate in Docker-Compose.
+* *Lidiia (Frontend & PWA):* Es kam die Frage auf, ob die PWA nach einem Website-Reload den Filter und Status verliert. 
+* *Rico (Caching):* Zur Beantwortung von Lidias Frage: Eine Statusveränderung kennt nur "verfügbar" oder "nicht verfügbar", nichts dazwischen. Die wichtige Frage ist, ob man eine Tabelle, Anfrage oder Filter im Cache speichern kann (Backend oder Browser). Die Lösung ist, JSON im Cache abzuspeichern, da dies von der PWA ohnehin indirekt gefordert wird.
+
+==== 4) Feedback Tasks
+* Die aktuellen Tasks im Board wurden noch nicht im Detail angeschaut. 
+* Bei Fragen zu den Tasks sollen sich die Teammitglieder direkt an Justin wenden.
+
+==== 5) Rollenzuweisung
+* Es gibt noch keine tiefgreifende, detaillierte Rollenverteilung, sondern nur den bisherigen funktionalen Split:
+** *Backend (3 Personen):* Jevan, Rico, Julius.
+** *Frontend (2 Personen):* Til, Lidiia.
+
+==== 6) Woche 2 planen
+* *Grundlagen:* Wireframes dienen als Basis für ein einheitliches Design, weshalb es für das Frontend erst etwas später losgeht. Skript 12 dient als Basis, der `src`-Ordner wird in eine logische Architektur unterteilt (siehe Vorlesung 12). 
+* Der Fokus liegt vorerst ausschließlich auf der Desktop-Ansicht, eine Mobilanwendung wird noch nicht angegangen.
+* *Rico:* Bearbeitet das Statusmodell für Verfügbarkeiten und die Ausleihanfrage.
+* *Jevan:* Richtet die Datenbank auf dem Server ein. Grundlage ist das Domänenmodell. Die `docker-compose.yml` erstellt automatisch die Datenbankdatei; Docker ist auch nachträglich anpassbar.
+* *Til:* Erstellt das Grundlayout und Basis-Design (Orientierung an den Wireframes in Miro).
+* *Lidiia:* Setzt die UI-Grundkomponenten und die Statusanzeige in der Übersicht/Detailansicht um.
+* *Julius:* Kümmert sich um die Validierungslogik und das Modell für Ausleihanfragen.
+
+=== Naechste Besprechung
+*Termin:* 21.06.2026, 14:00 Uhr 
+*Ziel:* Weekly Meeting & Überprüfung der Sprint-Fortschritte

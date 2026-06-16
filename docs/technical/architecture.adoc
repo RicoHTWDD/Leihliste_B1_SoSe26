@@ -1216,12 +1216,12 @@ Dies wurde verworfen, weil: +
   bis das Backend geantwortet hat — Umsetzung durch das Frontend-Team)
 |===
 
-=== ADR-019: Handhabung von Initial- und Testdaten (Seed Data)beim Container-Start
+=== ADR-020: Handhabung von Initial- und Testdaten (Seed Data)beim Container-Start
 
 [cols="1,3"]
 |===
 | *Status*
-| Vorgeschlagen
+| Akzeptiert
 
 | *Datum*
 | 13.06.2026

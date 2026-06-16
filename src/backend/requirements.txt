@@ -1,0 +1,10 @@
+"""Liste aller Python-Bibliotheken die das Projekt braucht
+Wenn ein Teammitglied das Projekt klont, führt er einmal aus:
+pip install -r requirements.txt
+→ Er hat sofort alle nötigen Bibliotheken ✅
+Ohne diese Datei → jeder muss manuell raten was installiert werden muss ❌ """
+
+django # Das Backend-Framework — ohne das läuft nichts
+mysqlclient # Django braucht das um mit MariaDB zu kommunizieren
+djangorestframework # Macht Django API-fähig — Frontend kann Daten abrufen
+django-cors-headers # Erlaubt React Frontend auf Django zuzugreifen — ohne das blockiert der Browser alle Anfragen

@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Kategorie, Standort, Gegenstandstyp, Gegenstandsexemplar
 
-# Register your models here.
+admin.site.register(Kategorie)
+admin.site.register(Standort)
+admin.site.register(Gegenstandstyp)
+admin.site.register(Gegenstandsexemplar)

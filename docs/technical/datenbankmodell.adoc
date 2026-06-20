@@ -1,0 +1,272 @@
+= LeihListe – Datenbankmodell
+
+== Tabellen
+
+=== 1. ORGANISATION
+
+[cols="1,1,1,2", options="header"]
+|===
+| Attribut | Datentyp | Schlüssel / Referenz | Bemerkung
+
+| id | INT | PK |
+| name | VARCHAR | |
+| organisationstyp | ENUM | | schule, hochschule, unternehmen, verein, bibliothek, sonstige
+| erstellt_am | DATETIME | |
+| is_seed | BOOLEAN | |
+|===
+
+=== 2. NUTZER
+
+[cols="1,1,1,2", options="header"]
+|===
+| Attribut | Datentyp | Schlüssel / Referenz | Bemerkung
+
+| id | INT | PK |
+| organisation_id | INT | FK → Organisation |
+| vollstaendiger_name | VARCHAR | |
+| email | VARCHAR | | unique
+| passwort_hash | VARCHAR | |
+| telefonnummer | VARCHAR | | nullable
+| benutzerrolle | ENUM | | admin, verleiher, ausleiher
+| kontostatus | ENUM | | verifizierung_ausstehend, aktiv, gesperrt, geloescht
+| erstellt_am | DATETIME | |
+| aktualisiert_am | DATETIME | |
+| is_seed | BOOLEAN | |
+|===
+
+=== 3. KATEGORIE
+
+[cols="1,1,1,2", options="header"]
+|===
+| Attribut | Datentyp | Schlüssel / Referenz | Bemerkung
+
+| id | INT | PK |
+| name | VARCHAR | |
+| beschreibung | VARCHAR | | nullable
+| is_seed | BOOLEAN | |
+|===
+
+=== 4. STANDORT
+
+[cols="1,1,1,2", options="header"]
+|===
+| Attribut | Datentyp | Schlüssel / Referenz | Bemerkung
+
+| id | INT | PK |
+| organisation_id | INT | FK → Organisation |
+| name | VARCHAR | |
+| beschreibung | VARCHAR | | nullable
+| is_seed | BOOLEAN | |
+|===
+
+=== 5. GEGENSTANDSTYP
+
+[cols="1,1,1,2", options="header"]
+|===
+| Attribut | Datentyp | Schlüssel / Referenz | Bemerkung
+
+| id | INT | PK |
+| organisation_id | INT | FK → Organisation |
+| kategorie_id | INT | FK → Kategorie |
+| standort_id | INT | FK → Standort |
+| name | VARCHAR | |
+| beschreibung | TEXT | | nullable
+| maximale_ausleihzeit | INT | | in Tagen
+| erstellt_am | DATETIME | |
+| aktualisiert_am | DATETIME | |
+| is_seed | BOOLEAN | |
+|===
+
+=== 6. GEGENSTANDSEXEMPLAR
+
+[cols="1,1,1,2", options="header"]
+|===
+| Attribut | Datentyp | Schlüssel / Referenz | Bemerkung
+
+| id | INT | PK |
+| gegenstand_id | INT | FK → Gegenstand |
+| inventarnummer | VARCHAR | | unique, nie wiederverwendet
+| zustand | ENUM | | gut, beschaedigt, defekt, verloren
+| verfuegbarkeitsstatus | ENUM | | verfuegbar, reserviert, ausgeliehen, nicht_verfuegbar
+| erstellt_am | DATETIME | |
+| aktualisiert_am | DATETIME | |
+| is_seed | BOOLEAN | |
+|===
+
+=== 7. AUSLEIHANFRAGE
+
+[cols="1,1,1,2", options="header"]
+|===
+| Attribut | Datentyp | Schlüssel / Referenz | Bemerkung
+
+| id | INT | PK |
+| nutzer_id | INT | FK → Nutzer | Ausleiher
+| gegenstand_id | INT | FK → Gegenstand |
+| organisation_id | INT | FK → Organisation |
+| startdatum | DATE | |
+| enddatum | DATE | |
+| anfragestatus | ENUM | | eingereicht, genehmigt, abgelehnt, zurueckgezogen, abgelaufen, teilweise abgelehnt
+| ablehnungsgrund | VARCHAR | | nullable
+| bedingungen_akzeptiert | BOOLEAN | |
+| erstellt_am | DATETIME | |
+| aktualisiert_am | DATETIME | |
+| is_seed | BOOLEAN | |
+|===
+
+=== 8. RESERVIERUNG
+
+[cols="1,1,1,2", options="header"]
+|===
+| Attribut | Datentyp | Schlüssel / Referenz | Bemerkung
+
+| id | INT | PK |
+| ausleihanfrage_id | INT | FK → Ausleihanfrage |
+| gegenstandsexemplar_id | INT | FK → Gegenstandsexemplar |
+| nutzer_id | INT | FK → Nutzer |
+| startdatum | DATE | |
+| enddatum | DATE | |
+| reservierungsstatus | ENUM | | aktiv, erfuellt, storniert, abgelaufen
+| erstellt_am | DATETIME | |
+| aktualisiert_am | DATETIME | |
+| is_seed | BOOLEAN | |
+|===
+
+=== 9. RESERVIERUNGSHISTORIE
+
+[cols="1,1,1,2", options="header"]
+|===
+| Attribut | Datentyp | Schlüssel / Referenz | Bemerkung
+
+| id | INT | PK |
+| reservierung_id | INT | FK → Reservierung |
+| alter_status | ENUM | | aktiv, erfuellt, storniert, abgelaufen
+| neuer_status | ENUM | | aktiv, erfuellt, storniert, abgelaufen
+| kommentar | VARCHAR | | nullable
+| geaendert_am | DATETIME | |
+| is_seed | BOOLEAN | |
+|===
+
+=== 10. AUSLEIHE
+
+[cols="1,1,1,2", options="header"]
+|===
+| Attribut | Datentyp | Schlüssel / Referenz | Bemerkung
+
+| id | INT | PK |
+| reservierung_id | INT | FK → Reservierung | nullable
+| nutzer_id | INT | FK → Nutzer | Ausleiher
+| gegenstandsexemplar_id | INT | FK → Gegenstandsexemplar |
+| startdatum | DATETIME | |
+| enddatum | DATETIME | |
+| faelligkeitsdatum | DATETIME | |
+| tatsaechliches_rueckgabedatum | DATETIME | | nullable
+| ausleihstatus | ENUM | | aktiv, zurueckgegeben, ueberfaellig, storniert
+| erstellt_am | DATETIME | |
+| aktualisiert_am | DATETIME | |
+| is_seed | BOOLEAN | |
+|===
+
+=== 11. LEIHHISTORIE
+
+[cols="1,1,1,2", options="header"]
+|===
+| Attribut | Datentyp | Schlüssel / Referenz | Bemerkung
+
+| id | INT | PK |
+| ausleihvorgang_id | INT | FK → Ausleihvorgang |
+| verleiher_id | INT | FK → Nutzer | Verleiher
+| ausleiher_id | INT | FK → Nutzer | Ausleiher
+| gegenstandsexemplar_id | INT | FK → Gegenstandsexemplar |
+| ausleihdatum | DATETIME | |
+| rueckgabedatum | DATETIME | | nullable
+| zustand_vorher | ENUM | | gut, beschaedigt, defekt, verloren
+| zustand_nachher | ENUM | | gut, beschaedigt, defekt, verloren
+| is_seed | BOOLEAN | |
+|===
+
+=== 12. ZUSTANDSPROTOKOLL
+
+[cols="1,1,1,2", options="header"]
+|===
+| Attribut | Datentyp | Schlüssel / Referenz | Bemerkung
+
+| id | INT | PK |
+| ausleihvorgang_id | INT | FK → Ausleihvorgang |
+| gegenstandsexemplar_id | INT | FK → Gegenstandsexemplar |
+| protokolltyp | ENUM | | checkout, checkin
+| notiz | TEXT | | nullable
+| foto_url | VARCHAR | | nullable
+| erstellt_am | DATETIME | |
+| is_seed | BOOLEAN | |
+|===
+
+=== 13. BENACHRICHTIGUNG
+
+[cols="1,1,1,2", options="header"]
+|===
+| Attribut | Datentyp | Schlüssel / Referenz | Bemerkung
+
+| id | INT | PK |
+| nutzer_id | INT | FK → Nutzer |
+| benachrichtigungstyp | ENUM | | anfrage_eingereicht, anfrage_genehmigt, anfrage_abgelehnt, ausleihe_ueberfaellig, reservierung_laeuft_ab
+| inhalt | TEXT | |
+| status | ENUM | | ausstehend, gesendet, gelesen
+| erstellt_am | DATETIME | |
+| gesendet_am | DATETIME | | nullable
+|===
+
+=== 14. AUSLEIHBESTAETIGUNG
+
+[cols="1,1,1,2", options="header"]
+|===
+| Attribut | Datentyp | Schlüssel / Referenz | Bemerkung
+
+| id | INT | PK |
+| ausleihvorgang_id | INT | FK → Ausleihvorgang |
+| generiert_am | DATETIME | |
+| gesendet_am | DATETIME | | nullable
+| is_seed | BOOLEAN | |
+|===
+
+=== 15. NUTZUNGSBEDINGUNGEN
+
+[cols="1,1,1,2", options="header"]
+|===
+| Attribut | Datentyp | Schlüssel / Referenz | Bemerkung
+
+| id | INT | PK |
+| text | TEXT | |
+| version | VARCHAR | |
+| gueltig_ab | DATETIME | |
+| erstellt_am | DATETIME | |
+| is_seed | BOOLEAN | |
+|===
+
+== Beziehungsübersicht
+
+_Die Min-Max-Notation gibt jeweils die Multiplizität auf beiden Seiten der Beziehung an,
+in der Form (min,max) : (min,max) — gelesen von links nach rechts entsprechend der
+Beziehungsrichtung._
+
+[cols="2,1,2", options="header"]
+|===
+| Beziehung | Kardinalität | Min-Max
+
+| Organisation → Nutzer | 1:N | (1,1) : (0,*)
+| Organisation → Gegenstand | 1:N | (1,1) : (0,*)
+| Organisation → Standort | 1:N | (1,1) : (0,*)
+| Kategorie → Gegenstand | 1:N | (1,1) : (0,*)
+| Standort → Gegenstand | 1:N | (1,1) : (0,*)
+| Gegenstand → Gegenstandsexemplar | 1:N | (1,1) : (1,*)
+| Nutzer → Ausleihanfrage | 1:N | (1,1) : (0,*)
+| Gegenstand → Ausleihanfrage | 1:N | (1,1) : (0,*)
+| Ausleihanfrage → Reservierung | 1:1 | (1,1) : (0,1)
+| Gegenstandsexemplar → Reservierung | 1:N | (1,1) : (0,*)
+| Reservierung → Reservierungshistorie | 1:N | (1,1) : (0,*)
+| Reservierung → Ausleihvorgang | 1:1 | (0,1) : (0,1)
+| Ausleihvorgang → Leihhistorie | 1:1 | (1,1) : (1,1)
+| Ausleihvorgang → Zustandsprotokoll | 1:N | (1,1) : (0,2)
+| Ausleihvorgang → Ausleihbestaetigung | 1:1 | (1,1) : (0,1)
+| Nutzer → Benachrichtigung | 1:N | (1,1) : (0,*)
+| Ausleihanfrage → Nutzungsbedingungen | N:1 | (0,*) : (1,1)
+|===

@@ -1,4 +1,5 @@
-import { Box, Container } from '@mui/material'
+import { Box } from '@mui/material'
+
 import Header from './Header.jsx'
 import Sidebar from './Sidebar.jsx'
 
@@ -27,12 +28,14 @@ function AppLayout({ children }) {
             padding: 3,
           }}
         >
-          <Container
-            maxWidth="xl"
-            disableGutters
+          <Box
+            sx={{
+              width: '100%',
+              maxWidth: 1200,
+            }}
           >
             {children}
-          </Container>
+          </Box>
         </Box>
       </Box>
     </Box>

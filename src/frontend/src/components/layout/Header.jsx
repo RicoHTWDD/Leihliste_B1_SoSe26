@@ -12,28 +12,53 @@ function Header() {
     <AppBar position="static">
       <Toolbar
         sx={{
-          gap: 2,
+          gap: {
+            xs: 1,
+            sm: 2,
+          },
         }}
       >
         <Typography
           variant="h6"
           sx={{
-            width: 180,
+            width: {
+              xs: 'auto',
+              md: 180,
+            },
             flexShrink: 0,
           }}
         >
           LeihListe
         </Typography>
 
-        <TextField
-          size="small"
-          placeholder="Suche"
+        <Box
           sx={{
-            width: 320,
-            backgroundColor: 'background.paper',
-            borderRadius: 1,
+            width: {
+              xs: 64,
+              sm: 220,
+              md: 320,
+            },
+            maxWidth: 320,
+            transition: 'width 180ms ease',
+            '&:focus-within': {
+              width: {
+                xs: 200,
+                sm: 320,
+              },
+            },
           }}
-        />
+        >
+          <TextField
+            fullWidth
+            size="small"
+            placeholder="Suche"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: 'background.paper',
+              },
+            }}
+          />
+        </Box>
 
         <Box
           sx={{
@@ -45,6 +70,7 @@ function Header() {
           sx={{
             width: 36,
             height: 36,
+            flexShrink: 0,
           }}
         >
           T

@@ -7,7 +7,8 @@ class Anfragestatus(models.TextChoices):
     ABGELEHNT = 'abgelehnt', 'Abgelehnt'
     ZURUECKGEZOGEN = 'zurueckgezogen', 'Zurückgezogen'
     ABGELAUFEN = 'abgelaufen', 'Abgelaufen'
-    TEILWEISE_ABGELEHNT = 'teilweise_abgelehnt', 'Teilweise abgelehnt'
+ # Ausleihanfrage bezieht sich auf einen oder mehrere Gegenstandsexemplare genau eines Gegenständstypsen, sodass Vorschlag ist, auch bei n>1 nur alles abzulehnen oder alles zu genehmigen
+ #   TEILWEISE_ABGELEHNT = 'teilweise_abgelehnt', 'Teilweise abgelehnt'
 
 
 class Ausleihanfrage(models.Model):

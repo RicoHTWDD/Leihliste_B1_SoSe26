@@ -63,7 +63,8 @@
 *Teilnehmende:* 
 
 === Agenda
-. Kurzen Stand prüfen (10 min)
+. Kurzen Stand prüfen (15 min)
+. Review 2 + 3 (5 min)
 . Aufgabenverteilung (10 min)
 . Präsentation besprechen (20 min)
 . Einzelgespräche besprechen (10 min)

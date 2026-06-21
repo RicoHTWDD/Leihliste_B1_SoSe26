@@ -1,17 +1,13 @@
-import "./ui.css";
-import { IconInfo } from "./icons";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 
-// Neutraler Hinweis für leere Zustände oder Informationen,
-// z. B. "keine Filter-Treffer" oder "noch keine Anfragen".
+// Neutraler Hinweis für leere Zustände (z. B. keine Treffer, keine Anfragen).
 export default function HintBox({ title, message, children }) {
   return (
-    <div className="hint-box" role="status">
-      <span className="hint-box__icon"><IconInfo /></span>
-      <div className="hint-box__content">
-        {title && <p className="hint-box__title">{title}</p>}
-        {message && <p className="hint-box__message">{message}</p>}
-        {children}
-      </div>
-    </div>
+    <Alert severity="info">
+      {title && <AlertTitle>{title}</AlertTitle>}
+      {message}
+      {children}
+    </Alert>
   );
 }

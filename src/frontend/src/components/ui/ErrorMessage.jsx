@@ -1,15 +1,12 @@
-import "./ui.css";
-import { IconAlertTriangle } from "./icons";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 
-// Fehlermeldung: sagt, WAS schiefging und WIE man es behebt.
+// Fehlermeldung.
 export default function ErrorMessage({ title = "Fehler", message }) {
   return (
-    <div className="error-message" role="alert">
-      <span className="error-message__icon"><IconAlertTriangle /></span>
-      <div className="error-message__content">
-        <p className="error-message__title">{title}</p>
-        {message && <p className="error-message__message">{message}</p>}
-      </div>
-    </div>
+    <Alert severity="error">
+      <AlertTitle>{title}</AlertTitle>
+      {message}
+    </Alert>
   );
 }

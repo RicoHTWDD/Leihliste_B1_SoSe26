@@ -1,30 +1,23 @@
-import "./ui.css";
+import Chip from "@mui/material/Chip";
 
-// Zentrale Zuordnung: Status-Schlüssel -> Anzeigetext + Farbton.
-// Töne: success | warning | danger | info | neutral (Farben in ui.css).
+// Status-Schlüssel -> Anzeigetext + MUI-Farbe.
+// MUI-Farben: success | warning | error | info | default
 const STATUS_CONFIG = {
   // Gegenstände (#18)
-  verfuegbar:          { label: "Verfügbar",           tone: "success" },
-  ausgeliehen:         { label: "Ausgeliehen",          tone: "warning" },
-  reserviert:          { label: "Reserviert",           tone: "info" },
-  defekt:              { label: "Defekt",               tone: "danger" },
+  verfuegbar:          { label: "Verfügbar",           color: "success" },
+  ausgeliehen:         { label: "Ausgeliehen",          color: "warning" },
+  reserviert:          { label: "Reserviert",           color: "info" },
+  defekt:              { label: "Defekt",               color: "error" },
   // Anfragen (#36 / #125)
-  eingereicht:         { label: "Eingereicht",          tone: "info" },
-  genehmigt:           { label: "Genehmigt",            tone: "success" },
-  abgelehnt:           { label: "Abgelehnt",            tone: "danger" },
-  teilweise_abgelehnt: { label: "Teilweise abgelehnt",  tone: "warning" },
-  zurueckgezogen:      { label: "Zurückgezogen",        tone: "neutral" },
+  eingereicht:         { label: "Eingereicht",          color: "info" },
+  genehmigt:           { label: "Genehmigt",            color: "success" },
+  abgelehnt:           { label: "Abgelehnt",            color: "error" },
+  teilweise_abgelehnt: { label: "Teilweise abgelehnt",  color: "warning" },
+  zurueckgezogen:      { label: "Zurückgezogen",        color: "default" },
 };
 
 export default function StatusBadge({ status }) {
-  const config = STATUS_CONFIG[status];
-  // Fallback bei unbekanntem Status: neutral, angezeigter Text = übergebener Wert
-  if (!config) {
-    return <span className="status-badge status-badge--neutral">{status}</span>;
-  }
-  return (
-    <span className={`status-badge status-badge--${config.tone}`}>
-      {config.label}
-    </span>
-  );
+  // Fallback bei unbekanntem Status
+  const config = STATUS_CONFIG[status] ?? { label: status, color: "default" };
+  return <Chip label={config.label} color={config.color} size="small" />;
 }

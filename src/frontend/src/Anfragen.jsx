@@ -21,7 +21,6 @@ const ANFRAGEN = [
   { id: 1, name: "Anfrage 1", status: "eingereicht",         organisation: "Hochschule", eingereichtAm: "13.04.2026" },
   { id: 2, name: "Anfrage 2", status: "abgelehnt",           organisation: "Bibliothek", eingereichtAm: "13.05.2026" },
   { id: 3, name: "Anfrage 3", status: "genehmigt",           organisation: "Hochschule", eingereichtAm: "01.06.2026" },
-  { id: 4, name: "Anfrage 4", status: "teilweise_abgelehnt", organisation: "Firma 3",    eingereichtAm: "17.06.2026" },
   { id: 5, name: "Anfrage 5", status: "zurueckgezogen",      organisation: "Hochschule", eingereichtAm: "28.05.2026" },
 ];
 

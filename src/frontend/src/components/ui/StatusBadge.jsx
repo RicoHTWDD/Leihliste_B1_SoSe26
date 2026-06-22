@@ -12,7 +12,6 @@ const STATUS_CONFIG = {
   eingereicht:         { label: "Eingereicht",          color: "info" },
   genehmigt:           { label: "Genehmigt",            color: "success" },
   abgelehnt:           { label: "Abgelehnt",            color: "error" },
-  teilweise_abgelehnt: { label: "Teilweise abgelehnt",  color: "warning" },
   zurueckgezogen:      { label: "Zurückgezogen",        color: "default" },
 };
 

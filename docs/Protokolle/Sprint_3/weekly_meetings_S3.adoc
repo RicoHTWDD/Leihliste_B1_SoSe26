@@ -65,6 +65,26 @@
 === Agenda
 . Kurzen Stand prüfen (15 min)
 . Review 2 + 3 (5 min)
-. Aufgabenverteilung (10 min)
+. Aufgabenverteilung (15 min)
 . Präsentation besprechen (20 min)
 . Einzelgespräche besprechen (10 min)
+
+=== Beschluesse
+
+==== 1) Kurzer Stand & System-Integration
+* Bei der Mehrheit des Teams lief die Entwicklung gut. 
+* Til und Lidiia beheben aktuell noch aufgetretene Bibliothek-Konflikte im Frontend.
+* Da die funktionierende Verbindung zwischen Frontend und Backend noch fehlt, liegt der technische Fokus nun primär auf dem Aufbau dieser Schnittstelle und der finalen Integration der Systemkomponenten.
+
+==== 2) Code-Architektur & Ordnerstruktur
+* Laut Vorlesung sollte der Code fachlich in `application`, `domain` und `presentation` aufgeteilt werden. Das Team hat sich jedoch entschlossen, die bisherige technische Aufteilung (Frontend, Backend etc.) vorerst beizubehalten, da dies aktuell das Verständnis unter den Teammitgliedern erleichtert.
+* Im nächsten Semester wird der Coach dazu befragt, wie wir unsere Code-Struktur sinnvoller und lehrbuchkonform anpassen können.
+
+==== 3) Entscheidung zu Review 3
+* Die Überlegung, ein vorgezogenes "Review 3" nur mit funktionslosen Frontend-Elementen durchzuführen, wurde abgelehnt. Dies ist im jetzigen Projektzustand zeitlich nicht zu schaffen.
+* Stattdessen nutzt das Team die Zeit, um das Produkt für die große Endpräsentation am Ende des Moduls fertigzustellen. Dort kann wertvolleres Feedback von deutlich mehr anwesenden Feedbackgebern eingeholt werden.
+
+==== 4) Abschlusspräsentation
+* Der Vortrag wird gemeinsam vom Product Owner (PO) und einem Entwickler (Dev) gehalten.
+* Der PO übernimmt den fachlichen Teil, während der Dev den Prototypen live vorführt.
+* Es steht noch nicht fest, welcher Dev die Live-Demo präsentiert. Diese Entscheidung muss bis spätestens kommenden Mittwoch im Team getroffen werden.

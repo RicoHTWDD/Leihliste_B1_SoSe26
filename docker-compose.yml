@@ -29,7 +29,7 @@ services:
   # Django Backend Container
   # Startet nach MariaDB — wegen depends_on
   backend:
-    build: ./src/backend
+    build: ./src/backend/datenbank
     ports:
       - "8000:8000"
     # Wartet bis Datenbank wirklich bereit ist
@@ -44,7 +44,7 @@ services:
       DB_PORT: 3306
     # Damit Änderungen direkt in Container synchronisiert werden und dieser nicht immer manuell neu gebaut werden muss
     volumes:
-      - ./src/backend:/app
+      - ./src/backend/datenbank:/app
     # Bei jedem Start: migrate + seed_data + runserver
     command: >
       sh -c "python manage.py migrate &&

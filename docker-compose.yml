@@ -42,6 +42,9 @@ services:
       DB_PASSWORD: leihliste_pass
       DB_HOST: datenbank
       DB_PORT: 3306
+    # Damit Änderungen direkt in Container synchronisiert werden und dieser nicht immer manuell neu gebaut werden muss
+    volumes:
+      - ./src/backend:/app
     # Bei jedem Start: migrate + seed_data + runserver
     command: >
       sh -c "python manage.py migrate &&

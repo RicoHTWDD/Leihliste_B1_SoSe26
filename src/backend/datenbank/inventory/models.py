@@ -2,17 +2,20 @@ from django.db import models
 
 
 class Zustand(models.TextChoices):
+    NEU = 'neu', 'Neu'
     GUT = 'gut', 'Gut'
     BESCHAEDIGT = 'beschaedigt', 'Beschädigt'
+# defekt oder vreloren müsste sich auch auf den Verfügbarkeitsstatus auswirken, oder?
     DEFEKT = 'defekt', 'Defekt'
     VERLOREN = 'verloren', 'Verloren'
 
 
 class Verfuegbarkeitsstatus(models.TextChoices):
     VERFUEGBAR = 'verfuegbar', 'Verfügbar'
-    RESERVIERT = 'reserviert', 'Reserviert'
-    AUSGELIEHEN = 'ausgeliehen', 'Ausgeliehen'
     NICHT_VERFUEGBAR = 'nicht_verfuegbar', 'Nicht verfügbar'
+# Nicht verfügbar kann im Späteren noch differenziert werden (z.B. kaputt, Verlust, unkar), aber der Status ob verliehen oder reserviert, wird hier NICHT gespeichert, sondern ergebit sich Zeitraum-bezogen aus den (laufenden) Ausleihen und (bestätigten) Reservierungen
+#    RESERVIERT = 'reserviert', 'Reserviert'
+#   AUSGELIEHEN = 'ausgeliehen', 'Ausgeliehen'
 
 
 class Kategorie(models.Model):

@@ -1,4 +1,5 @@
-django # Das Backend-Framework — ohne das läuft nichts
-PyMySQL # Damit Django mit MariaDB sprechen kann
-djangorestframework # Macht Django API-fähig — Frontend kann Daten abrufen
+django >=5.0 #  Das Backend-Framework — ohne das läuft nichts
+PyMySQL >=1.1.0 # Damit Django mit MariaDB sprechen kann
+djangorestframework >=3.14 # Macht Django API-fähig — Frontend kann Daten abrufen
+django-filter>=23.5 # Drittanbieter‑Paket für Django, das die Erstellung von FilterSets (also wiederverwendbaren Filter‑Klassen) vereinfacht und damit das Filtern von QuerySets über GET‑Parameter in Views/REST‑APIs ermöglicht.  
 django-cors-headers # Erlaubt React Frontend auf Django zuzugreifen — ohne das blockiert der Browser alle Anfragen

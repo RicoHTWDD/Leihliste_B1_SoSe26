@@ -17,6 +17,7 @@ class AusleihanfrageViewSet(viewsets.ModelViewSet):
     - GET /api/lending/anfragen/offen/ - Nur offene Anfragen
     - GET /api/lending/anfragen/genehmigt/ - Nur genehmigte Anfragen
     - GET /api/lending/anfragen/status_overview/ - Status-Statistik
+    - GET /api/lending/anfragen/meine_anfragen/  - Alle Ausleihanfragen der eingeloggten Nutzer
     - PATCH /api/lending/anfragen/{id}/update_status/ - Status ändern
     """
     
@@ -32,6 +33,26 @@ class AusleihanfrageViewSet(viewsets.ModelViewSet):
     filterset_fields = ['anfragestatus', 'organisation', 'nutzer', 'gegenstand']
     search_fields = ['nutzer__vollstaendiger_name', 'nutzer__email', 'gegenstand__name']
     ordering_fields = ['erstellt_am', 'startdatum', 'enddatum']
+
+    # Sicherstellung dass der Nutzer seine eigene Ausleihanfrage sieht, nicht die eines anderen
+    def get_queryset(self):
+        """Filtert Anfragen auf die eingeloggte Nutzerin"""
+        return Ausleihanfrage.objects.select_related(
+            'nutzer', 'gegenstand', 'organisation'
+        ).filter(nutzer=self.request.user)
+
+    @action(detail=False, methods=['get'])
+
+    #Die konkrete URL die das Frontend aufruft
+    #Gibt alle Ausleihanfragen der eingeloggten Nutzerin zurück als JSON — mit Status und Zeitraum
+    def meine_anfragen(self, request):
+        """
+        Alle Ausleihanfragen der eingeloggten Nutzerin
+        GET /api/lending/anfragen/meine_anfragen/
+        """
+        anfragen = self.get_queryset()
+        serializer = self.get_serializer(anfragen, many=True)
+        return Response(serializer.data)
     
     @action(detail=False, methods=['get'])
     def offen(self, request):

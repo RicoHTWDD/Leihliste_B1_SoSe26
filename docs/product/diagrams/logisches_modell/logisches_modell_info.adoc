@@ -1,0 +1,127 @@
+= Logisches Datenmodell — Beziehungen, Kardinalitäten und Begründungen
+:toc:
+:toc-title: Inhaltsverzeichnis
+:sectnums:
+
+Vollständige Erklärung aller Beziehungen und Kardinalitäten des logischen Datenmodells mit Begründungen.
+
+
+== Wie man das Modell liest
+
+*Kardinalitäten:* Die Zahl an einer Entität ist ihre Anzahl in der Beziehung.
+
+* `+"1"+` = genau eins (Pflicht).
+* `+"0..1"+` = null oder eins (optional).
+* `+"0..*"+` = null bis viele.
+* `+"1..*"+` = mindestens eins (Pflicht, mindestens eins).
+
+*Beziehungstypen* (das ist die häufige Frage „warum so?"):
+
+* *Komposition* (`+*--+`): Der Teil kann ohne das Ganze nicht existieren; das Ganze löschen → die Teile werden gelöscht. Starke Eigentümerschaft.
+* *Aggregation* (`+o--+`): „gehört zu", aber schwächer; der Teil ist eigenständiger (Stamm-/Referenzdaten).
+* *Assoziation* (`+--+`): Zwei eigenständige Entitäten verweisen aufeinander.
+* *Abhängigkeit* (`+..>+`, „verwendet"): Die Entität hat ein Attribut des jeweiligen Enum-Typs.
+
+== Benutzer & Organisation
+
+* `+ORGANISATION (1) — hat_benutzer — (0..*) BENUTZER+` — Eine Organisation hat viele Benutzer; jeder Benutzer gehört zu genau einer Organisation. *Warum:* Das System ist mandantenfähig — alles ist genau einer Organisation zugeordnet; `+0..*+`, weil eine neue Organisation noch keine Benutzer haben kann.
+* `+BENUTZER (1) — ist_betroffen — (0..*) BENUTZER_VERIFIZIERUNG+` — Eine Verifizierung betrifft genau einen Benutzer; ein Benutzer kann mehrere Verifizierungen haben. *Warum:* Über die Zeit kann es mehrere Prüfungen geben, aber jede betrifft genau eine Person.
+* `+BENUTZER (0..1) — fuehrt_durch — (0..*) BENUTZER_VERIFIZIERUNG+` — Dieselbe Verifizierung wird optional von einem Benutzer (Admin/Manager) durchgeführt. *Warum:* „Wer wird geprüft" und „wer prüft" sind getrennt; der Prüfer ist `+0..1+`, weil bei der Erstellung noch nicht entschieden ist (oder die Prüfung automatisch läuft). Erstes Beispiel für mehrere Rollen derselben Entität BENUTZER.
+* `+BENUTZER (1) — erhaelt — (0..*) AUTH_TOKEN+` — Ein Token (E-Mail-Verifizierung, Passwort-Reset) gehört immer zu genau einem Benutzer. *Warum:* Ohne Eigentümer ist ein Token sinnlos (Pflicht); mehrere im Zeitverlauf sind möglich.
+* `+BENUTZER_VERIFIZIERUNG (0..1) — nutzt_token — (0..1) AUTH_TOKEN+` — Eine Verifizierung nutzt optional ein Token, ein Token gehört optional zu einer Verifizierung. *Warum:* Beide Enden optional — nicht jede Verifizierung nutzt ein Token, und nicht jedes Token gehört zu einer Verifizierung (ein Passwort-Reset-Token ist keine Verifizierung).
+* `+BENUTZER (1) — erhaelt — (0..*) BENACHRICHTIGUNG+` — Eine Benachrichtigung hat genau einen Empfänger. *Warum:* Jede Benachrichtigung ist an genau einen Benutzer adressiert.
+* `+BENUTZER (0..1) — gesendet_von — (0..*) BENACHRICHTIGUNG+` — Der Absender einer Benachrichtigung ist optional. *Warum:* Die meisten Benachrichtigungen erzeugt das System (kein menschlicher Absender), daher `+0..1+`.
+
+== Inventar
+
+* `+ORGANISATION (1) o-- verwaltet — (0..*) KATEGORIE / STANDORT  [Aggregation]+` — Die Organisation verwaltet Kategorien und Standorte; jede gehört zu genau einer Organisation. *Warum:* Aggregation statt Komposition, weil das Stamm-/Referenzdaten der Organisation sind — eigenständiger als „eingebaute Teile". Daher die schwächere Beziehung, anders als bei Bildern und Einheiten.
+* `+KATEGORIE (1) — kategorisiert — (0..*) GEGENSTAND+` — Jeder Gegenstand hat genau eine Kategorie; eine Kategorie umfasst viele Gegenstände. *Warum:* Die „1" macht die Kategorie zur Pflicht — nötig für Ordnung und Filterung des Katalogs.
+* `+STANDORT (0..1) — standard_standort — (0..*) GEGENSTAND+` — Ein Gegenstand hat einen optionalen Standardstandort. *Warum:* Das ist der Standort auf Typebene; der reale Lagerort wird auf Einheitsebene geführt (siehe unten), daher hier optional (`+0..1+`).
+* `+ORGANISATION (1) — besitzt — (0..*) GEGENSTAND+` — Ein Gegenstand gehört genau einer Organisation. *Warum:* Mandantenfähigkeit.
+* `+GEGENSTAND (1) *-- hat_bilder — (0..*) GEGENSTAND_BILD  [Komposition]+` — Ein Gegenstand hat 0..viele Bilder, jedes Bild gehört zu genau einem Gegenstand. *Warum:* Komposition, weil ein Bild nur im Kontext seines Gegenstands existiert (Gegenstand löschen → Bilder weg); `+0..*+`, weil ein Gegenstand auch ohne Bild sein kann.
+* `+BENUTZER (0..1) — hochgeladen_von — (0..*) GEGENSTAND_BILD+` — Wer das Bild hochgeladen hat, ist optional. *Warum:* Hochladende:r kann unbekannt/gelöscht sein oder es ist ein Systemimport (`+0..1+`).
+* `+GEGENSTAND (1) *-- besteht_aus — (1..*) GEGENSTAND_EINHEIT  [Komposition, 1..*]+` — Die Schlüsselbeziehung: GEGENSTAND ist der Typ („Mikroskop"), GEGENSTAND_EINHEIT das konkrete physische Exemplar mit Inventarnummer. *Warum:* Komposition, weil ein Exemplar ohne seinen Typ sinnlos ist. `+1..*+`, weil ein existierender Typ mindestens eine Einheit hat (sonst nur ein leerer Katalogeintrag). Diese Trennung Typ/Exemplar bestimmt viele weitere Kardinalitäten.
+* `+STANDORT (1) — lagert — (0..*) GEGENSTAND_EINHEIT+` — Jede physische Einheit wird an genau einem Ort gelagert. *Warum:* „1" (Pflicht), weil ein physisches Objekt immer irgendwo ist — man weiß stets, wo es liegt. Im Gegensatz zum optionalen Standardstandort des Typs (`+0..1+`).
+* `+GEGENSTAND_EINHEIT (1) — hat_statusaenderungen — (0..*) GEGENSTAND_STATUS_HISTORIE+` — Verlauf der Statusänderungen je Einheit. *Warum:* Audit-Trail (was/wann); `+0..*+`, weil eine neue Einheit noch keine Änderung hat.
+* `+BENUTZER (1) — aendert_status — (0..*) GEGENSTAND_STATUS_HISTORIE+` — Jede Statusänderung wurde von genau einem Benutzer vorgenommen. *Warum:* Nachvollziehbarkeit und Verantwortlichkeit — jede Änderung ist einer Person zuordenbar.
+
+== Ausleihanfrage
+
+* `+BENUTZER (1) — erstellt — (0..*) AUSLEIHANFRAGE+` — Eine Anfrage hat genau einen Ersteller (den Antragsteller). *Warum:* Jede Anfrage geht auf genau einen Benutzer zurück.
+* `+ORGANISATION (1) — erhaelt — (0..*) AUSLEIHANFRAGE+` — Die Anfrage richtet sich an genau eine Organisation. *Warum:* Mandantenfähigkeit.
+* `+BENUTZER (0..1) — prueft — (0..*) AUSLEIHANFRAGE+` — Der Prüfer der Anfrage ist optional. *Warum:* Solange die Anfrage Entwurf/eingereicht ist, ist noch kein Prüfer zugewiesen (`+0..1+`).
+* `+AUSLEIHANFRAGE (1) *-- enthaelt — (1..*) AUSLEIHANFRAGE_POSITION  [Komposition, 1..*]+` — Eine Anfrage besteht aus mindestens einer Position (wie ein Warenkorb mehrerer Gegenstände). *Warum:* `+1..*+` und Komposition, weil eine Anfrage ohne Position sinnlos ist und Positionen nur innerhalb der Anfrage existieren.
+* `+GEGENSTAND (1) — angefragter_gegenstand — (0..*) AUSLEIHANFRAGE_POSITION+` — Eine Position verweist auf genau einen Gegenstands-Typ. *Warum:* Bei der Anfrage wird Typ + Menge (`+angefragte_menge+`) gewünscht; konkrete Exemplare werden erst später zugewiesen. Deshalb hat die Position eine Menge und zeigt auf GEGENSTAND, nicht auf GEGENSTAND_EINHEIT.
+* `+AUSLEIHANFRAGE (1) — hat_historie — (0..*) AUSLEIHANFRAGE_STATUS_HISTORIE+` + `+BENUTZER (1) — aendert_status — (0..*)+` — Audit der Statusänderungen der Anfrage, jede Änderung durch genau einen Benutzer. *Warum:* Transparenz und Verantwortlichkeit im Genehmigungsprozess.
+* `+AUSLEIHANFRAGE (1) *-- hat_nachrichten — (0..*) AUSLEIHANFRAGE_NACHRICHT  [Komposition]+` + `+BENUTZER (1) — verfasst_von — (0..*)+` — Nachrichten zur Klärung zwischen Antragsteller und Prüfer; jede Nachricht hat einen Autor. *Warum:* Komposition, weil eine Nachricht nur im Kontext ihrer Anfrage lebt; `+0..*+`, weil nicht jede Anfrage Nachrichten braucht.
+
+== Reservierung
+
+Laut Modellnotiz blockiert eine Reservierung eine konkrete physische Einheit für einen Benutzer und Zeitraum, üblicherweise nach Genehmigung der Anfrage.
+
+* `+AUSLEIHANFRAGE (0..1) — fuehrt_zu — (0..*) RESERVIERUNG+` — Eine Anfrage führt optional zu mehreren Reservierungen. *Warum:* Eine Position mit Menge N erzeugt N Reservierungen (eine je Einheit).
+* `+AUSLEIHANFRAGE_POSITION (1) — erzeugt_reservierungen — (0..*) RESERVIERUNG+` — Jede Reservierung gehört zu genau einer Anfrage-Position. *Warum:* Die Reservierung ist auf die Position rückführbar, die sie erfüllt.
+* `+GEGENSTAND_EINHEIT (1) — reserviert — (0..*) RESERVIERUNG+` — Eine Reservierung blockiert genau eine konkrete Einheit. *Warum:* Hier erfolgt der Übergang von „Typ + Menge" zum konkreten Exemplar. Eine Einheit hat über die Zeit viele Reservierungen (für verschiedene Zeiträume).
+* `+BENUTZER (1) — reserviert_fuer — (0..*) RESERVIERUNG+` — Eine Reservierung ist für genau einen Benutzer. *Warum:* Die Reservierung ist namentlich.
+
+== Ausleihe
+
+* `+AUSLEIHANFRAGE (0..1) — wird_zu — (0..1) AUSLEIHE+` — Eine Anfrage wird optional zu genau einer Ausleihe. *Warum:* `+0..1/0..1+`, weil eine Anfrage nicht zur Ausleihe werden muss (abgelehnt/zurückgezogen) und eine Ausleihe auch ohne formale Anfrage entstehen kann (direkte Ausgabe durch Admin).
+* `+BENUTZER (1) — entleiht — (0..*) AUSLEIHE+` — Eine Ausleihe hat genau einen Entleiher. *Warum:* Jede Ausleihe geht an genau einen Entleiher.
+* `+BENUTZER (0..1) — verleiht — (0..*) AUSLEIHE+` — Der ausgebende Mitarbeiter ist optional. *Warum:* Evtl. noch nicht übergeben oder durch das System (`+0..1+`).
+* `+ORGANISATION (1) — verleihende_organisation — (0..*) AUSLEIHE+` — Eine Ausleihe gehört zu genau einer Organisation. *Warum:* Mandantenfähigkeit.
+* `+AUSLEIHE (1) *-- enthaelt — (1..*) AUSLEIHE_POSITION  [Komposition, 1..*]+` — Eine Ausleihe enthält mindestens eine Position. *Warum:* `+1..*+`, weil eine Ausleihe ohne ausgegebenen Gegenstand sinnlos ist; Positionen existieren nur innerhalb der Ausleihe.
+* `+RESERVIERUNG (0..1) — wird_ausgeliehen_als — (0..1) AUSLEIHE_POSITION+` — Eine Reservierung wird optional zur Ausleihposition. *Warum:* `+0..1/0..1+`, weil nicht jede Reservierung ausgegeben wird (kann ablaufen/storniert werden) und eine Ausleihposition auch ohne vorherige Reservierung entstehen kann (Direktausgabe).
+* `+GEGENSTAND_EINHEIT (1) — ausgeliehene_einheit — (0..*) AUSLEIHE_POSITION+` — Jede Ausleihposition ist genau eine konkrete Einheit. *Warum:* Auf Ausleihebene wird mit physischen Exemplaren gearbeitet.
+
+[NOTE]
+====
+`+AUSLEIHE_POSITION+` hat keine eigenen Attribute — eine reine Verbindungs-(Junction-)Entität zwischen Ausleihe, Einheit und optional Reservierung. Keine Menge (anders als `+AUSLEIHANFRAGE_POSITION+`), weil eine Position genau einer Einheit entspricht.
+====
+
+* `+AUSLEIHE (1) o-- hat_verlaengerungen — (0..*) AUSLEIHE_VERLAENGERUNG  [Aggregation]+` + `+BENUTZER (1) — beantragt — (0..*)+` + `+BENUTZER (0..1) — genehmigt — (0..*)+` — Eine Ausleihe kann mehrfach verlängert werden; eine Verlängerung beantragt ein Benutzer (Pflicht), genehmigt sie optional (`+0..1+`, solange unentschieden). *Warum:* Aggregation, weil Verlängerungen zur Ausleihhistorie gehören, aber als schwächere Zugehörigkeit modelliert sind.
+
+== Bedingungen & Buchungsbestätigung
+
+* `+NUTZUNGSBEDINGUNGEN (1) — wird_akzeptiert_in — (0..*) BEDINGUNGS_ANNAHME+` — Eine Version der Bedingungen wird in vielen Annahmen akzeptiert; jede Annahme bezieht sich auf genau eine Version. *Warum:* Die Bedingungen sind versioniert; es muss festgehalten werden, welche Version akzeptiert wurde (rechtlicher Nachweis).
+* `+BENUTZER (1) — akzeptiert — (0..*) BEDINGUNGS_ANNAHME+` — Jede Annahme gehört zu genau einem Benutzer. *Warum:* Nachweisbarkeit der Zustimmung einer konkreten Person.
+* `+AUSLEIHANFRAGE (0..*) — basiert_auf_annahme — (1) BEDINGUNGS_ANNAHME+` (und ebenso `+AUSLEIHE (0..*) — (1) BEDINGUNGS_ANNAHME+`) — Jede Anfrage und jede Ausleihe basiert auf genau einer Annahme; eine Annahme kann viele Anfragen/Ausleihen abdecken. *Warum:* „1" (Pflicht), weil bei Einreichung/Ausgabe die Bedingungen akzeptiert worden sein müssen. Eine Annahme deckt mehrere Vorgänge ab — kein erneutes Akzeptieren jedes Mal.
+* `+AUSLEIHANFRAGE (1) — generiert — (0..1) BUCHUNGSBESTAETIGUNG+` — Eine Anfrage erzeugt höchstens eine Buchungsbestätigung. *Warum:* `+0..1+`, weil eine Bestätigung nur bei Genehmigung entsteht (abgelehnte Anfragen haben keine).
+* `+AUSLEIHE (0..1) — bestaetigt — (0..1) BUCHUNGSBESTAETIGUNG+` — Die Bestätigung ist optional mit der entstandenen Ausleihe verknüpft. *Warum:* `+0..1/0..1+`, weil die Bestätigung schon im Anfragestadium (vor der Ausleihe) existieren kann.
+
+== Zustandsprotokoll
+
+* `+AUSLEIHE (1) *-- hat_protokolle — (0..*) ZUSTANDSPROTOKOLL  [Komposition]+` — Eine Ausleihe hat Übergabe- und Rückgabeprotokolle. *Warum:* Komposition, weil ein Protokoll nur im Kontext seiner Ausleihe existiert; `+0..*+` (meist bis zu zwei, aber flexibel modelliert).
+* `+BENUTZER (1) — erstellt_von — (0..*)+` + `+BENUTZER (0..1) — uebergeben_von — (0..*)+` + `+BENUTZER (0..1) — angenommen_von — (0..*)+` — Bis zu drei Benutzerrollen je Protokoll: Ersteller (Pflicht), Übergebender und Annehmender (optional). *Warum:* Einen Ersteller gibt es immer; „übergeben/angenommen" hängen vom Protokolltyp ab (bei der Rückgabe gibt es evtl. keinen „Übergebenden" im selben Sinn) — erneut Rollendifferenzierung.
+* `+ZUSTANDSPROTOKOLL (1) *-- enthaelt — (1..*) ZUSTANDSPROTOKOLL_POSITION  [Komposition, 1..*]+` + `+GEGENSTAND_EINHEIT (1) — dokumentierte_einheit — (0..*)+` — Ein Protokoll dokumentiert mindestens eine Einheit; jede Position ist genau eine konkrete Einheit. *Warum:* `+1..*+`, weil ein Protokoll ohne dokumentierte Einheit sinnlos ist; je Einheit werden Zustandsstatus/Schaden/Foto erfasst — wichtig bei Schadensstreit.
+
+== Enum-Abhängigkeiten (`+..>+`)
+
+Jede Abhängigkeit `+..>+` („verwendet") bedeutet: die Entität hat ein Attribut dieses Enum-Typs mit festem Wertebereich. Im Modell:
+
+* BENUTZER → Kontostatus, Benutzerrolle; ORGANISATION → Organisationstyp.
+* BENUTZER_VERIFIZIERUNG → Verifizierungsstatus; AUTH_TOKEN → Tokentyp.
+* BENACHRICHTIGUNG → Benachrichtigungstyp, Benachrichtigungskanal, Benachrichtigungsstatus.
+* AUSLEIHANFRAGE → Ausleihanfragestatus; AUSLEIHE → Ausleihstatus, Faelligkeitsstatus.
+* AUSLEIHE_VERLAENGERUNG → Verlaengerungsstatus; RESERVIERUNG → Reservierungsstatus.
+* GEGENSTAND_EINHEIT → Verfuegbarkeitsstatus, Zustandsstatus.
+* ZUSTANDSPROTOKOLL → Protokolltyp; ZUSTANDSPROTOKOLL_POSITION → Zustandsstatus.
+
+*Warum Enum statt String:* fester, kontrollierter Wertebereich → kein Wildwuchs bei Statuswerten, Datenintegrität und einfache Filterung.
+
+== Übergreifende Prinzipien (warum so?)
+
+. *Typ vs. Exemplar (GEGENSTAND ↔ GEGENSTAND_EINHEIT):* das Rückgrat des Modells. Die Anfrage arbeitet mit Typ + Menge; Reservierung und Ausleihe mit konkreten Einheiten. Daher: Anfrage-Position → Typ (`+1+`), Reservierung und Ausleihe-Position → Einheit (`+1+`).
+. *Komposition / Aggregation / Assoziation bewusst gewählt:* integrale Teile mit Lebenszyklus-Abhängigkeit = Komposition (Bilder, Einheiten, Positionen, Nachrichten, Protokolle); Stamm-/schwache Zugehörigkeit = Aggregation (Kategorien, Standorte, Verlängerungen); eigenständige Verweise = Assoziation.
+. *Rollendifferenzierung des Benutzers:* dieselbe Entität BENUTZER mehrfach mit verschiedenen Rollen (geprüft/prüfend, Antragsteller/Genehmiger, Ersteller/Übergebender/Annehmender). Regel: der „Akteur, dessen Handlung den Datensatz erzeugt" ist meist Pflicht (`+1+`); der „Bearbeiter/Genehmiger" meist optional (`+0..1+`, bei der Erstellung noch nicht entschieden).
+. *Historien / Audit:* die Tabellen mit der Endung `+_STATUS_HISTORIE+` sind je an das Elternobjekt (`+1+`) und den ändernden Benutzer (`+1+`) gebunden. Für ein Ausleihsystem ist die Nachvollziehbarkeit „wer/was/wann" zentral.
+. *Optionale Verknüpfung der Prozessschritte:* Anfrage → Reservierung → Ausleihe → Bestätigung sind über `+0..1/0..1+`-Beziehungen nicht starr gekoppelt; jeder Schritt kann ausbleiben, manche Einstiege sind direkt möglich (manuelle Abläufe). Das gibt Flexibilität ohne erzwungene Reihenfolge.
+. *Mandantenfähigkeit:* auf der ORGANISATION-Seite steht stets `+1+` für Benutzer, Gegenstände, Anfragen und Ausleihen — alles im Rahmen genau einer Organisation.
+. *Untergrenze auf der „Viele"-Seite:* wo das Ganze ohne Teile sinnlos ist → `+1..*+` (Gegenstand ≥1 Einheit; Anfrage/Ausleihe/Protokoll ≥1 Position); wo Teile optional sind → `+0..*+` (ein Gegenstand evtl. 0 Bilder; eine Anfrage evtl. 0 Nachrichten).
+
+== Worauf achten
+
+* *Abgeleitetes Attribut:* `+faelligkeitsstatus+` in AUSLEIHE ist mit „/" markiert — es ist ein berechnetes Attribut: es ergibt sich aus `+faelligkeitsdatum+` und dem aktuellen Datum und wird nicht separat gespeichert.
+* *Kleine Redundanz bei der Reservierung:* die Position ist Pflicht (`+1+`), die direkte Verknüpfung zur AUSLEIHANFRAGE ist optional (`+0..1+`). Da die Position Pflicht ist und immer zu einer Anfrage gehört, hat die Reservierung formal immer eine Anfrage. Erklärung: die Haupt-Rückführung läuft über die Position; die direkte Anfrage-Verknüpfung dient der Bequemlichkeit (Denormalisierung, schneller Zugriff auf die Ursprungsanfrage).
+* *Leere Verbindungs-Entität:* AUSLEIHE_POSITION hat keine Attribute; keine Menge, weil eine Position genau einer Einheit entspricht.
+* *Pflicht-Annahme:* BEDINGUNGS_ANNAHME ist für die Anfrage Pflicht (`+1+`) — das Modell setzt voraus, dass die Bedingungen bereits bei Einreichung/Ausgabe akzeptiert wurden.

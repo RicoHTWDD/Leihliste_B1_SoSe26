@@ -1,0 +1,1331 @@
+= Spike Frontend State Management: Erklärung der Projektstruktur
+:toc:
+:toc-title: Inhaltsverzeichnis
+:sectnums:
+:source-highlighter: rouge
+:last-update-label!:
+
+== Überblick
+
+Dieser Text erklärt die Struktur des Frontend-Spikes zum Thema *State Management mit React Context API*.
+
+Die Leitfrage des Spikes lautet vereinfacht:
+
+[quote]
+____
+Reicht die integrierte React Context API aus, um Filtereinstellungen und den Status von Ausleihanfragen über mehrere Ansichten hinweg im Frontend zu verwalten?
+____
+
+Der Spike prüft also nicht das endgültige Design der Anwendung, sondern eine technische Entscheidung:
+
+* Können aktive Filter gespeichert bleiben, wenn die Benutzerin von der Übersicht in eine Detailansicht wechselt und wieder zurückkommt?
+* Kann der Status einer Ausleihanfrage zentral gespeichert und in verschiedenen Ansichten geändert werden?
+* Reicht dafür React Context aus, ohne direkt eine zusätzliche State-Management-Bibliothek einzuführen?
+
+Der Prototyp ist bewusst klein gehalten. Es gibt keine Backend-Anbindung und keine Datenbank. Die Daten liegen direkt im Frontend als Testdaten. Dadurch kann man die State-Management-Frage isoliert testen.
+
+Die vereinfachte Projektstruktur sieht so aus:
+
+[source,text]
+----
+spike-frontend-state-management/
+├── index.html
+├── package.json
+├── package-lock.json
+├── vite.config.js
+├── eslint.config.js
+├── README.md
+└── src/
+    ├── main.jsx
+    ├── App.jsx
+    ├── index.css
+    └── App.css
+----
+
+In der aktuellen Spike-Logik sind vor allem diese Dateien wichtig:
+
+* `index.html`
+* `src/main.jsx`
+* `src/App.jsx`
+* `package.json`
+
+Die meiste eigentliche Logik befindet sich in `App.jsx`.
+
+== index.html
+
+Diese Datei ist der Einstiegspunkt für den Browser.
+
+[source,html]
+----
+<div id="root"></div>
+<script type="module" src="/src/main.jsx"></script>
+----
+
+*Was passiert hier?*
+
+[source,html]
+----
+<div id="root"></div>
+----
+
+Das bedeutet:
+
+[quote]
+____
+Hier bekommt React später seinen Platz im HTML-Dokument.
+____
+
+React ersetzt nicht die komplette HTML-Datei, sondern rendert die Anwendung in dieses Element hinein.
+
+[source,html]
+----
+<script type="module" src="/src/main.jsx"></script>
+----
+
+Das bedeutet:
+
+[quote]
+____
+Der Browser lädt die Datei `main.jsx`. Dort startet die React-Anwendung.
+____
+
+`type="module"` ist wichtig, weil moderne JavaScript-Module verwendet werden. Dadurch funktionieren `import` und `export`.
+
+== src/main.jsx
+
+Diese Datei startet die React-Anwendung.
+
+[source,jsx]
+----
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+----
+
+*Was passiert hier?*
+
+[source,jsx]
+----
+import './index.css'
+----
+
+Die globale CSS-Datei wird geladen. Diese Styles gelten dann für die ganze Anwendung.
+
+[source,jsx]
+----
+import App from './App.jsx'
+----
+
+Die Hauptkomponente `App` wird aus `App.jsx` geladen.
+
+[source,jsx]
+----
+createRoot(document.getElementById('root')).render(...)
+----
+
+Das bedeutet:
+
+[quote]
+____
+React sucht im HTML-Dokument das Element mit der ID `root` und rendert dort die App hinein.
+____
+
+Die Verbindung sieht also so aus:
+
+[source,text]
+----
+index.html
+  ↓
+<div id="root"></div>
+  ↓
+main.jsx
+  ↓
+<App />
+----
+
+[source,jsx]
+----
+<StrictMode>
+  <App />
+</StrictMode>
+----
+
+`StrictMode` ist ein React-Werkzeug für die Entwicklung. Es hilft dabei, mögliche Probleme im Code früher zu erkennen. Für die sichtbare Oberfläche ist es nicht die wichtigste Stelle, aber für Entwicklung und Qualität ist es sinnvoll.
+
+== src/App.jsx
+
+`App.jsx` ist die wichtigste Datei im Spike.
+
+In dieser Datei befinden sich:
+
+* die Testdaten für Gegenstände
+* die Testdaten für Ausleihanfragen
+* der React Context
+* der Provider für den globalen Zustand
+* die Seiten für Gegenstände und Anfragen
+* die Routen der Anwendung
+
+Der Spike ist deshalb in einer Datei kompakt gehalten. Für ein echtes Projekt würde man die Komponenten später wahrscheinlich auf mehrere Dateien verteilen.
+
+== React Context im Spike
+
+Am Anfang von `App.jsx` wird ein Context erstellt.
+
+[source,jsx]
+----
+const AppStateContext = createContext(null);
+----
+
+Das bedeutet:
+
+[quote]
+____
+React bekommt einen zentralen Speicherbereich, aus dem mehrere Komponenten gemeinsame Daten lesen können.
+____
+
+Der Context ist in diesem Spike der zentrale Punkt für den Frontend-Zustand.
+
+== Testdaten
+
+Der Spike verwendet feste Testdaten direkt im Frontend.
+
+=== testGegenstaende
+
+[source,jsx]
+----
+const testGegenstaende = [
+  {
+    id: 1,
+    name: "Mikroskop MIK-001",
+    typ: "Mikroskop",
+    status: "verfügbar",
+    standort: "Labor A.101",
+  },
+  ...
+];
+----
+
+Diese Daten simulieren Gegenstände, die später wahrscheinlich vom Backend kommen würden.
+
+Sie enthalten zum Beispiel:
+
+* `id`: eindeutige ID des Gegenstands
+* `name`: Anzeigename
+* `typ`: Art des Gegenstands
+* `status`: zum Beispiel `verfügbar`, `ausgeliehen` oder `reserviert`
+* `standort`: Ort des Gegenstands
+
+Warum gibt es diese Testdaten?
+
+[quote]
+____
+Damit man die Filterlogik testen kann, ohne schon ein Backend oder eine Datenbank zu brauchen.
+____
+
+=== initialAnfragen
+
+[source,jsx]
+----
+const initialAnfragen = [
+  {
+    id: 1,
+    gegenstandName: "Mikroskop MIK-001",
+    ausleiherName: "Nina Beispiel",
+    status: "gesendet",
+  },
+  ...
+];
+----
+
+Diese Daten simulieren Ausleihanfragen.
+
+Sie enthalten zum Beispiel:
+
+* `id`: eindeutige ID der Anfrage
+* `gegenstandName`: betroffener Gegenstand
+* `ausleiherName`: Name der Person
+* `status`: aktueller Bearbeitungsstatus
+
+Warum gibt es diese Testdaten?
+
+[quote]
+____
+Damit man testen kann, ob ein geänderter Anfrage-Status über mehrere Ansichten hinweg erhalten bleibt.
+____
+
+== AppStateProvider
+
+Der `AppStateProvider` ist der zentrale Baustein des Spikes.
+
+[source,jsx]
+----
+function AppStateProvider({ children }) {
+  const [showOnlyAvailable, setShowOnlyAvailable] = useState(false);
+  const [showOnlyMicroscopes, setShowOnlyMicroscopes] = useState(false);
+  const [showOnlyLaborA101, setShowOnlyLaborA101] = useState(false);
+
+  const [anfragen, setAnfragen] = useState(initialAnfragen);
+
+  ...
+}
+----
+
+*Was passiert hier?*
+
+[source,jsx]
+----
+const [showOnlyAvailable, setShowOnlyAvailable] = useState(false);
+----
+
+Das ist ein einzelner Zustand für einen Filter.
+
+`showOnlyAvailable` bedeutet:
+
+[source,text]
+----
+Sollen nur verfügbare Gegenstände angezeigt werden?
+----
+
+Am Anfang ist der Wert `false`. Das bedeutet: Der Filter ist zuerst nicht aktiv.
+
+Dasselbe Prinzip gilt für:
+
+* `showOnlyMicroscopes`
+* `showOnlyLaborA101`
+
+[source,jsx]
+----
+const [anfragen, setAnfragen] = useState(initialAnfragen);
+----
+
+Hier werden die Ausleihanfragen im State gespeichert.
+
+Das ist wichtig, weil der Status einer Anfrage geändert werden kann. Wenn der Status nur als normale Konstante gespeichert wäre, könnte React die Änderung nicht als Zustand verwalten.
+
+== updateAnfrageStatus
+
+Diese Funktion ändert den Status einer bestimmten Anfrage.
+
+[source,jsx]
+----
+function updateAnfrageStatus(anfrageId, neuerStatus) {
+  setAnfragen((aktuelleAnfragen) =>
+    aktuelleAnfragen.map((anfrage) =>
+      anfrage.id === anfrageId
+        ? { ...anfrage, status: neuerStatus }
+        : anfrage
+    )
+  );
+}
+----
+
+*Was passiert hier?*
+
+Die Funktion bekommt zwei Informationen:
+
+* `anfrageId`: Welche Anfrage soll geändert werden?
+* `neuerStatus`: Welcher neue Status soll gesetzt werden?
+
+[source,jsx]
+----
+aktuelleAnfragen.map((anfrage) => ...)
+----
+
+Alle Anfragen werden durchgegangen.
+
+[source,jsx]
+----
+anfrage.id === anfrageId
+----
+
+Hier wird geprüft:
+
+[quote]
+____
+Ist das die Anfrage, die geändert werden soll?
+____
+
+[source,jsx]
+----
+{ ...anfrage, status: neuerStatus }
+----
+
+Das bedeutet:
+
+[quote]
+____
+Kopiere die alte Anfrage und ersetze nur den Status.
+____
+
+Warum wird die Anfrage kopiert und nicht direkt verändert?
+
+[quote]
+____
+In React soll State nicht direkt verändert werden. Stattdessen wird ein neuer Zustand erzeugt. So erkennt React zuverlässig, dass sich etwas geändert hat.
+____
+
+== Context Provider
+
+Am Ende von `AppStateProvider` werden die Zustände und Funktionen an den Context übergeben.
+
+[source,jsx]
+----
+<AppStateContext.Provider
+  value={{
+    showOnlyAvailable,
+    setShowOnlyAvailable,
+    showOnlyMicroscopes,
+    setShowOnlyMicroscopes,
+    showOnlyLaborA101,
+    setShowOnlyLaborA101,
+    anfragen,
+    updateAnfrageStatus,
+  }}
+>
+  {children}
+</AppStateContext.Provider>
+----
+
+Das bedeutet:
+
+[quote]
+____
+Alle Komponenten innerhalb dieses Providers können diese Werte verwenden.
+____
+
+Der Provider stellt also bereit:
+
+* aktive Filter
+* Funktionen zum Ändern der Filter
+* Liste der Ausleihanfragen
+* Funktion zum Ändern eines Anfrage-Status
+
+Die vereinfachte Idee sieht so aus:
+
+[source,text]
+----
+AppStateProvider
+  ↓ stellt gemeinsamen State bereit
+GegenstaendePage
+GegenstandDetailPage
+AnfragenPage
+AnfrageDetailPage
+----
+
+== useAppState
+
+[source,jsx]
+----
+function useAppState() {
+  return useContext(AppStateContext);
+}
+----
+
+Das ist eine kleine Hilfsfunktion.
+
+Statt in jeder Komponente direkt zu schreiben:
+
+[source,jsx]
+----
+useContext(AppStateContext)
+----
+
+kann man einfacher schreiben:
+
+[source,jsx]
+----
+useAppState()
+----
+
+Warum ist das sinnvoll?
+
+[quote]
+____
+Der Code wird lesbarer. Außerdem ist sofort klar: Diese Komponente verwendet den gemeinsamen App-State.
+____
+
+== Navigation
+
+[source,jsx]
+----
+function Navigation() {
+  return (
+    <nav style={{ marginBottom: "24px" }}>
+      <Link to="/gegenstaende">Gegenstände</Link>
+      {" | "}
+      <Link to="/anfragen">Anfragen</Link>
+    </nav>
+  );
+}
+----
+
+Diese Komponente zeigt einfache Links zu den zwei Hauptbereichen:
+
+* Gegenstände
+* Anfragen
+
+`Link` kommt aus `react-router-dom`.
+
+Warum wird `Link` verwendet und nicht ein normales `<a>`?
+
+[quote]
+____
+`Link` wechselt die Ansicht innerhalb der React-App, ohne die ganze Seite neu zu laden.
+____
+
+Das ist wichtig für den Spike: Wenn die Seite komplett neu geladen würde, ginge der Context-State verloren.
+
+== StatusText
+
+[source,jsx]
+----
+function StatusText({ status }) {
+  const statusLabels = {
+    gesendet: "gesendet",
+    in_bearbeitung: "in Bearbeitung",
+    bestaetigt: "bestätigt",
+    abgelehnt: "abgelehnt",
+  };
+
+  return <>{statusLabels[status] ?? status}</>;
+}
+----
+
+Diese Komponente übersetzt interne Statuswerte in lesbare Texte.
+
+Zum Beispiel:
+
+[source,text]
+----
+in_bearbeitung → in Bearbeitung
+bestaetigt     → bestätigt
+----
+
+Warum ist das sinnvoll?
+
+[quote]
+____
+Im Code können einfache technische Werte verwendet werden. In der Oberfläche sieht der Benutzer trotzdem einen verständlichen Text.
+____
+
+== GegenstaendePage
+
+`GegenstaendePage` zeigt die Übersicht der Gegenstände.
+
+[source,jsx]
+----
+const {
+  showOnlyAvailable,
+  setShowOnlyAvailable,
+  showOnlyMicroscopes,
+  setShowOnlyMicroscopes,
+  showOnlyLaborA101,
+  setShowOnlyLaborA101,
+} = useAppState();
+----
+
+Die Seite liest die Filterwerte aus dem Context.
+
+Sie bekommt auch die Funktionen, mit denen die Filter geändert werden können.
+
+=== Filterlogik
+
+[source,jsx]
+----
+const visibleGegenstaende = testGegenstaende.filter((item) => {
+  if (showOnlyAvailable && item.status !== "verfügbar") {
+    return false;
+  }
+
+  if (showOnlyMicroscopes && item.typ !== "Mikroskop") {
+    return false;
+  }
+
+  if (showOnlyLaborA101 && item.standort !== "Labor A.101") {
+    return false;
+  }
+
+  return true;
+});
+----
+
+*Was passiert hier?*
+
+Alle Gegenstände werden geprüft.
+
+Wenn ein Filter aktiv ist und der Gegenstand nicht passt, wird er nicht angezeigt.
+
+Beispiel:
+
+[source,text]
+----
+showOnlyAvailable ist true
+Gegenstand hat status "ausgeliehen"
+→ Gegenstand wird nicht angezeigt
+----
+
+Warum ist diese Stelle wichtig für den Spike?
+
+[quote]
+____
+Hier wird getestet, ob Filtereinstellungen im Context gespeichert werden und nach einem Wechsel der Ansicht erhalten bleiben.
+____
+
+=== Checkboxen
+
+[source,jsx]
+----
+<input
+  type="checkbox"
+  checked={showOnlyAvailable}
+  onChange={(event) => setShowOnlyAvailable(event.target.checked)}
+/>
+----
+
+Die Checkbox ist direkt mit dem Context-State verbunden.
+
+`checked={showOnlyAvailable}` bedeutet:
+
+[quote]
+____
+Die Checkbox zeigt den aktuellen Wert aus dem State an.
+____
+
+`onChange={...}` bedeutet:
+
+[quote]
+____
+Wenn der Benutzer die Checkbox ändert, wird der State aktualisiert.
+____
+
+Dadurch entsteht dieser Ablauf:
+
+[source,text]
+----
+Benutzer klickt Checkbox
+  ↓
+setShowOnlyAvailable(...) wird aufgerufen
+  ↓
+State im AppStateProvider ändert sich
+  ↓
+GegenstaendePage wird neu gerendert
+  ↓
+Liste zeigt nur noch passende Gegenstände
+----
+
+== GegenstandDetailPage
+
+Diese Seite zeigt Details zu einem einzelnen Gegenstand.
+
+[source,jsx]
+----
+const { id } = useParams();
+----
+
+`useParams` liest die ID aus der URL.
+
+Beispiel:
+
+[source,text]
+----
+/gegenstaende/3
+----
+
+Dann ist `id` gleich `3`.
+
+[source,jsx]
+----
+const item = testGegenstaende.find(
+  (gegenstand) => gegenstand.id === Number(id)
+);
+----
+
+Hier wird der passende Gegenstand aus den Testdaten gesucht.
+
+Warum `Number(id)`?
+
+[quote]
+____
+URL-Parameter sind zuerst Text. Die IDs in den Testdaten sind aber Zahlen. Deshalb wird `id` in eine Zahl umgewandelt.
+____
+
+=== Anzeige der aktiven Filter
+
+[source,jsx]
+----
+<ul>
+  <li>Nur verfügbar: {showOnlyAvailable ? "ja" : "nein"}</li>
+  <li>Nur Mikroskope: {showOnlyMicroscopes ? "ja" : "nein"}</li>
+  <li>Nur Labor A.101: {showOnlyLaborA101 ? "ja" : "nein"}</li>
+</ul>
+----
+
+Diese Stelle ist für den Spike besonders wichtig.
+
+Die Detailseite zeigt nicht nur den Gegenstand, sondern auch die aktuellen Filter aus dem Context.
+
+Damit kann man prüfen:
+
+[source,text]
+----
+Filter auf Übersichtsseite setzen
+  ↓
+Detailansicht öffnen
+  ↓
+Filterwerte sind dort noch sichtbar
+  ↓
+zurück zur Übersicht
+  ↓
+Filter sind weiterhin aktiv
+----
+
+Das zeigt, dass der Zustand nicht nur lokal in der Übersichtsseite gespeichert ist, sondern im gemeinsamen Context.
+
+== AnfragenPage
+
+`AnfragenPage` zeigt die Liste der Ausleihanfragen.
+
+[source,jsx]
+----
+const { anfragen, updateAnfrageStatus } = useAppState();
+----
+
+Die Seite liest aus dem Context:
+
+* die aktuelle Liste der Anfragen
+* die Funktion zum Ändern eines Status
+
+=== Status ändern
+
+[source,jsx]
+----
+<select
+  value={anfrage.status}
+  onChange={(event) =>
+    updateAnfrageStatus(anfrage.id, event.target.value)
+  }
+>
+  <option value="gesendet">gesendet</option>
+  <option value="in_bearbeitung">in Bearbeitung</option>
+  <option value="bestaetigt">bestätigt</option>
+  <option value="abgelehnt">abgelehnt</option>
+</select>
+----
+
+*Was passiert hier?*
+
+`value={anfrage.status}` bedeutet:
+
+[quote]
+____
+Das Auswahlfeld zeigt den aktuellen Status der Anfrage.
+____
+
+Wenn der Benutzer einen neuen Status auswählt, wird `updateAnfrageStatus` aufgerufen.
+
+Der Ablauf sieht so aus:
+
+[source,text]
+----
+Benutzer ändert Status in der Liste
+  ↓
+updateAnfrageStatus(id, neuerStatus)
+  ↓
+anfragen-State im Context wird aktualisiert
+  ↓
+alle betroffenen Ansichten bekommen den neuen Status
+----
+
+Warum ist das wichtig?
+
+[quote]
+____
+Der Spike testet damit, ob ein Anfrage-Status zentral gespeichert und von mehreren Seiten aus geändert werden kann.
+____
+
+== AnfrageDetailPage
+
+Diese Seite zeigt Details zu einer einzelnen Anfrage.
+
+[source,jsx]
+----
+const { id } = useParams();
+const { anfragen, updateAnfrageStatus } = useAppState();
+
+const anfrage = anfragen.find((item) => item.id === Number(id));
+----
+
+Auch hier wird die ID aus der URL gelesen.
+
+Dann wird die passende Anfrage aus dem Context-State gesucht.
+
+Das ist wichtig:
+
+[quote]
+____
+Die Detailseite verwendet nicht eigene separate Daten, sondern dieselbe Anfragen-Liste aus dem Context.
+____
+
+Deshalb bleibt der Status konsistent zwischen Übersicht und Detailansicht.
+
+=== Status in der Detailansicht ändern
+
+Auch in der Detailansicht gibt es ein Auswahlfeld für den Status.
+
+Wenn der Status dort geändert wird, wird dieselbe Funktion verwendet:
+
+[source,jsx]
+----
+updateAnfrageStatus(anfrage.id, event.target.value)
+----
+
+Dadurch kann man testen:
+
+[source,text]
+----
+Anfrage in Detailansicht öffnen
+  ↓
+Status ändern
+  ↓
+zurück zur Anfrageübersicht
+  ↓
+geänderter Status ist dort sichtbar
+----
+
+Das bestätigt die zentrale Speicherung im Context.
+
+== Routing in App
+
+Am Ende von `App.jsx` wird die Anwendung zusammengesetzt.
+
+[source,jsx]
+----
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppStateProvider>
+        <Routes>
+          <Route path="/" element={<Navigate to="/gegenstaende" />} />
+          <Route path="/gegenstaende" element={<GegenstaendePage />} />
+          <Route path="/gegenstaende/:id" element={<GegenstandDetailPage />} />
+          <Route path="/anfragen" element={<AnfragenPage />} />
+          <Route path="/anfragen/:id" element={<AnfrageDetailPage />} />
+        </Routes>
+      </AppStateProvider>
+    </BrowserRouter>
+  );
+}
+----
+
+*Was passiert hier?*
+
+[source,jsx]
+----
+<BrowserRouter>
+----
+
+`BrowserRouter` aktiviert Routing im Browser.
+
+Das bedeutet:
+
+[quote]
+____
+Die App kann verschiedene URLs verwenden, ohne dass für jede URL eine eigene HTML-Seite existiert.
+____
+
+[source,jsx]
+----
+<AppStateProvider>
+----
+
+Der Provider umschließt alle Routen.
+
+Das ist sehr wichtig.
+
+Warum?
+
+[quote]
+____
+Nur weil der Provider um alle Seiten herum liegt, können alle Seiten denselben Context-State verwenden.
+____
+
+Wenn der Provider nur innerhalb einer einzelnen Seite liegen würde, wäre der State beim Seitenwechsel nicht gemeinsam verfügbar.
+
+[source,jsx]
+----
+<Route path="/" element={<Navigate to="/gegenstaende" />} />
+----
+
+Wenn die Startseite `/` geöffnet wird, leitet die App automatisch zu `/gegenstaende` weiter.
+
+[source,jsx]
+----
+<Route path="/gegenstaende/:id" element={<GegenstandDetailPage />} />
+----
+
+Der Teil `:id` ist ein dynamischer URL-Parameter.
+
+Beispiel:
+
+[source,text]
+----
+/gegenstaende/1
+/gegenstaende/2
+/gegenstaende/3
+----
+
+Alle diese URLs verwenden dieselbe Komponente, aber mit unterschiedlicher ID.
+
+== Warum bleibt der State beim Wechsel der Ansicht erhalten?
+
+Der wichtigste Punkt ist die Position des Providers:
+
+[source,text]
+----
+BrowserRouter
+  ↓
+AppStateProvider
+  ↓
+Routes
+  ↓
+einzelne Seiten
+----
+
+Der `AppStateProvider` wird nicht bei jedem Routenwechsel neu erstellt.
+
+Deshalb bleiben seine `useState`-Werte erhalten, solange die App nicht komplett neu geladen wird.
+
+Das bedeutet:
+
+[source,text]
+----
+Filter setzen
+  ↓
+Detailseite öffnen
+  ↓
+zurück zur Übersicht
+  ↓
+Filter sind noch aktiv
+----
+
+und auch:
+
+[source,text]
+----
+Anfrage-Status ändern
+  ↓
+Detailseite öffnen oder zurück zur Liste gehen
+  ↓
+geänderter Status ist noch vorhanden
+----
+
+== Grenzen des Spikes
+
+Der Spike zeigt, dass React Context für diesen kleinen Anwendungsfall grundsätzlich funktioniert.
+
+Es gibt aber wichtige Grenzen:
+
+* Der State bleibt nur erhalten, solange die Seite nicht neu geladen wird.
+* Nach einem Browser-Reload sind die Filter und geänderten Anfrage-Status wieder zurückgesetzt.
+* Die Daten werden nicht im Backend gespeichert.
+* Es gibt keine echte Authentifizierung und keine Rollenlogik.
+* Die Testdaten sind fest im Frontend definiert.
+* Für sehr viele globale Zustände könnte Context später unübersichtlich werden.
+
+Für den getesteten Fall ist das aber ausreichend, weil der Spike nur klären soll, ob gemeinsame Frontend-Zustände über mehrere Ansichten hinweg möglich sind.
+
+== src/index.css
+
+Diese Datei enthält globale Styles.
+
+Sie wird in `main.jsx` importiert:
+
+[source,jsx]
+----
+import './index.css'
+----
+
+Deshalb gelten die Styles für die ganze Anwendung.
+
+Beispiele:
+
+[source,css]
+----
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+----
+
+Hier werden globale Einstellungen wie Schriftart und Zeilenhöhe gesetzt.
+
+[source,css]
+----
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+----
+
+Hier wird das grundsätzliche Layout des Body definiert.
+
+Für den Spike ist diese Datei nicht fachlich entscheidend. Sie kommt hauptsächlich aus dem Vite-Startprojekt und sorgt für Grundstyling.
+
+== src/App.css
+
+`App.css` enthält ebenfalls Styles aus dem Vite-Template.
+
+Beispiele sind:
+
+[source,css]
+----
+.logo {
+  height: 6em;
+  padding: 1.5em;
+}
+----
+
+und:
+
+[source,css]
+----
+.card {
+  padding: 2em;
+}
+----
+
+Im aktuellen Spike wird `App.css` aber nicht in `App.jsx` importiert.
+
+Das bedeutet:
+
+[quote]
+____
+Diese Datei hat aktuell wahrscheinlich keinen Einfluss auf die sichtbare Anwendung.
+____
+
+Sie ist vermutlich ein Rest aus dem Vite-Template.
+
+Für den Spike ist das nicht kritisch. Man könnte die Datei später entfernen oder gezielt importieren, wenn sie wirklich gebraucht wird.
+
+== package.json
+
+`package.json` beschreibt das Frontend-Projekt.
+
+Darin stehen:
+
+* Projektname
+* Skripte zum Starten und Bauen
+* Abhängigkeiten
+* Entwicklungswerkzeuge
+
+[source,json]
+----
+"name": "spike-frontend-state-management"
+----
+
+Das ist der Name des Spike-Projekts.
+
+[source,json]
+----
+"type": "module"
+----
+
+Das bedeutet:
+
+[quote]
+____
+Das Projekt verwendet moderne JavaScript-Module mit `import` und `export`.
+____
+
+=== scripts
+
+[source,json]
+----
+"scripts": {
+  "dev": "vite",
+  "build": "vite build",
+  "lint": "eslint .",
+  "preview": "vite preview"
+}
+----
+
+Diese Befehle kann man im Terminal ausführen.
+
+[source,bash]
+----
+npm run dev
+----
+
+Startet den lokalen Entwicklungsserver.
+
+[source,bash]
+----
+npm run build
+----
+
+Baut die Anwendung für eine spätere Auslieferung.
+
+[source,bash]
+----
+npm run lint
+----
+
+Prüft den Code mit ESLint.
+
+[source,bash]
+----
+npm run preview
+----
+
+Zeigt den gebauten Stand lokal an.
+
+=== dependencies
+
+[source,json]
+----
+"dependencies": {
+  "react": "^18.3.1",
+  "react-dom": "^18.3.1",
+  "react-router-dom": "^6.30.4"
+}
+----
+
+Diese Bibliotheken braucht die App zur Laufzeit.
+
+`react` ist die Grundlage für Komponenten und State.
+
+`react-dom` verbindet React mit dem DOM im Browser.
+
+`react-router-dom` wird für die Navigation zwischen den Seiten verwendet.
+
+=== devDependencies
+
+Die `devDependencies` werden vor allem für Entwicklung und Build benötigt.
+
+Dazu gehören zum Beispiel:
+
+* Vite
+* React-Plugin für Vite
+* ESLint
+* ESLint-Plugins für React und React Hooks
+
+Diese Werkzeuge sind wichtig für Entwicklung und Codequalität, aber nicht die fachliche Kernlogik des Spikes.
+
+== package-lock.json
+
+`package-lock.json` wird von npm automatisch erzeugt.
+
+Diese Datei speichert sehr genau, welche Versionen der Pakete installiert wurden.
+
+Warum ist das wichtig?
+
+[quote]
+____
+Andere Teammitglieder sollen möglichst dieselben Paketversionen installieren und dadurch dieselbe Projektbasis bekommen.
+____
+
+Normalerweise wird diese Datei mit ins Repository aufgenommen.
+
+Man sollte sie nicht manuell bearbeiten.
+
+== vite.config.js
+
+Diese Datei konfiguriert Vite.
+
+[source,js]
+----
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+})
+----
+
+*Was passiert hier?*
+
+[source,js]
+----
+plugins: [react()]
+----
+
+Das React-Plugin wird aktiviert.
+
+Dadurch kann Vite React- und JSX-Code richtig verarbeiten.
+
+Für den Spike bedeutet das:
+
+[quote]
+____
+Vite sorgt dafür, dass die React-App lokal schnell gestartet und entwickelt werden kann.
+____
+
+== eslint.config.js
+
+Diese Datei konfiguriert ESLint.
+
+ESLint ist ein Werkzeug, das JavaScript- und React-Code prüft.
+
+Zum Beispiel kann ESLint helfen bei:
+
+* vergessenen Imports
+* problematischen React-Hooks
+* ungünstigen Code-Mustern
+* einheitlicher Codequalität
+
+Wichtig ist hier unter anderem:
+
+[source,js]
+----
+files: ['**/*.{js,jsx}']
+----
+
+ESLint prüft JavaScript- und JSX-Dateien.
+
+[source,js]
+----
+plugins: {
+  react,
+  'react-hooks': reactHooks,
+  'react-refresh': reactRefresh,
+}
+----
+
+Es werden Plugins für React, React Hooks und React Refresh verwendet.
+
+[source,js]
+----
+...reactHooks.configs.recommended.rules,
+----
+
+Diese Regeln sind besonders wichtig, weil der Spike mit React Hooks arbeitet, zum Beispiel mit `useState` und `useContext`.
+
+== README.md
+
+Die aktuelle `README.md` stammt noch aus dem Standard-Template von Vite.
+
+Sie beschreibt allgemein:
+
+* React mit Vite
+* HMR / Fast Refresh
+* offizielle React-Plugins
+
+Für den Spike ist diese README noch nicht sehr aussagekräftig.
+
+Sinnvoll wäre später eine kurze projektspezifische README mit:
+
+* Ziel des Spikes
+* Leitfrage
+* Startbefehl
+* kurze Testanleitung
+* Ergebnis / Entscheidung
+
+== Manueller Testablauf
+
+Der Spike kann mit wenigen manuellen Schritten geprüft werden.
+
+=== Test 1: Filter bleiben erhalten
+
+[source,text]
+----
+1. App starten.
+2. Seite /gegenstaende öffnen.
+3. Einen oder mehrere Filter aktivieren.
+4. Detailansicht eines Gegenstands öffnen.
+5. Prüfen, ob die aktiven Filter in der Detailansicht angezeigt werden.
+6. Zurück zur Übersicht gehen.
+7. Prüfen, ob die Filter weiterhin aktiv sind.
+----
+
+Erwartetes Ergebnis:
+
+[quote]
+____
+Die Filter bleiben beim Wechsel zwischen Übersicht und Detailansicht erhalten.
+____
+
+=== Test 2: Anfrage-Status bleibt erhalten
+
+[source,text]
+----
+1. Seite /anfragen öffnen.
+2. Status einer Anfrage ändern.
+3. Detailansicht dieser Anfrage öffnen.
+4. Prüfen, ob der geänderte Status sichtbar ist.
+5. Status in der Detailansicht erneut ändern.
+6. Zurück zur Anfrageübersicht gehen.
+7. Prüfen, ob der neue Status dort sichtbar ist.
+----
+
+Erwartetes Ergebnis:
+
+[quote]
+____
+Der Status wird zentral im Context gespeichert und bleibt zwischen Liste und Detailansicht konsistent.
+____
+
+=== Test 3: Browser-Reload
+
+[source,text]
+----
+1. Filter aktivieren oder Anfrage-Status ändern.
+2. Browserseite neu laden.
+3. Prüfen, ob der Zustand noch vorhanden ist.
+----
+
+Erwartetes Ergebnis:
+
+[quote]
+____
+Nach einem Reload wird der Zustand zurückgesetzt, weil der Spike keine Persistenz verwendet.
+____
+
+Das ist für den Spike kein Fehler, sondern eine bewusste Grenze der Lösung.
+
+== Ergebnis des Spikes
+
+Der Spike zeigt:
+
+[quote]
+____
+React Context reicht für diesen einfachen Anwendungsfall aus.
+____
+
+Die aktiven Filter können über mehrere Ansichten hinweg verwendet werden.
+
+Auch der Status von Ausleihanfragen kann zentral gespeichert und aus verschiedenen Ansichten geändert werden.
+
+Für den aktuellen Frontend-Prototyp ist React Context daher eine passende einfache Lösung.
+
+Eine zusätzliche State-Management-Bibliothek wie Redux oder Zustand ist für diesen kleinen Fall nicht zwingend notwendig.
+
+== Empfehlung für das eigentliche Projekt
+
+Für das eigentliche Projekt kann man React Context verwenden, wenn es um wenige globale Zustände geht, zum Beispiel:
+
+* aktive Filter
+* einfache UI-Zustände
+* aktuell ausgewählte oder zwischengespeicherte Daten
+* Status, der zwischen wenigen Ansichten geteilt werden muss
+
+Man sollte aber später prüfen, ob der globale Zustand stark wächst.
+
+Wenn sehr viele Daten, viele komplexe Updates oder viele voneinander abhängige Zustände entstehen, könnte eine spezialisierte State-Management-Lösung sinnvoller werden.
+
+Für die durch den Spike geprüfte Frage lautet die Empfehlung:
+
+[quote]
+____
+React Context API kann zunächst verwendet werden. Die Lösung ist einfach, verständlich und für den aktuellen Bedarf ausreichend.
+____

@@ -93,8 +93,8 @@
 :id: meeting28062026
 
 *Datum:* 28.06.2026  
-*Dauer:* 
-*Teilnehmende:* 
+*Dauer:* 50 min
+*Teilnehmende:* Alle
 
 === Agenda
 . Präsentation besprechen (5 min)

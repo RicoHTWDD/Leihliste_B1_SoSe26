@@ -82,8 +82,7 @@ class AusleihanfrageViewSet(viewsets.ModelViewSet):
         """Nur abgelehnte Anfragen"""
         anfragen = self.get_queryset().filter(
             anfragestatus__in=[
-                Anfragestatus.ABGELEHNT,
-                Anfragestatus.TEILWEISE_ABGELEHNT
+                Anfragestatus.ABGELEHNT
             ]
         )
         serializer = self.get_serializer(anfragen, many=True)
@@ -137,7 +136,7 @@ class AusleihanfrageViewSet(viewsets.ModelViewSet):
             )
         
         # Validierung: Ablehnungsgrund bei Ablehnung erforderlich
-        if new_status in [Anfragestatus.ABGELEHNT, Anfragestatus.TEILWEISE_ABGELEHNT]:
+        if new_status in [Anfragestatus.ABGELEHNT]:
             ablehnungsgrund = request.data.get('ablehnungsgrund')
             if not ablehnungsgrund:
                 return Response(

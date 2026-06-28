@@ -10,8 +10,10 @@ import {
   TableHead,
   TableRow,
   Paper,
+  TextField,
+  InputAdornment,
 } from '@mui/material';
-
+import SearchIcon from '@mui/icons-material/Search';
 import { StatusBadge, HintBox, ErrorMessage } from "../components/ui";
 
 // Vite-Proxy: /api -> http://localhost:8000 (kein nginx im lokalen Dev nötig)
@@ -26,7 +28,12 @@ const Zustand = {
 
 function formatDatum(iso) {
   if (!iso) return '–';
-  return new Date(iso).toLocaleDateString('de-DE');
+  // Mockup-Format: 13.04.2026 (mit fuehrenden Nullen)
+  return new Date(iso).toLocaleDateString('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
 }
 
 export default function MeineAnfragen() {
@@ -40,9 +47,7 @@ export default function MeineAnfragen() {
 
     fetch(API_URL, {
       headers: { Accept: 'application/json' },
-      // Nötig bei Session-Auth (Cookie). Bei Token-Auth stattdessen:
-      // headers: { Accept: 'application/json', Authorization: `Token ${token}` }
-      credentials: 'include',
+      credentials: 'include', // Session-Cookie fuer die Authentifizierung
     })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -84,33 +89,63 @@ export default function MeineAnfragen() {
     return <HintBox message="Du hast noch keine Ausleihanfragen gestellt." />;
   }
 
-  // --- AK1 + AK2: Liste mit Status ---
+  // --- AK1 + AK2: Liste mit Status (Spalten gemaess Mockup: Name / Status / Organisation / Eingereicht am) ---
   return (
     <Box sx={{ p: 2 }}>
-      <Typography variant="h5" component="h1" gutterBottom>
-        Meine Ausleihanfragen
-      </Typography>
+      {/* Kopfzeile: Titel links, Suche rechts (wie im Mockup) */}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 2,
+          mb: 2,
+          flexWrap: 'wrap',
+        }}
+      >
+        <Typography variant="h5" component="h1">
+          Anfragen
+        </Typography>
 
-      <TableContainer component={Paper}>
+        {/* Suche: NUR Darstellung gemaess Mockup. Keine Filterlogik in #126
+            (wie schon bei #125) - kommt als eigene Issue. Bewusst inert. */}
+        <TextField
+          size="small"
+          placeholder="Suche"
+          aria-label="Anfragen durchsuchen"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ minWidth: 240 }}
+        />
+      </Box>
+
+      <TableContainer component={Paper} elevation={0}>
         <Table aria-label="Übersicht meiner Ausleihanfragen">
           <TableHead>
             <TableRow>
-              <TableCell>Gegenstand</TableCell>
-              <TableCell>Von</TableCell>
-              <TableCell>Bis</TableCell>
+              <TableCell>Name</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell>Organisation</TableCell>
+              <TableCell>Eingereicht am</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {anfragen.map((anfrage) => (
               <TableRow key={anfrage.id} hover>
+                {/* Mockup-Spalte "Name": Gegenstandsname (sinnvollster Wert fuer die Nutzerin).
+                    Alternativ streng nach Mockup-Text: `Anfrage #${anfrage.id}` */}
                 <TableCell>{anfrage.gegenstand_name}</TableCell>
-                <TableCell>{formatDatum(anfrage.startdatum)}</TableCell>
-                <TableCell>{formatDatum(anfrage.enddatum)}</TableCell>
                 <TableCell>
                   {/* anfragestatus ist der Code (z. B. "genehmigt") */}
                   <StatusBadge status={anfrage.anfragestatus} />
                 </TableCell>
+                <TableCell>{anfrage.organisation_name}</TableCell>
+                <TableCell>{formatDatum(anfrage.erstellt_am)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

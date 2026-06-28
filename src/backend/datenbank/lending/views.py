@@ -36,10 +36,15 @@ class AusleihanfrageViewSet(viewsets.ModelViewSet):
 
     # Sicherstellung dass der Nutzer seine eigene Ausleihanfrage sieht, nicht die eines anderen
     def get_queryset(self):
-        """Filtert Anfragen auf die eingeloggte Nutzerin"""
-        return Ausleihanfrage.objects.select_related(
+        """Filtert Anfragen auf die eingeloggte Nutzerin (Mapping User -> Nutzer per E-Mail)"""
+        from users.models import Nutzer
+        basis = Ausleihanfrage.objects.select_related(
             'nutzer', 'gegenstand', 'organisation'
-        ).filter(nutzer=self.request.user)
+        )
+        nutzer = Nutzer.objects.filter(email=self.request.user.email).first()
+        if nutzer is None:
+            return basis.none()
+        return basis.filter(nutzer=nutzer)
 
     @action(detail=False, methods=['get'])
 

@@ -12,10 +12,10 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { StatusBadge, ErrorMessage } from "../components/ui";
 
-const MOCK = true; // auf false setzen, sobald #132 existiert und gemerged ist
+const MOCK = false; // auf false setzen, sobald #132 existiert und gemerged ist
 const MOCK_GEGENSTAND = {
-  id: 1,
-  inventarnummer: "INV-0001",
+  id: 2,
+  inventarnummer: "INV-002",
   name: "Mikroskop 1b",
   kategorie: "Elektronik",
   verfuegbarkeitsstatus: "verfuegbar", // verfuegbar | nicht_verfuegbar
@@ -25,7 +25,7 @@ const MOCK_GEGENSTAND = {
 // Router-Resource laut inventory/urls.py: "exemplare". Prefix vermutlich /api/inventory/.
 const API_BASE = "/api/inventory/exemplare";
 
-export default function GegenstandDetail({ gegenstandId = 1 }) {
+export default function GegenstandDetail({ gegenstandId = 2 }) {
   const [gegenstand, setGegenstand] = useState(MOCK ? MOCK_GEGENSTAND : null);
   const [ladevorgang, setLadevorgang] = useState(!MOCK);
   const [fehler, setFehler] = useState(null);

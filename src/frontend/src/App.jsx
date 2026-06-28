@@ -11,14 +11,27 @@
 
 //export default App
 
+// import AppLayout from './components/layout/AppLayout.jsx'
+// import MeineAnfragen from './pages/MeineAnfragen.jsx'
+
+// function App() {
+//  return (
+//    <AppLayout>
+//      <MeineAnfragen />
+//    </AppLayout>
+//  )
+// }
+// export default App
+
 import AppLayout from './components/layout/AppLayout.jsx'
-import MeineAnfragen from './pages/MeineAnfragen.jsx'
+import GegenstandDetail from './pages/GegenstandDetail.jsx'
 
 function App() {
   return (
     <AppLayout>
-      <MeineAnfragen />
+      <GegenstandDetail />
     </AppLayout>
   )
 }
+
 export default App

@@ -56,3 +56,10 @@ class GegenstandsexemplarViewSet(viewsets.ReadOnlyModelViewSet):
     ).all()
     
     serializer_class = GegenstandsexemplarUebersichtSerializer
+
+class GegenstandsexemplarDetailViewSet(viewsets.ReadOnlyModelViewSet):
+    """Detailansicht eines einzelnen Exemplars - inkl. verfuegbarkeitsstatus."""
+    queryset = Gegenstandsexemplar.objects.select_related(
+        "gegenstand", "gegenstand__standort", "gegenstand__kategorie"
+    ).all()
+    serializer_class = GegenstandsexemplarUebersichtSerializer

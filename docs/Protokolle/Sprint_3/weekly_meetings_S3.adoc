@@ -88,3 +88,16 @@
 * Der Vortrag wird gemeinsam vom Product Owner (PO) und einem Entwickler (Dev) gehalten.
 * Der PO übernimmt den fachlichen Teil, während der Dev den Prototypen live vorführt.
 * Es steht noch nicht fest, welcher Dev die Live-Demo präsentiert. Diese Entscheidung muss bis spätestens kommenden Mittwoch im Team getroffen werden.
+
+== Meeting 28.06.2026
+:id: meeting28062026
+
+*Datum:* 28.06.2026  
+*Dauer:* 
+*Teilnehmende:* 
+
+=== Agenda
+. Präsentation besprechen (5 min)
+. Prototyp besprechen (10 min)
+. Aufgabenverteilung (10 min)
+. Retrospektive Termin finden (5 min)

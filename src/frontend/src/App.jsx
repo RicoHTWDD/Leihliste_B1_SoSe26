@@ -1,35 +1,22 @@
-//import AppLayout from './components/layout/AppLayout.jsx'
-//import HomePage from './pages/HomePage.jsx'
-
-//function App() {
-//  return (
-//    <AppLayout>
-//      <HomePage />
-//    </AppLayout>
-//  )
-//}
-
-//export default App
-
-// import AppLayout from './components/layout/AppLayout.jsx'
-// import MeineAnfragen from './pages/MeineAnfragen.jsx'
-
-// function App() {
-//  return (
-//    <AppLayout>
-//      <MeineAnfragen />
-//    </AppLayout>
-//  )
-// }
-// export default App
-
+import { useState } from 'react'
 import AppLayout from './components/layout/AppLayout.jsx'
-import GegenstandDetail from './pages/GegenstandDetail.jsx'
+import HomePage from './pages/HomePage.jsx'
+import GegenstandUebersicht from './pages/GegenstandUebersicht.jsx'
+import LoanRequestPage from './pages/LoanRequestPage.jsx'
 
 function App() {
+  const [currentPage, setCurrentPage] = useState('home')
+
+  let pageContent = <HomePage />
+  if (currentPage === 'items') {
+    pageContent = <GegenstandUebersicht />
+  } else if (currentPage === 'loan-request') {
+    pageContent = <LoanRequestPage />
+  }
+
   return (
-    <AppLayout>
-      <GegenstandDetail />
+    <AppLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+      {pageContent}
     </AppLayout>
   )
 }

@@ -9,10 +9,11 @@ const STATUS_CONFIG = {
   reserviert:          { label: "Reserviert",           color: "info" },
   defekt:              { label: "Defekt",               color: "error" },
   // Anfragen (#36 / #125)
-  eingereicht:         { label: "Eingereicht",          color: "info" },
-  genehmigt:           { label: "Genehmigt",            color: "success" },
-  abgelehnt:           { label: "Abgelehnt",            color: "error" },
-  zurueckgezogen:      { label: "Zurückgezogen",        color: "default" },
+  eingereicht:    { label: "Eingereicht",   color: "info" },
+  genehmigt:      { label: "Genehmigt",     color: "success" },
+  abgelehnt:      { label: "Abgelehnt",     color: "error" },
+  zurueckgezogen: { label: "Zurückgezogen", color: "default" },
+  abgelaufen:     { label: "Abgelaufen",    color: "default" },
 };
 
 export default function StatusBadge({ status }) {

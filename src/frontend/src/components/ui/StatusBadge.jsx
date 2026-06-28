@@ -4,10 +4,8 @@ import Chip from "@mui/material/Chip";
 // MUI-Farben: success | warning | error | info | default
 const STATUS_CONFIG = {
   // Gegenstände (#18)
-  verfuegbar:          { label: "Verfügbar",           color: "success" },
-  ausgeliehen:         { label: "Ausgeliehen",          color: "warning" },
-  reserviert:          { label: "Reserviert",           color: "info" },
-  defekt:              { label: "Defekt",               color: "error" },
+  verfuegbar:       { label: "Verfügbar",       color: "success" },
+  nicht_verfuegbar: { label: "Nicht verfügbar", color: "default" },
   // Anfragen (#36 / #125)
   eingereicht:    { label: "Eingereicht",   color: "info" },
   genehmigt:      { label: "Genehmigt",     color: "success" },

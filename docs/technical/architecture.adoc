@@ -607,7 +607,6 @@ Kostenpflichtig bei Überschreiten des Freikontingents.
 |===
 
 === ADR-009: [QR-Code Generierung über Python Backend, Anzeige und Scan über React Frontend]
-
 [cols="1,3"]
 |===
 | *Status*
@@ -617,20 +616,20 @@ Kostenpflichtig bei Überschreiten des Freikontingents.
 | 26.05.2026
 
 | *Kontext*
-| Ausleihobjekte sollen per QR-Code schnell identifizierbar sein, um den Ausleihprozess vor Ort zu beschleunigen. Manuelles Suchen
-im Inventar kostet Zeit.
+| Ausleihobjekte sollen per QR-Code schnell identifizierbar sein, um den Ausleihprozess vor Ort zu beschleunigen. Manuelles Suchen im Inventar kostet Zeit.
 
 | *Entscheidung*
 | Wir generieren QR-Codes serverseitig mit der Python-Bibliothek qrcode im Backend, weil sie einfach integrierbar ist und keine externen Dienste benötigt. Die Anzeige erfolgt im React-Frontend. Das Scannen erfolgt über die Kamera.
 
 | *Alternativen*
-| tkinter kann doch nicht als Bibliothek hinzugezogen werden, weil es eine Bibliothek ist für Desktop-GUI und wir bauen eine Webanwendung.
+| Frontend-seitige Generierung (qrcode.react): QR-Codes direkt im Browser generieren. Abgelehnt, weil keine serverseitige Persistenz und nicht dauerhafte Speicherung des QR-Codes. Wenn der Nutzer die Seite verlässt, ist der QR-Code nicht mehr verfügbar. Außerdem ist die Generierung im Backend performanter und kann besser skaliert werden. +
+Externe QR-Code-Generatoren (z.B. Google Charts API): QR-Codes über externe Dienste generieren. Abgelehnt, weil Abhängigkeit von Drittanbietern und Datenschutzbedenken bestehen.
 
 | *Konsequenzen*
 | *gut:* +
 - keine externen Dienste nötig +
 - das Scannen und Lesen funktioniert direkt über Browser +
-*schwierig:*
+*schwierig:* +
 - Datentransfer zwischen Frontend und Backend und entsprechende Kodierung
 |===
 

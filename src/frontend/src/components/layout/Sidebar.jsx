@@ -8,7 +8,6 @@ import {
 
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
-import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined'
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
 
@@ -22,11 +21,6 @@ const navigationItems = [
     label: 'Gegenstände',
     page: 'items',
     icon: <Inventory2OutlinedIcon />,
-  },
-  {
-    label: 'Kategorien',
-    page: 'categories',
-    icon: <CategoryOutlinedIcon />,
   },
   {
     label: 'Anfragen',

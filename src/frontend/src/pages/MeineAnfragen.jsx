@@ -106,14 +106,7 @@ export default function MeineAnfragen({ onNeueAnfrage }) {
             sx={{ minWidth: 240 }}
           />
 
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={onNeueAnfrage}
-            sx={{ whiteSpace: 'nowrap' }}
-          >
-            Neue Anfrage
-          </Button>
+
         </Stack>
       </Box>
 

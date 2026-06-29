@@ -35,6 +35,18 @@ async function fetchGegenstaende() {
   }))
 }
 
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// DEMO-Einschränkung: In der Prototyp-Demo zeigt die Liste nur die obersten
+// zwei verfügbaren Gegenstände. Nicht verfügbare Gegenstände werden im
+// Anfrageformular gar nicht angeboten — sie lassen sich ohnehin nicht ausleihen.
+// (Nur für demo-integration; vor dem Extrahieren in den Feature-Branch wieder
+// entfernen.)
+// ---------------------------------------------------------------------------
+function nurDemoAuswahl(alle) {
+  return alle.filter((item) => item.available).slice(0, 2)
+}
+
 function formatDate(value) {
   const digits = value.replace(/\D/g, '').slice(0, 8)
 
@@ -97,7 +109,8 @@ function LoanRequestPage({ onBack }) {
     fetchGegenstaende()
       .then((data) => {
         if (!active) return
-        setItems(data)
+        // DEMO: Liste auf die obersten zwei verfügbaren Gegenstände begrenzen
+        setItems(nurDemoAuswahl(data))
         setLoadStatus('done')
       })
       .catch(() => {

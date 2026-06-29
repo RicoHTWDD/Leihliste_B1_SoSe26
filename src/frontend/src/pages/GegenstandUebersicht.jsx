@@ -54,7 +54,8 @@ async function fetchGegenstaende() {
   }));
 }
 
-// Spaltendefinition für die sortierbaren Kopfzellen
+// Spaltendefinition für die sortierbaren Kopfzellen.
+// Status bleibt als Spalte erhalten (Badge), wird aber nicht mehr gefiltert.
 const SPALTEN = [
   { feld: 'name', label: 'Name' },
   { feld: 'status', label: 'Status' },
@@ -67,8 +68,10 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
   const [ladestatus, setLadestatus] = useState('laedt'); // 'laedt' | 'fertig' | 'fehler'
 
   const [suche, setSuche] = useState('');
-  const [statusFilter, setStatusFilter] = useState('alle');
+  // Zwei unabhängige Filter, die kombiniert wirken (UND-Verknüpfung).
+  // 'alle' = Filter inaktiv.
   const [kategorieFilter, setKategorieFilter] = useState('alle');
+  const [standortFilter, setStandortFilter] = useState('alle');
   const [sortierung, setSortierung] = useState({ feld: 'name', richtung: 'asc' });
   const [ausgewaehlt, setAusgewaehlt] = useState([]);
 
@@ -90,13 +93,23 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
     };
   }, []);
 
-  // Kategorien dynamisch aus den Daten (für das Filter-Dropdown)
+  // Kategorien dynamisch aus den Daten (für das Kategorie-Dropdown)
   const kategorien = useMemo(
     () => [...new Set(gegenstaende.map((g) => g.kategorie))].sort((a, b) => a.localeCompare(b, 'de')),
     [gegenstaende]
   );
 
-  // Filtern + Sortieren – clientseitig, solange das Backend keine Query-Parameter kennt
+  // Standorte dynamisch aus den Daten (für das Standort-Dropdown)
+  const standorte = useMemo(
+    () =>
+      [...new Set(gegenstaende.map((g) => g.standort).filter(Boolean))].sort((a, b) =>
+        a.localeCompare(b, 'de')
+      ),
+    [gegenstaende]
+  );
+
+  // Filtern + Sortieren – clientseitig, solange das Backend keine Query-Parameter kennt.
+  // Kategorie- und Standort-Filter werden nacheinander angewandt => kombinierbar.
   const sichtbar = useMemo(() => {
     let liste = gegenstaende;
 
@@ -104,11 +117,11 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
       const q = suche.trim().toLowerCase();
       liste = liste.filter((g) => g.name.toLowerCase().includes(q));
     }
-    if (statusFilter !== 'alle') {
-      liste = liste.filter((g) => g.status === statusFilter);
-    }
     if (kategorieFilter !== 'alle') {
       liste = liste.filter((g) => g.kategorie === kategorieFilter);
+    }
+    if (standortFilter !== 'alle') {
+      liste = liste.filter((g) => g.standort === standortFilter);
     }
 
     const faktor = sortierung.richtung === 'asc' ? 1 : -1;
@@ -117,7 +130,7 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
       const wertB = String(b[sortierung.feld] ?? '');
       return wertA.localeCompare(wertB, 'de') * faktor;
     });
-  }, [gegenstaende, suche, statusFilter, kategorieFilter, sortierung]);
+  }, [gegenstaende, suche, kategorieFilter, standortFilter, sortierung]);
 
   function sortierenNach(feld) {
     setSortierung((prev) =>
@@ -172,19 +185,8 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
             sx={{ minWidth: 220 }}
           />
 
-          <FormControl size="small" sx={{ minWidth: 150 }}>
-            <Select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              displayEmpty
-            >
-              <MenuItem value="alle">Alle Status</MenuItem>
-              <MenuItem value="verfuegbar">Verfügbar</MenuItem>
-              <MenuItem value="nicht_verfuegbar">Nicht verfügbar</MenuItem>
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 150 }}>
+          {/* Filter 1: Kategorie (links) */}
+          <FormControl size="small" sx={{ minWidth: 160 }}>
             <Select
               value={kategorieFilter}
               onChange={(e) => setKategorieFilter(e.target.value)}
@@ -199,6 +201,23 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
             </Select>
           </FormControl>
 
+          {/* Filter 2: Standort (rechts) — kombinierbar mit dem Kategorie-Filter */}
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <Select
+              value={standortFilter}
+              onChange={(e) => setStandortFilter(e.target.value)}
+              displayEmpty
+            >
+              <MenuItem value="alle">Alle Standorte</MenuItem>
+              {standorte.map((s) => (
+                <MenuItem key={s} value={s}>
+                  {s}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {/* "Ausleihe hinzufügen" führt zum Anfrageformular (Seite "Neue Anfrage"). */}
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -281,7 +300,7 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
                       </TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>{g.name}</TableCell>
                       <TableCell>
-                        {/* StatusBadge aus #140 — siehe Hinweis zu den Status-Schlüsseln */}
+                        {/* StatusBadge aus #140 — Status bleibt sichtbar, wird nur nicht gefiltert */}
                         <StatusBadge status={g.status} />
                       </TableCell>
                       <TableCell>{g.kategorie}</TableCell>

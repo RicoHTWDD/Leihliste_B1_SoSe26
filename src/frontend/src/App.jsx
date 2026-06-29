@@ -29,12 +29,11 @@ function App() {
     pageContent = (
       <GegenstandUebersicht
         onSelectGegenstand={(id) => setOverlay({ type: 'detail', id })}
+        onAddAusleihe={() => setOverlay({ type: 'form' })}
       />
     )
   } else if (activeTab === 'loan-request') {
-    pageContent = (
-      <MeineAnfragen onNeueAnfrage={() => setOverlay({ type: 'form' })} />
-    )
+    pageContent = <MeineAnfragen />
   } else {
     pageContent = <HomePage />
   }

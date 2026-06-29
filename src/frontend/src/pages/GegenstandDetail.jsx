@@ -6,8 +6,6 @@ import {
   CircularProgress,
   Paper,
   Button,
-  Select,
-  MenuItem,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { StatusBadge, ErrorMessage } from "../components/ui";
@@ -159,15 +157,11 @@ export default function GegenstandDetail({ gegenstandId = 2, onBack }) {
               </Typography>
             )}
 
-            {/* PLATZHALTER (Story Ausleihprozess): Anzahl + Aktion, bewusst disabled */}
+            {/* Aktion: "Zur Anfrage hinzufügen" ist vorerst ohne Funktion (bewusst
+                klickbarer UI-Platzhalter). "Ausleihe hinzufügen" wird hier später
+                ergänzt — wie in der Gegenstandsübersicht. */}
             <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 2 }}>
-              <Select size="small" defaultValue="" displayEmpty disabled sx={{ minWidth: 100 }}>
-                <MenuItem value="" disabled>Anzahl</MenuItem>
-                <MenuItem value={1}>1</MenuItem>
-                <MenuItem value={2}>2</MenuItem>
-                <MenuItem value={3}>3</MenuItem>
-              </Select>
-              <Button variant="contained" disabled>
+              <Button variant="contained">
                 Zur Anfrage hinzufügen
               </Button>
             </Stack>

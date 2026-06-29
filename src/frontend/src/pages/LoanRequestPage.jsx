@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
+  Box,
   Button,
   Checkbox,
+  CircularProgress,
   Divider,
   FormControlLabel,
   Stack,
@@ -11,20 +13,27 @@ import {
 } from '@mui/material'
 
 import ErrorMessage from '../components/ui/ErrorMessage.jsx'
+import HintBox from '../components/ui/HintBox.jsx'
 import StatusBadge from '../components/ui/StatusBadge.jsx'
 
-const items = [
-  {
-    id: 1,
-    name: 'Beispiel 1',
-    available: true,
-  },
-  {
-    id: 2,
-    name: 'Beispiel 2',
-    available: false,
-  },
-]
+// ---------------------------------------------------------------------------
+// Datenquelle (identisch zur Gegenstandsübersicht).
+// GET /api/inventory/alle-exemplare/ — DRF-paginiert: { ..., results: [...] }.
+// Idealerweise später in ein gemeinsames Modul (z. B. src/api/gegenstaende.js)
+// auslagern, damit Übersicht und Formular dieselbe Funktion nutzen.
+// ---------------------------------------------------------------------------
+async function fetchGegenstaende() {
+  const res = await fetch('/api/inventory/alle-exemplare/')
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  const data = await res.json()
+
+  return data.results.map((exemplar) => ({
+    id: exemplar.id,
+    name: exemplar.name,
+    status: exemplar.verfuegbarkeitsstatus, // 'verfuegbar' | 'nicht_verfuegbar'
+    available: exemplar.verfuegbarkeitsstatus === 'verfuegbar',
+  }))
+}
 
 function formatDate(value) {
   const digits = value.replace(/\D/g, '').slice(0, 8)
@@ -71,12 +80,33 @@ function parseDate(value) {
   return date
 }
 
-function LoanRequestPage() {
+function LoanRequestPage({ onBack }) {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [selectedItems, setSelectedItems] = useState([])
   const [comment, setComment] = useState('')
   const [error, setError] = useState('')
+
+  // Gegenstände vom Backend laden
+  const [items, setItems] = useState([])
+  const [loadStatus, setLoadStatus] = useState('loading') // 'loading' | 'done' | 'error'
+
+  useEffect(() => {
+    let active = true
+    setLoadStatus('loading')
+    fetchGegenstaende()
+      .then((data) => {
+        if (!active) return
+        setItems(data)
+        setLoadStatus('done')
+      })
+      .catch(() => {
+        if (active) setLoadStatus('error')
+      })
+    return () => {
+      active = false
+    }
+  }, [])
 
   function toggleItem(itemId) {
     setSelectedItems((currentItems) => (
@@ -121,7 +151,7 @@ function LoanRequestPage() {
 
     setError('')
 
-    // API-Anbindung kommt später hier hinein.
+    // API-Anbindung (Anfrage absenden) kommt später hier hinein.
   }
 
   function handleReset() {
@@ -130,6 +160,7 @@ function LoanRequestPage() {
     setSelectedItems([])
     setComment('')
     setError('')
+    onBack?.() // Formular schließen und zurück zur vorigen Ansicht
   }
 
   return (
@@ -211,33 +242,42 @@ function LoanRequestPage() {
             Gegenstände auswählen
           </Typography>
 
-          {items.map((item) => (
-            <Stack
-              key={item.id}
-              direction="row"
-              spacing={2}
-              alignItems="center"
-            >
-              <FormControlLabel
-                label={item.name}
-                disabled={!item.available}
-                control={(
-                  <Checkbox
-                    checked={selectedItems.includes(item.id)}
-                    onChange={() => toggleItem(item.id)}
-                  />
-                )}
-              />
+          {loadStatus === 'loading' && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+              <CircularProgress />
+            </Box>
+          )}
 
-              <StatusBadge
-                status={
-                  item.available
-                    ? 'verfuegbar'
-                    : 'ausgeliehen'
-                }
-              />
-            </Stack>
-          ))}
+          {loadStatus === 'error' && (
+            <ErrorMessage message="Die Gegenstände konnten nicht geladen werden." />
+          )}
+
+          {loadStatus === 'done' && items.length === 0 && (
+            <HintBox message="Keine Gegenstände vorhanden." />
+          )}
+
+          {loadStatus === 'done'
+            && items.map((item) => (
+              <Stack
+                key={item.id}
+                direction="row"
+                spacing={2}
+                alignItems="center"
+              >
+                <FormControlLabel
+                  label={item.name}
+                  disabled={!item.available}
+                  control={(
+                    <Checkbox
+                      checked={selectedItems.includes(item.id)}
+                      onChange={() => toggleItem(item.id)}
+                    />
+                  )}
+                />
+
+                <StatusBadge status={item.status} />
+              </Stack>
+            ))}
         </Stack>
 
         <Divider />

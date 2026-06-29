@@ -12,8 +12,11 @@ import {
   Paper,
   TextField,
   InputAdornment,
+  Button,
+  Stack,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import AddIcon from '@mui/icons-material/Add';
 import { StatusBadge, HintBox, ErrorMessage } from "../components/ui";
 
 // Vite-Proxy: /api -> http://localhost:8000 (kein nginx im lokalen Dev nötig)
@@ -36,7 +39,7 @@ function formatDatum(iso) {
   });
 }
 
-export default function MeineAnfragen() {
+export default function MeineAnfragen({ onNeueAnfrage }) {
   const [anfragen, setAnfragen] = useState([]);
   const [zustand, setZustand] = useState(Zustand.LADEN);
 
@@ -68,31 +71,10 @@ export default function MeineAnfragen() {
     };
   }, []);
 
-  // --- Ladezustand ---
-  if (zustand === Zustand.LADEN) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-        <CircularProgress aria-label="Anfragen werden geladen" />
-      </Box>
-    );
-  }
-
-  // --- Fehlerzustand ---
-  if (zustand === Zustand.FEHLER) {
-    return (
-      <ErrorMessage message="Die Anfragen konnten nicht geladen werden. Bitte später erneut versuchen." />
-    );
-  }
-
-  // --- AK5: keine Anfragen vorhanden ---
-  if (anfragen.length === 0) {
-    return <HintBox message="Du hast noch keine Ausleihanfragen gestellt." />;
-  }
-
-  // --- AK1 + AK2: Liste mit Status (Spalten gemaess Mockup: Name / Status / Organisation / Eingereicht am) ---
   return (
     <Box sx={{ p: 2 }}>
-      {/* Kopfzeile: Titel links, Suche rechts (wie im Mockup) */}
+      {/* Kopfzeile: IMMER sichtbar — damit "Neue Anfrage" auch bei leerer Liste
+          (und während Laden/Fehler) erreichbar bleibt. */}
       <Box
         sx={{
           display: 'flex',
@@ -107,50 +89,81 @@ export default function MeineAnfragen() {
           Anfragen
         </Typography>
 
-        {/* Suche: NUR Darstellung gemaess Mockup. Keine Filterlogik in #126
-            (wie schon bei #125) - kommt als eigene Issue. Bewusst inert. */}
-        <TextField
-          size="small"
-          placeholder="Suche"
-          aria-label="Anfragen durchsuchen"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ minWidth: 240 }}
-        />
+        <Stack direction="row" spacing={2} alignItems="center">
+          {/* Suche: NUR Darstellung gemaess Mockup. Keine Filterlogik in #126
+              (wie schon bei #125) - kommt als eigene Issue. Bewusst inert. */}
+          <TextField
+            size="small"
+            placeholder="Suche"
+            aria-label="Anfragen durchsuchen"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ minWidth: 240 }}
+          />
+
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={onNeueAnfrage}
+            sx={{ whiteSpace: 'nowrap' }}
+          >
+            Neue Anfrage
+          </Button>
+        </Stack>
       </Box>
 
-      <TableContainer component={Paper} elevation={0}>
-        <Table aria-label="Übersicht meiner Ausleihanfragen">
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Organisation</TableCell>
-              <TableCell>Eingereicht am</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {anfragen.map((anfrage) => (
-              <TableRow key={anfrage.id} hover>
-                {/* Mockup-Spalte "Name": Gegenstandsname (sinnvollster Wert fuer die Nutzerin).
-                    Alternativ streng nach Mockup-Text: `Anfrage #${anfrage.id}` */}
-                <TableCell>{anfrage.gegenstand_name}</TableCell>
-                <TableCell>
-                  {/* anfragestatus ist der Code (z. B. "genehmigt") */}
-                  <StatusBadge status={anfrage.anfragestatus} />
-                </TableCell>
-                <TableCell>{anfrage.organisation_name}</TableCell>
-                <TableCell>{formatDatum(anfrage.erstellt_am)}</TableCell>
+      {/* --- Ladezustand --- */}
+      {zustand === Zustand.LADEN && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+          <CircularProgress aria-label="Anfragen werden geladen" />
+        </Box>
+      )}
+
+      {/* --- Fehlerzustand --- */}
+      {zustand === Zustand.FEHLER && (
+        <ErrorMessage message="Die Anfragen konnten nicht geladen werden. Bitte später erneut versuchen." />
+      )}
+
+      {/* --- AK5: keine Anfragen vorhanden --- */}
+      {zustand === Zustand.FERTIG && anfragen.length === 0 && (
+        <HintBox message="Du hast noch keine Ausleihanfragen gestellt." />
+      )}
+
+      {/* --- AK1 + AK2: Liste mit Status (Spalten gemaess Mockup) --- */}
+      {zustand === Zustand.FERTIG && anfragen.length > 0 && (
+        <TableContainer component={Paper} elevation={0}>
+          <Table aria-label="Übersicht meiner Ausleihanfragen">
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Organisation</TableCell>
+                <TableCell>Eingereicht am</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {anfragen.map((anfrage) => (
+                <TableRow key={anfrage.id} hover>
+                  {/* Mockup-Spalte "Name": Gegenstandsname (sinnvollster Wert fuer die Nutzerin).
+                      Alternativ streng nach Mockup-Text: `Anfrage #${anfrage.id}` */}
+                  <TableCell>{anfrage.gegenstand_name}</TableCell>
+                  <TableCell>
+                    {/* anfragestatus ist der Code (z. B. "genehmigt") */}
+                    <StatusBadge status={anfrage.anfragestatus} />
+                  </TableCell>
+                  <TableCell>{anfrage.organisation_name}</TableCell>
+                  <TableCell>{formatDatum(anfrage.erstellt_am)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
     </Box>
   );
 }

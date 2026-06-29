@@ -25,7 +25,7 @@ const MOCK_GEGENSTAND = {
 // Router-Resource laut inventory/urls.py: "exemplare". Prefix vermutlich /api/inventory/.
 const API_BASE = "/api/inventory/exemplare";
 
-export default function GegenstandDetail({ gegenstandId = 2 }) {
+export default function GegenstandDetail({ gegenstandId = 2, onBack }) {
   const [gegenstand, setGegenstand] = useState(MOCK ? MOCK_GEGENSTAND : null);
   const [ladevorgang, setLadevorgang] = useState(!MOCK);
   const [fehler, setFehler] = useState(null);
@@ -97,7 +97,7 @@ export default function GegenstandDetail({ gegenstandId = 2 }) {
         {/* Zurück - wird spaeter ans Routing angebunden (eigene Aufgabe) */}
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => window.history.back()}
+          onClick={onBack ?? (() => window.history.back())}
           sx={{ color: "text.secondary", mb: 2 }}
         >
           Zurück
@@ -141,6 +141,23 @@ export default function GegenstandDetail({ gegenstandId = 2 }) {
               <StatusBadge status={gegenstand.verfuegbarkeitsstatus} />
             </Box>
             {/* ===== Ende #131 ===== */}
+
+            {/* Metadaten des Exemplars — kommen alle vom Detail-Endpoint */}
+            {gegenstand.standort && (
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Standort: {gegenstand.standort}
+              </Typography>
+            )}
+            {gegenstand.inventarnummer && (
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Inventarnummer: {gegenstand.inventarnummer}
+              </Typography>
+            )}
+            {gegenstand.zustand_display && (
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Zustand: {gegenstand.zustand_display}
+              </Typography>
+            )}
 
             {/* PLATZHALTER (Story Ausleihprozess): Anzahl + Aktion, bewusst disabled */}
             <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 2 }}>

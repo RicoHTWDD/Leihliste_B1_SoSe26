@@ -49,6 +49,7 @@ async function fetchGegenstaende() {
     name: exemplar.name,
     status: exemplar.verfuegbarkeitsstatus, // 'verfuegbar' | 'nicht_verfuegbar'
     kategorie: exemplar.kategorie,          // vom Backend über den Gegenstandstyp aufgelöst
+    standort: exemplar.standort,            // ebenfalls über den Gegenstandstyp aufgelöst
     bildUrl: null,                          // liefert das Backend (noch) nicht
   }));
 }
@@ -58,9 +59,10 @@ const SPALTEN = [
   { feld: 'name', label: 'Name' },
   { feld: 'status', label: 'Status' },
   { feld: 'kategorie', label: 'Kategorie' },
+  { feld: 'standort', label: 'Standort' },
 ];
 
-export default function GegenstandUebersicht() {
+export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe }) {
   const [gegenstaende, setGegenstaende] = useState([]);
   const [ladestatus, setLadestatus] = useState('laedt'); // 'laedt' | 'fertig' | 'fehler'
 
@@ -200,9 +202,7 @@ export default function GegenstandUebersicht() {
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => {
-              /* TODO: Navigation zum Ausleihe-Formular, sobald vorhanden */
-            }}
+            onClick={onAddAusleihe}
             sx={{ whiteSpace: 'nowrap' }}
           >
             Ausleihe hinzufügen
@@ -263,10 +263,12 @@ export default function GegenstandUebersicht() {
                       key={g.id}
                       hover
                       selected={ausgewaehlt.includes(g.id)}
+                      onClick={() => onSelectGegenstand?.(g.id)}
                       // Nicht verfügbare Zeilen optisch zurücknehmen (wie im Mockup)
-                      sx={{ opacity: istVerfuegbar ? 1 : 0.5 }}
+                      sx={{ opacity: istVerfuegbar ? 1 : 0.5, cursor: 'pointer' }}
                     >
-                      <TableCell padding="checkbox">
+                      {/* stopPropagation: Klick auf die Checkbox öffnet NICHT die Detailseite */}
+                      <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
                         <Checkbox
                           checked={ausgewaehlt.includes(g.id)}
                           onChange={() => auswahlUmschalten(g.id)}
@@ -283,6 +285,7 @@ export default function GegenstandUebersicht() {
                         <StatusBadge status={g.status} />
                       </TableCell>
                       <TableCell>{g.kategorie}</TableCell>
+                      <TableCell>{g.standort || '—'}</TableCell>
                     </TableRow>
                   );
                 })}

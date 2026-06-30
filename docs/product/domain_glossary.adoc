@@ -126,6 +126,7 @@ Technische Implementierungsdetails gehören nicht hierher!
 | Der Zustand eines Gegenstandsexemplars, der angibt, ob es aktuell ausgeliehen werden kann. Mögliche Status sind: +
   - verfügbar: Gegenstandsexemplar kann ausgeliehen werden +
   - nicht verfügbar: Gegenstandsexemplar kann nicht reserviert oder ausgeliehen werden (weitere Differentzierung möglich z.B. defekt, Verlust)
+| Status
 
 | Verifizierungsstatus
 | Der Zustand der Überprüfung eines Nutzerkontos durch einen Admin. Mögliche Status sind: +

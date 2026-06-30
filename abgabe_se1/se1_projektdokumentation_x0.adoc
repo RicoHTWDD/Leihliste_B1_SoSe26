@@ -1,9 +1,9 @@
 // --- 1. Projektthema -------------------------
 = SE I - Projektdokumentation: {project-name}
 // --- 2. Teammitglieder -----------------------
-Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>; Vorname Nachname <s00000@htw-dresden.de>
+Adrian Hesse <adrian.hesse@stud.htw-dresden.de>; Rico Knorr <rico.knorr@stud.htw-dresden.de>; Justin Rietschel <justin.rietschel@stud.htw-dresden.de>; Jevan Hassan <jevan.hassan@stud.htw-dresden.de>; Til Maximilian Müller <tilmaximilian.mueller@stud.htw-dresden.de>; Julius Neubert <julius.neubert@stud.htw-dresden.de>; Lidiia Pakhomova <lidiia.pakhomova@stud.htw-dresden.de>
 // --- 3. Abgabedatum --------------------------
-01. Januar 2025
+05. Juli 2026
 // ---------------------------------------------
 :docs: ../docs
 include::{docs}/_includes/default-attributes.inc.adoc[]

@@ -1,0 +1,190 @@
+= Sprint-3-Report: Erstes Produktinkrement und agile Arbeitsweise
+
+// Bitte fügen Sie hier die Informationen zu Ihrem Team, Projekt, Datum und Repository ein.
+
+Team:: Leihliste B1
+Projektname:: Leihliste
+Datum:: 05.07.2026
+Repository-Link:: https://github.com/RicoHTWDD/Leihliste_B1_SoSe26
+
+====
+Dieser Report soll auf maximal einer Seite zeigen, wie Ihr Team in Sprint 3 gearbeitet hat,
+welche Praktiken Sie angewendet haben, welches erste nützliche Produktinkrement entstanden ist und was Sie daraus gelernt haben.
+
+Der Report ist kein Tätigkeitsprotokoll und kein vollständiges Implementierungs- oder Testdokument. Beschreiben Sie nicht nur, *was* Sie umgesetzt haben,
+sondern vor allem, *warum* dieser Ausschnitt für das MVP nützlich ist, welche Evidenz die Umsetzung stützt und wie Review, Verifikation und Verbesserungen zur Qualität beigetragen haben.
+====
+
+== 1. Sprintziel und nützlicher MVP-Ausschnitt
+
+Formulieren Sie Ihr Sprintziel in 1–2 Sätzen. Leitfragen:
+
+* Welchen zusammenhängenden Nutzerfluss oder welche zusammenhängenden User Stories wollte Ihr Team in diesem Sprint als erstes nützliches End-to-End-Inkrement umsetzen?
+* Welches Nutzerziel sollte durch das Inkrement unterstützt werden?
+* Warum ist dieser Ausschnitt ein sinnvoller Schritt in Richtung MVP?
+
+[cols="1,3", options="header"]
+|===
+| Kriterium | Ihre Antwort
+
+| Sprintziel
+|
+
+| Ausgewählter MVP-Ausschnitt / Nutzerfluss
+|
+
+| Zentrale Annahme oder Umsetzungsfrage
+|
+|===
+
+== 2. Erwartete Praktiken in Sprint 3
+
+Wählen Sie 3–5 Praktiken aus, die für Ihren Sprint besonders relevant waren.
+Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 3 beschrieben werden. Mögliche Praktiken:
+
+* nützliche Funktionalität für Sprint 3 auswählen
+* Definition of Done für das Produktinkrement festlegen oder anwenden
+* Aufgaben aus User Stories ableiten 
+* Implementierungsüberlegungen in Issues, Tasks oder Pull Requests dokumentieren
+* Pull Requests mit Bezug zu Issues, Tasks oder User Stories vorbereiten
+* Code Reviews durchführen und Review-Ergebnisse einarbeiten
+* Verantwortlichkeiten im Code durch Presentation/Controller, Application/Use Case, Domain und Infrastructure umsetzen
+* Verhalten anhand von Akzeptanzkriterien verifizieren
+* Definition of Done vor dem Schließen von Issues prüfen
+* einfachen User-Flow- oder Usability-Check durchführen
+
+[cols="1,2,2,2", options="header"]
+|===
+| Praktik
+| Konkrete Anwendung in unserem Sprint
+| Nachweis / Artefakt (Link einfügen)
+| Nutzen, Erkenntnis oder Anpassung
+
+|
+|
+|
+|
+
+|
+|
+|
+|
+
+|
+|
+|
+|
+
+|
+|
+|
+|
+
+|
+|
+|
+|
+|===
+
+== 3. Wichtigste Lernergebnisse aus Sprint 3
+
+Beschreiben Sie 2–3 zentrale Erkenntnisse aus Sprint 3. Leitfragen:
+
+* Was hat Ihr Team über die Umsetzung eines nützlichen End-to-End-Inkrements gelernt?
+* Welche Annahme zum Nutzerfluss, zur Architektur, zum Design, zur Codebasis oder zur Teamarbeit wurde bestätigt, widerlegt oder präzisiert?
+* Welche Verifikations-, Review- oder Usability-Erkenntnis hatte den größten Einfluss auf Ihre weitere Planung?
+
+[cols="1,3", options="header"]
+|===
+| Kriterium | Ihre Antwort
+
+| Erkenntnis 1
+|
+
+| Erkenntnis 2
+|
+
+| Erkenntnis 3
+|
+|===
+
+== 4. Änderungen am Inkrement, Backlog oder an Projektdokumentation
+
+Beschreiben Sie konkret anhand von drei Beispielen, was sich durch Implementierung, Review, Verifikation oder User-Flow-Check verändert hat.
+
+[cols="2,2,2", options="header"]
+|===
+| Ursprüngliche Annahme / geplanter Stand
+| Neue Erkenntnisse
+| Anpassung am Inkrement, Backlog, Code oder an der Dokumentation
+
+|
+|
+|
+
+|
+|
+|
+
+|
+|
+|
+|===
+
+== 5. Produktinkrement, Verifikation und Umsetzungsqualität
+
+Beschreiben Sie kurz, welche Nachweise zeigen, dass Ihr Produktinkrement nützlich, integriert, überprüft und wartbar umgesetzt wurde. Leitfragen:
+
+* Wie zeigt sich, dass das Inkrement end-to-end lauffähig und für ein Nutzerziel nützlich ist?
+* Welche Akzeptanzkriterien wurden erfüllt und wie wurde dies überprüft?
+* Wie wurde die Definition of Done eingehalten?
+* Welche Erkenntnisse ergab der User-Flow- oder Usability-Check?
+
+[cols="1,3", options="header"]
+|===
+| Kriterium | Ihre Antwort
+
+| Umgesetzter End-to-End-Nutzerfluss
+|
+
+| Akzeptanzkriterien und Definition of Done
+|
+
+| Akzeptanzorientierte Verifikation
+|
+
+| Code Review, Integration und main branch
+|
+
+| Wartbarkeitsverbesserung / Refactoring
+|
+
+| User-Flow- oder Usability-Check
+|
+|===
+
+== 6. Nächste MVP-Schritte und Anpassung der Arbeitsweise
+
+Beschreiben Sie, was Ihr Team nach Sprint 3 beibehalten, ändern oder gezielt verbessern will. Leitfragen:
+
+* Welche Implementierungs-, Review- oder Koordinationsweise hat gut funktioniert?
+* Was hat Ihre Umsetzung, Integration, Verifikation oder Zusammenarbeit behindert?
+* Welcher nächste MVP-Schritt ist fachlich oder technisch am wichtigsten?
+* Welche offenen Produkt-, Technik- oder Qualitätsfragen sollten in der weiteren Projektarbeit aufgegriffen werden?
+
+[cols="1,3", options="header"]
+|===
+| Kriterium | Ihre Antwort
+
+| Beibehalten
+|
+
+| Ändern / verbessern
+|
+
+| Nächster MVP-Schritt
+|
+
+| Offene Fragen / Risiken für die weitere Projektarbeit
+|
+|===

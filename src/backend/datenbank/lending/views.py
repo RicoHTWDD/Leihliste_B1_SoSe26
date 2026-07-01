@@ -41,6 +41,16 @@ class AusleihanfrageViewSet(viewsets.ModelViewSet):
             'nutzer', 'gegenstand', 'organisation'
         ).filter(nutzer=self.request.user)
 
+# Frontend darf einige Attribute nicht senden, diese werden direkt
+# aus dem eingeloggten Nutzer und dessen Organisation gesetzt. 
+# Daher wird perform_create überschrieben.
+    def perform_create(self, serializer):
+        """Setzt nutzer und organisation automatisch aus dem eingeloggten User"""
+        serializer.save(
+            nutzer=self.request.user,
+            organisation=self.request.user.organisation
+        )
+
     @action(detail=False, methods=['get'])
 
     #Die konkrete URL die das Frontend aufruft

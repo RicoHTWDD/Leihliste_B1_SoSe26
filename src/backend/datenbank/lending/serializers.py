@@ -31,7 +31,13 @@ class AusleihanfrageSerializer(serializers.ModelSerializer):
             'erstellt_am',
             'aktualisiert_am'
         ]
-        read_only_fields = ['erstellt_am', 'aktualisiert_am']
+        read_only_fields = [
+            'erstellt_am',
+            'aktualisiert_am',
+            'nutzer',
+            'organisation',
+            'anfragestatus',
+        ]
     
     def get_anfragestatus_display(self, obj):
         """Gibt den lesbaren Status-Namen zurück"""

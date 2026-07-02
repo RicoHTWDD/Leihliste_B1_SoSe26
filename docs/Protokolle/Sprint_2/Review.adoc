@@ -1,0 +1,36 @@
+== Feedback-Auswertung: Sprint-Review 2 (LeihListe)
+
+*Datum der Auswertung:* 25.06.2026
+*Quelle:* Google Forms Umfrage (2 Antworten von Stakeholdern)
+
+=== 1. Domain-Entscheidungen
+
+*Schlüssigkeit des Ablaufs:*
+Beide Stakeholder finden den grundsätzlichen Ablauf schlüssig. Besonders positiv hervorgehoben wurde die sinnvolle Trennung zwischen Gegenstandstyp, Exemplar, Anfrage, Reservierung und Ausleihe. Auch das Rollenkonzept und die Benachrichtigungen werden als prozessunterstützend wahrgenommen.
+
+*Kritik / Vereinfachungspotenzial:*
+* *Klassifizierung / Suchlogik:* Es ist unklar, wie die globale Suche funktioniert. Werden bei der Suche nach "Mikroskop" die Geräte aller teilnehmenden Institute zusammen angezeigt, oder muss vorab nach einer spezifischen Institution gefiltert werden?
+* *Konkurrierende Anfragen:* Es muss besser definiert werden, was passiert, wenn es mehrere Verleiher für einen Gegenstandstyp gibt und wie das System nach der ersten erfolgten Genehmigung mit den "übrigen" offenen Anfragen umgeht.
+* *Entitäten-Reduzierung:* Es sollte geprüft werden, ob die strikte Trennung von "Reservierung" und "Ausleihe" wirklich als separate Datenbank-Entitäten notwendig ist, oder ob einfache Statusübergänge innerhalb einer einzigen "Ausleihe"-Entität ausreichen.
+* *Status-Definition:* Der Begriff "Status" taucht aktuell ungenau in mehreren Klassen auf. Hier bedarf es einer klaren Definition der möglichen Zustände (z. B. via Enum).
+* *Benachrichtigungs-Spam:* Um unnötige E-Mails zu vermeiden, muss präziser festgelegt werden, welche Ereignisse wirklich eine Mail auslösen dürfen.
+
+=== 2. Architektur-Entscheidungen
+
+*Schlüssigkeit der Komponenten:*
+Die generelle Architektur (React, Django, MariaDB, Docker, Nginx, QR-Codes) wird als passend, schlüssig und zeitgemäß bewertet, auch wenn ein Stakeholder anmerkt, dass die Bewertung ohne tieferes Hintergrundwissen zu den Entscheidungen schwierig ist.
+
+*Kritik / Vereinfachungspotenzial:*
+* *Optimistic Locking:* Diese Strategie wird für die aktuelle Projektgröße als möglicherweise zu komplex bewertet. Es sollte begründet werden, warum klassische Datenbanktransaktionen oder einfache Sperrmechanismen hier nicht ausreichen.
+* *SMTP-Server:* Die Abhängigkeit von einem privaten Mailanbieter (wie GMX) wird hinsichtlich Zuverlässigkeit und Skalierbarkeit für den produktiven Einsatz kritisch gesehen.
+
+=== 3. Architekturtreiber
+
+*Schlüssigkeit der Treiber:*
+Die Treiber (Sicherheit, DSGVO, Konsistenz, Benutzerfreundlichkeit) sind nachvollziehbar und passen gut zu den Systemanforderungen.
+
+*Fehlende Aspekte:*
+Es wurde angemerkt, dass folgende Architekturtreiber noch als separate Punkte ergänzt oder stärker beleuchtet werden sollten:
+* Verfügbarkeit
+* Backup & Wiederherstellung (Disaster Recovery)
+* Wartbarkeit

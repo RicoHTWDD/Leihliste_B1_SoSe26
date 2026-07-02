@@ -27,13 +27,14 @@ include::../_includes/default-attributes.inc.adoc[]
 | (Woche 4)| Standup (Weekly) ✓ | So 31.05.26 | 15:00 – 16:30 | Discord | link:../Protokolle/Sprint_2/weekly_meetings_S2.adoc#meeting31052026[Weekly]
 | (Woche 4)| Treffen mit Coach Herr Ringel ✓  | Di 02.06.26 | 13:35 – 14:30 | Z355 | link:../Protokolle/Sprint_2/2026-06-02_Treffen_Coach.adoc[2. Coach-Treffen]
 | (Woche 4)| Retrospektive  ✓  | Sa 06.06. | als Online-Fragebogen | | link:../Protokolle/Sprint_2/Sprint2_Report.adoc[Report]
-| (Woche 4)| Sprint-Review | KW24-KW26 | als Online-Fragebogen |  | link:../Protokolle/Sprint_2/Sprint2_Review_Fragebogen.adoc[Fragebogen]
+| (Woche 4)| Sprint-Review | Umfrage KW24-KW26 | Auswertung 25.06.2026 |  | link:../Protokolle/Sprint_2/Sprint2_Review_Fragebogen.adoc[Fragebogen], link:../Protokolle/Sprint_2/Review.adoc[2. Sprint Review]
 
 | *Sprint 3* (Woche 1)| Sprint Planning  ✓ | So 07.06.26 | 14:00 – 16:00 | Discord | link:../Protokolle/Sprint_2/weekly_meetings_S2.adoc#meeting07062026[Agenda], link:../Protokolle/Sprint_2/Sprint2_Report.adoc[Report]
 | (Woche 2) | Standup (Weekly) ✓ | So 14.06.26 | 14:00 – 15:25 | Discord | link:../Protokolle/Sprint_3/weekly_meetings_S3.adoc#meeting14062026[Weekly]
 | (Woche 3)| Standup (Weekly) ✓ | So 21.06.26 | 12:00 – 14:00 | Discord | link:../Protokolle/Sprint_3/weekly_meetings_S3.adoc#meeting21062026[Weekly]
-| (Woche 4)| *Standup (Weekly)* | So 28.06.26 | 14:00 – 15:00 | Discord |
-| (Woche 4)| [BackUp Standup (Weekly)] | Mo 29.06.26 | 17:00 – 18:00 | Discord |
-| (Woche 4)| Präsentation (als Sprint-Review)| Di 30.06.26 | 11:30 – 13:00 (12:06)| Z107 |
-| (Woche ???)| Retrospektive | ??? | ??? | S531 |
+| (Woche 4)| Standup (Weekly) ✓ | So 28.06.26 | 14:00 – 15:00 | Discord | link:../Protokolle/Sprint_3/weekly_meetings_S3.adoc#meeting28062026[Weekly]
+| (Woche 4)| *Präsentation (als Sprint-Review)*| Di 30.06.26 | 11:30 – 13:00 (12:06)| Z107 |
+| (Woche 4)| Retrospektive | KW27  | Umfrage läuft | ?S531 | Rico via BBB
+| (Woche 4)| *Standup (Weekly)* | So 05.07.26 | 14:00 – 15:00 | Discord | 
+
 |===

@@ -93,11 +93,27 @@
 :id: meeting28062026
 
 *Datum:* 28.06.2026  
-*Dauer:* 
-*Teilnehmende:* 
+*Dauer:* 50 min
+*Teilnehmende:* Alle
 
 === Agenda
 . Präsentation besprechen (5 min)
-. Prototyp besprechen (10 min)
-. Aufgabenverteilung (10 min)
+. Prototyp besprechen (15 min)
 . Retrospektive Termin finden (5 min)
+. Aufgabenverteilung (10 min)
+
+=== Beschluesse
+
+==== 1) Präsentation & Prototyp
+* *Inhalt der Präsentation:* Es wurde besprochen, was genau beim Prototyp gezeigt werden soll.
+* *System-Integration:* Das primäre Ziel für den Prototyp ist es nun, alle Schnittstellen final zu verbinden und das Frontend mit dem Backend erfolgreich zusammenzufügen.
+
+==== 2) Git-Workflow
+* *Feature Branches:* Es wurde noch einmal nachdrücklich im Team angemahnt, dass sich alle konsequent an die Arbeit mit Feature Branches halten müssen, um Konflikte zu vermeiden.
+
+==== 3) Retrospektive
+* *Terminfindung:* Um einen passenden Termin für die anstehende Sprint-Retrospektive zu finden, wurde eine Nuudel-Umfrage erstellt und im Team geteilt.
+
+==== 4) Ausblick: Letztes Meeting
+* Das kommende Meeting wird voraussichtlich das letzte reguläre Projekttreffen sein. 
+* Der Fokus wird dort vollständig auf der Finalisierung des Abschlussberichts liegen.

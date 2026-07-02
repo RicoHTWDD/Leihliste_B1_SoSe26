@@ -22,7 +22,7 @@ Formulieren Sie Ihr Sprintziel in 1–2 Sätzen. Leitfragen:
 * Welchen zusammenhängenden Nutzerfluss oder welche zusammenhängenden User Stories wollte Ihr Team in diesem Sprint als erstes nützliches End-to-End-Inkrement umsetzen?
 * Welches Nutzerziel sollte durch das Inkrement unterstützt werden?
 * Warum ist dieser Ausschnitt ein sinnvoller Schritt in Richtung MVP?
-
+//Justin
 [cols="1,3", options="header"]
 |===
 | Kriterium | Ihre Antwort
@@ -38,7 +38,7 @@ Formulieren Sie Ihr Sprintziel in 1–2 Sätzen. Leitfragen:
 |===
 
 == 2. Erwartete Praktiken in Sprint 3
-
+// Lidia und Jevan
 Wählen Sie 3–5 Praktiken aus, die für Ihren Sprint besonders relevant waren.
 Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 3 beschrieben werden. Mögliche Praktiken:
 
@@ -87,7 +87,7 @@ Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 3 be
 |===
 
 == 3. Wichtigste Lernergebnisse aus Sprint 3
-
+//Til
 Beschreiben Sie 2–3 zentrale Erkenntnisse aus Sprint 3. Leitfragen:
 
 * Was hat Ihr Team über die Umsetzung eines nützlichen End-to-End-Inkrements gelernt?
@@ -109,7 +109,7 @@ Beschreiben Sie 2–3 zentrale Erkenntnisse aus Sprint 3. Leitfragen:
 |===
 
 == 4. Änderungen am Inkrement, Backlog oder an Projektdokumentation
-
+//Rico
 Beschreiben Sie konkret anhand von drei Beispielen, was sich durch Implementierung, Review, Verifikation oder User-Flow-Check verändert hat.
 
 [cols="2,2,2", options="header"]
@@ -132,7 +132,7 @@ Beschreiben Sie konkret anhand von drei Beispielen, was sich durch Implementieru
 |===
 
 == 5. Produktinkrement, Verifikation und Umsetzungsqualität
-
+//Julius
 Beschreiben Sie kurz, welche Nachweise zeigen, dass Ihr Produktinkrement nützlich, integriert, überprüft und wartbar umgesetzt wurde. Leitfragen:
 
 * Wie zeigt sich, dass das Inkrement end-to-end lauffähig und für ein Nutzerziel nützlich ist?
@@ -164,7 +164,7 @@ Beschreiben Sie kurz, welche Nachweise zeigen, dass Ihr Produktinkrement nützli
 |===
 
 == 6. Nächste MVP-Schritte und Anpassung der Arbeitsweise
-
+//Adrian mit MVP von Justin
 Beschreiben Sie, was Ihr Team nach Sprint 3 beibehalten, ändern oder gezielt verbessern will. Leitfragen:
 
 * Welche Implementierungs-, Review- oder Koordinationsweise hat gut funktioniert?

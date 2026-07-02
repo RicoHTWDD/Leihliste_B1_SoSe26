@@ -1,0 +1,91 @@
+== Retrospektive — Sprint 3
+
+:doctype: article
+:toc: left
+
+== Datum
+28.06.2026; [Uhrzeit ergänzen]
+
+== Teilnehmer
+Alle Mitglieder des Teams
+
+== Moderator
+Scrum Master - Adrian
+
+== Dauer
+60 Minuten
+
+== Ziele der Retrospektive
+
+Einen offenen und konstruktiven Rückblick auf den Sprint zu ermöglichen, um Erkenntnisse zu gewinnen, Verbesserungen zu identifizieren und die Zusammenarbeit im Team zu stärken.
+
+== Stop / Start / Continue
+
+Die Gruppe sammelt Eindrücke und Erkenntnisse von jedem einzelnen Teammitglied, um daraus konkrete Maßnahmen abzuleiten.
+
+=== Stop -> Start
+
+Jeder Stop-Punkt wird direkt mit der konkreten Start-Maßnahme verbunden, die daraus folgt.
+
+[cols="2,3,1",options="header"]
+|===
+|Stop (Problem) |Start (konkrete Maßnahme) | Verantwortlich
+
+| Meetings am Sonntag und kurzfristige Terminplanung.
+| Frühzeitige Terminplanung für alle Events (auch Reviews & Retros) für das nächste Semester einführen. Termine über Nuudel mit klaren Deadlines zur Abstimmung setzen.
+| Scrum Master
+
+| Schieben von Entscheidungen auf nächste Woche/Meetings (bringt den Zeitplan durcheinander).
+| Agenda muss 24 Stunden vor dem Meeting fertig sein und alle werden informiert. Meetings sollen primär dafür genutzt werden, *Entscheidungen* zu treffen.
+| Alle
+
+| Product Owner wird mit der Erstellung der Issues allein gelassen (führt zu Widersprüchen).
+| Gemeinsames Sichten der Issues während der Sprintplanung, um Widersprüche direkt zu erkennen. Mehr Fokus auf saubere Akzeptanzkriterien legen.
+| PO / Gesamtes Team
+
+| Nutzung von KI zur reinen Issue-Erstellung.
+| Issues und Akzeptanzkriterien manuell und detailliert definieren, um die fachliche Präzision zu gewährleisten. Devs müssen zudem ein gemeinsames Verständnis für den Ablauf der Ausleihe aufbauen.
+| PO
+
+| Unübersichtlichkeit im Repository (GitHub).
+| Konsequente Arbeit in Feature-Branches (insbesondere @Backend). Branches, die gemergt sind oder nicht mehr gebraucht werden, sofort löschen. GitHub sauber halten.
+| Dev-Team (v.a. Backend)
+
+| Fehlende Dokumentation und mangelhafte Code-Prüfung.
+| Project Board mehr zur Zusammenarbeit nutzen. Mehr Nutzung von Pull Requests inkl. besserer Doku (Review-Kommentare). Einführung eines 2. dedizierten Reviewers, der rein auf den Code schaut.
+| Dev-Team
+
+| Diskussionen sind extern und für den Coach (Anke) nicht nachvollziehbar.
+| Diskussionen zu bestimmten Problemen/Aufgaben zumindest teilweise direkt in die GitHub-Issues verlagern (Vorbild: Lidiia heute).
+| Alle
+|===
+
+=== Continue (weitermachen)
+
+Liste von Dingen, die gut laufen und weitergeführt werden sollen:
+
+==== Punkte:
+
+- Absprachen werden eingehalten und Meetings zwischen den Parteien funktionieren gut.
+- Backlog ist übersichtlich gestaltet.
+- Kollegiales Miteinander und fehlerfreundliches Lernen im Team.
+- Guter Austausch und offene Diskussion bei Problemen.
+- Terminfindung über Nuudel klappt gut (wird mit strikteren Deadlines fortgesetzt).
+- Gutes Zeitmanagement (Ausrichtung der Meetings auf finale Entscheidungen).
+
+== Aktionen / ToDos
+
+Eine zusammenfassende Liste aller vereinbarten Aktionen, die auch separat getroffen wurden.
+
+==== Aktion:
+//- Einen Übersichtsplan erstellen, an dem ablesbar ist, wer wann arbeitet (keine fixen Arbeitszeiträume, aber für die Nachvollziehbarkeit im Team).
+- Agenda für Meetings immer 24h vorher finalisieren und ans Team kommunizieren.
+- Feature-Branches im Backend konsequent nutzen und alte Branches aufräumen.
+- Bei Pull Requests zwingend einen zweiten dedizierten Reviewer (Code-Fokus) einbinden.
+- Diskussionen ab sofort stärker auf GitHub führen, um Transparenz für den Coach zu schaffen.
+
+== Nächste Schritte
+
+- Vorbereitung für das nächste Semester: Startschuss zur Planung am *25. September*.
+- Ein "Meeting zum Finden eines Meetings" (Kick-Off für das kommende Semester) ist für den *1. oder 2. Oktober* angesetzt.
+- Abschlussbericht finalisieren.

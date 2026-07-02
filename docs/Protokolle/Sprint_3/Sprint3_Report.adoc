@@ -177,14 +177,26 @@ Beschreiben Sie, was Ihr Team nach Sprint 3 beibehalten, ändern oder gezielt ve
 | Kriterium | Ihre Antwort
 
 | Beibehalten
-|
+a|
+* Zuverlässige Einhaltung von Absprachen und das fehlerfreundliche, kollegiale Miteinander.
+* Guter und offener Austausch bei Problemen innerhalb des Teams.
+* Funktionierende Terminfindung via Nuudel sowie das gute Zeitmanagement in Meetings.
+* Das gut strukturierte und übersichtliche Backlog.
 
 | Ändern / verbessern
-|
+a|
+* *Organisation & Meetings:* Frühzeitigere Terminplanung (keine kurzfristigen Sonntags-Meetings). Agenden müssen 24h vorher stehen. Meetings dienen dem Treffen von Entscheidungen, nicht dem Verschieben von Themen.
+* *Issue-Management:* Der PO wird nicht mehr mit der Issue-Erstellung alleingelassen. Issues werden im Sprint-Planning gemeinsam gesichtet, um Widersprüche zu vermeiden. Verzicht auf reine KI-Generierung zugunsten sauberer Akzeptanzkriterien.
+* *Git-Workflow:* Konsequent in Feature-Branches arbeiten (vor allem im Backend). Gemergte oder ungenutzte Branches werden umgehend gelöscht, um das Repository sauber zu halten.
+* *Review-Prozess:* Stärkere Nutzung von Pull Requests inkl. besserer Dokumentation (Review-Kommentare). Einführung eines 2. dedizierten Reviewers, der sich ausschließlich auf den Code fokussiert.
+* *Transparenz:* Diskussionen zu Issues werden ab sofort (zumindest teilweise) direkt auf GitHub geführt, um sie für den Coach nachvollziehbar zu machen.
 
 | Nächster MVP-Schritt
 |
 
 | Offene Fragen / Risiken für die weitere Projektarbeit
-|
+a|
+* *Risiko:* Es fehlt aktuell teilweise noch ein gemeinsames Verständnis der Entwickler über den genauen Ablauf der Ausleihen, was zu Schnittstellen- oder Integrationsproblemen führen kann.
+* *Risiko:* Qualitätsverlust und Widersprüchlichkeiten bei der Umsetzung, falls Anforderungen weiterhin unreflektiert durch KI-Tools generiert werden.
+* *Offene Frage:* Wie etablieren wir die neuen, strengeren Git- und Review-Regeln (Branch-Aufräumen, 2-Personen-Review) so, dass sie auch unter Zeitdruck (z. B. Prüfungsphase) konsequent eingehalten werden?
 |===

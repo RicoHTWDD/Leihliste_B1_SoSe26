@@ -207,36 +207,55 @@ _Eine User Story gilt als fertig, wenn:_
 
 _Diese Vereinbarungen haben wir gemeinsam getroffen:_
 
-- fehlerfreundlich, auf Augenhöhe, lieber einmal zu viel gefragt als einmal zu wenig
-- nicht ewig auf Antwort warten müssen, kommunikativ sein
-- wenn gefragte Person gerade nicht kann, auch gern sagen, dass erst in x h geht
-- Diskussionen nicht unnötig in die Länge ziehen, nicht über Kleinigkeiten ewig diskutieren
-- konstruktiv arbeiten, verschiedene Wissensstände akzeptieren
-- bei Problemen (mit Person) aktiv klären, in direktem Call und nicht mit sich rumschleppen
-- Fehler zugeben, offen miteinander sein
-- wollen pünktlich mit Meetings beginnen, warten bis 5 min ist okay, aber rechtzeitig Bescheid geben
+*Kommunikation & Miteinander:*
 
-- Feedback bevorzugt im persönlichen Gespräch, per Direktnachricht anfragen, ob die Person gerade Zeit hat
-- gegenseitige Feedbacks auch bei den Stand-ups am Ende einplanen
-- an SM wenden oder Bezugsperson, wenn sich wer ungerecht behandelt fühlt
+- Wir sind fehlerfreundlich und begegnen uns auf Augenhöhe: Lieber einmal zu viel gefragt als einmal zu wenig. Konstruktiver Umgang mit unterschiedlichen Wissensständen.
+- Wir lassen niemanden auf Antworten warten; bei zeitlichen Engpässen wird kurz transparent kommuniziert ("Ich melde mich in X Stunden").
+- Fehler werden offen zugegeben; Probleme (auch zwischenmenschliche) werden sofort in einem direkten Call geklärt und nicht "mit sich herumgeschleppt".
+- Feedback geben wir bevorzugt im direkten, persönlichen Gespräch und integrieren es aktiv am Ende unserer Stand-Ups.
+- Jedes Teammitglied wird aktiv in Diskussionen eingebunden ("direkt ansprechen"), damit sich alle beteiligen.
+- Wer sich ungerecht behandelt fühlt, wendet sich direkt an den Scrum Master oder eine Bezugsperson.
 
-- alle ansprechen, um sicherzustellen, dass sich alle einbringen, also ggf. direkt ansprechen
+*Arbeitsorganisation (Aktualisiert nach Sprint 1-3):*
 
+- Pünktlichkeit ist uns wichtig. Eine Wartezeit von 5 Minuten ist okay, sofern rechtzeitig Bescheid gegeben wurde.
+- Meetings dienen primär der *Entscheidungsfindung*, nicht der endlosen Diskussion. Themen werden nicht unnötig in die Länge gezogen oder grundlos auf nächste Woche geschoben.
+- Um effizient in Meetings zu sein, ist individuelle Vorbereitung Pflicht. Die Agenda steht immer 24 Stunden vorher.
+- Deadlines werden strikt über GitHub-Issues gesetzt und Aufgaben klar im Sprint Planning zeitlich verortet.
+- Diskussionen zu Issues führen wir verstärkt transparent auf GitHub (statt nur intern auf Discord), damit unser Coach (Anke) diese nachvollziehen kann.
 
-[x] Wir kommunizieren offen und respektvoll, fragen gerne nach, wenn etwas unklar ist, und stellen sicher, dass alle sich einbringen können.
-[x] Wir halten uns an vereinbarte Termine, beginnen pünktlich und geben rechtzeitig Bescheid, wenn wir etwas verspäten – auch wenn es nur kurz ist.
-[x] Wir geben und nehmen Feedback konstruktiv und persönlich, gerne direkt im Gespräch oder in kurzen, gezielten Nachfragen.
-[x] Wir klären Probleme früh und direkt, auch mit Menschen, mit denen wir zusammenarbeiten – lieber im Call als im Stillhalten.
-[x] Wir akzeptieren unterschiedliche Wissensstände und arbeiten gemeinsam an Lösungen, ohne über Kleinigkeiten unnötig zu diskutieren.
+*Checkliste unserer Grundsätze:*
+
+* [x] Wir kommunizieren offen und respektvoll, fragen gerne nach, wenn etwas unklar ist, und stellen sicher, dass alle sich einbringen können.
+* [x] Wir halten uns an vereinbarte Termine, beginnen pünktlich und geben rechtzeitig Bescheid, wenn wir uns verspäten.
+* [x] Wir geben und nehmen Feedback konstruktiv und persönlich, gerne direkt im Gespräch oder in kurzen, gezielten Nachfragen.
+* [x] Wir klären Probleme früh und direkt, auch mit Menschen, mit denen wir zusammenarbeiten – lieber im Call als im Stillen.
+* [x] Wir akzeptieren unterschiedliche Wissensstände und arbeiten gemeinsam an Lösungen, ohne über Kleinigkeiten unnötig zu diskutieren.
 
 
 == Learnings
-- viel auf einmal, ganz gut, bis auf Zeitmanagement, fürs erste Meeting ganz okay
-- gut, dass wir Rahmendebdingungne festglegt haben und auf Termine geeinigt haben
-- meiste Zeit für Terminfindung gebraucht, müssen uns anders hinsetzen, als Kreis, um besser miteinander reden zu können
-- mehr Viualisierung nutzen, mehr anzeichnen, Zeitstrahl, auf Beamer präsentieren
-- Discord: bitte Klarnamen nutzen
 
-- schön, das alle da waren, aber Zeitmanagement war weniger gut
+_Unsere gesammelten Erkenntnisse aus den Sprints (wird laufend aktualisiert):_
+
+*Aus den ersten Treffen & Sprint 1:*
+
+- Der Projektstart war informationsdicht. Rahmenbedingungen zu setzen war gut, aber unser Zeitmanagement in Meetings muss sich verbessern (striktere Timeboxen).
+- Terminfindung nimmt zu viel Zeit in Anspruch. Lösung: Konsequente Nutzung von Nuudel (inklusive harter Deadlines).
+- Wir müssen mehr visuell arbeiten (Whiteboard, Beamer, Zeitstrahl) und uns im Raum so setzen, dass wir besser miteinander diskutieren können.
+- Zur besseren Übersicht nutzen wir auf Discord Klarnamen und markieren Personen (@Ping) gezielt bei relevanten Nachrichten.
+
+*Aus Sprint 2 (Technischer Ansatz):*
+
+- *Overengineering vermeiden:* Die technische Umsetzung ist oft einfacher als befürchtet. Wir benötigen keine teuren Cloud- oder Mail-Dienstleister; SMTP und Datenbank-Speicherung reichen aus. 
+- *Wissenslücken füllen:* Das Team muss gezielt Zeit in das Erlernen der Frameworks (React, Django, Docker) investieren, da eine saubere Architektur nur von einem geschulten Team umgesetzt werden kann.
+- *Praxis vor Theorie:* Der Aufbau des "Walking Skeletons" hat uns bewiesen, dass unser Tech-Stack in der Praxis wirklich funktioniert.
+- *Datenkonsistenz:* Aus DSGVO-Sicht ist eine "harte" Löschung schädlich für die Historie; Anonymisierung ist der bessere Weg.
+
+*Aus Sprint 3 (Erstes Produktinkrement):*
+
+- *Issue-Qualität:* Der Product Owner darf bei der Issue-Erstellung nicht allein gelassen werden, um Widersprüche zu vermeiden. Wir generieren Issues nicht mehr blind via KI, sondern definieren Akzeptanzkriterien manuell und detailliert gemeinsam.
+- *Git-Disziplin:* Unordnung im Repository bremst uns aus. Wir müssen konsequent in Feature-Branches arbeiten, alte Branches sofort löschen und Pull Requests besser dokumentieren.
+- *Review-Qualität:* Um mangelhafter Code-Prüfung entgegenzuwirken, ist ab sofort bei Pull Requests zwingend ein zweiter, dedizierter Reviewer mit alleinigem Fokus auf den Code notwendig.
+- *Terminplanung:* Kurzfristige Planungen ("Sonntags-Meetings") stören den Workflow. Für das nächste Semester wird die komplette Event-Planung (Reviews, Retrospektiven) direkt zu Beginn angesetzt.
 
 _Nächste Überprüfung: [06.05.2026] — Diese Charta wird regelmäßig in der Retrospektive aktualisiert._

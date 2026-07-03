@@ -11,21 +11,27 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { StatusBadge, ErrorMessage } from "../components/ui";
+import { ermittleAnzeigeStatus, ermittleZusatzinfo } from "../utils/anzeigeStatus";
 
-const MOCK = false; // auf false setzen, sobald #132 existiert und gemerged ist
+const MOCK = true; // auf false setzen, sobald #132 existiert und gemerged ist
 const MOCK_GEGENSTAND = {
-  id: 2,
-  inventarnummer: "INV-002",
+  id: 1,
+  inventarnummer: "INV-0001",
   name: "Mikroskop 1b",
   kategorie: "Elektronik",
   verfuegbarkeitsstatus: "verfuegbar", // verfuegbar | nicht_verfuegbar
+  zustand: "gut", // zum Testen: "defekt" oder "verloren" -> Badge "Defekt"
+  standort: "Labor 2", // wird bei Status "Verfügbar" als Zusatzinfo angezeigt (Story #18)
+  // Sobald das Backend den Ziel-Kontrakt liefert, zum Testen z. B.:
+  // anzeige_status: "ausgeliehen", rueckgabedatum: "2026-07-15",
+  // anzeige_status: "reserviert",  reservierungsdatum: "2026-07-10",
   // beschreibung: liefert der Serializer aktuell nicht -> Platzhalter
 };
 
 // Router-Resource laut inventory/urls.py: "exemplare". Prefix vermutlich /api/inventory/.
 const API_BASE = "/api/inventory/exemplare";
 
-export default function GegenstandDetail({ gegenstandId = 2 }) {
+export default function GegenstandDetail({ gegenstandId = 1 }) {
   const [gegenstand, setGegenstand] = useState(MOCK ? MOCK_GEGENSTAND : null);
   const [ladevorgang, setLadevorgang] = useState(!MOCK);
   const [fehler, setFehler] = useState(null);
@@ -86,6 +92,13 @@ export default function GegenstandDetail({ gegenstandId = 2 }) {
 
   const name = gegenstand.name ?? gegenstand.inventarnummer;
 
+  // ===== #131: abgeleiteter Anzeige-Status (Logik: utils/anzeigeStatus.js) =====
+  // Nutzt `anzeige_status` vom Backend, sobald vorhanden; bis dahin Fallback
+  // aus zustand + verfuegbarkeitsstatus. Zusatzinfo laut Story #18:
+  // Rueckgabedatum (ausgeliehen) / Reservierungsdatum (reserviert) / Standort (verfuegbar).
+  const anzeigeStatus = ermittleAnzeigeStatus(gegenstand);
+  const zusatzinfo = ermittleZusatzinfo(gegenstand);
+
   return (
     <Box sx={{ p: 2 }}>
       {/* Breadcrumb-Titel: Gegenstände - {Kategorie} - {Name} */}
@@ -136,28 +149,16 @@ export default function GegenstandDetail({ gegenstandId = 2 }) {
               {gegenstand.beschreibung ?? "Beschreibung …"}
             </Typography>
 
-            {/* ===== #131: Verfuegbarkeitsstatus ===== */}
-            <Box sx={{ my: 2 }}>
-              <StatusBadge status={gegenstand.verfuegbarkeitsstatus} />
-            </Box>
+            {/* ===== #131: Statusanzeige (Badge + statusabhängige Zusatzinfo) ===== */}
+            <Stack direction="row" spacing={1.5} alignItems="center" sx={{ my: 2 }}>
+              <StatusBadge status={anzeigeStatus} />
+              {zusatzinfo && (
+                <Typography variant="body2" color="text.secondary">
+                  {zusatzinfo}
+                </Typography>
+              )}
+            </Stack>
             {/* ===== Ende #131 ===== */}
-
-            {/* Metadaten des Exemplars — kommen alle vom Detail-Endpoint */}
-            {gegenstand.standort && (
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Standort: {gegenstand.standort}
-              </Typography>
-            )}
-            {gegenstand.inventarnummer && (
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Inventarnummer: {gegenstand.inventarnummer}
-              </Typography>
-            )}
-            {gegenstand.zustand_display && (
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Zustand: {gegenstand.zustand_display}
-              </Typography>
-            )}
 
             {/* PLATZHALTER (Story Ausleihprozess): Anzahl + Aktion, bewusst disabled */}
             <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 2 }}>

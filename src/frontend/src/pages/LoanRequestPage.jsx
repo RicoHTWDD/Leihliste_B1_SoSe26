@@ -10,11 +10,15 @@ import {
   Typography,
 } from '@mui/material'
 
+import DateInput from '../components/form/DateInput.jsx'
 import ErrorMessage from '../components/ui/ErrorMessage.jsx'
 import StatusBadge from '../components/ui/StatusBadge.jsx'
 import {
-  getToday,
-  validateDates,
+  getTodayIso,
+  toIsoDate,
+  validateDate,
+  validateDateRange,
+  validatePartialDate,
 } from '../utils/dateValidation.js'
 
 const items = [
@@ -37,7 +41,32 @@ function LoanRequestPage() {
   const [comment, setComment] = useState('')
   const [error, setError] = useState('')
 
-  const today = getToday()
+  const [dateErrors, setDateErrors] = useState({
+    startDate: '',
+    endDate: '',
+  })
+
+  const today = getTodayIso()
+
+  function handleStartDateChange(value) {
+    setStartDate(value)
+    setError('')
+
+    setDateErrors((currentErrors) => ({
+      ...currentErrors,
+      startDate: validatePartialDate(value),
+    }))
+  }
+
+  function handleEndDateChange(value) {
+    setEndDate(value)
+    setError('')
+
+    setDateErrors((currentErrors) => ({
+      ...currentErrors,
+      endDate: validatePartialDate(value),
+    }))
+  }
 
   function toggleItem(itemId) {
     setSelectedItems((currentItems) => (
@@ -52,19 +81,26 @@ function LoanRequestPage() {
   function handleSubmit(event) {
     event.preventDefault()
 
-    const dateError = validateDates(
+    const newDateErrors = validateDateRange(
       startDate,
       endDate,
     )
 
-    if (dateError) {
-      setError(dateError)
+    setDateErrors(newDateErrors)
+
+    if (
+      newDateErrors.startDate
+      || newDateErrors.endDate
+    ) {
+      setError(
+        'Bitte korrigiere die Datumsangaben.',
+      )
       return
     }
 
     if (selectedItems.length === 0) {
       setError(
-        'Bitte mindestens einen Gegenstand auswählen.',
+        'Bitte mindestens einen Gegenstand auszuwählen.',
       )
       return
     }
@@ -80,6 +116,11 @@ function LoanRequestPage() {
     setSelectedItems([])
     setComment('')
     setError('')
+
+    setDateErrors({
+      startDate: '',
+      endDate: '',
+    })
   }
 
   return (
@@ -113,40 +154,38 @@ function LoanRequestPage() {
             }}
             spacing={2}
           >
-            <TextField
+            <DateInput
               label="Startdatum"
-              type="date"
               value={startDate}
-              onChange={(event) => {
-                setStartDate(event.target.value)
-                setError('')
+              minDate={today}
+              onChange={handleStartDateChange}
+              onBlur={() => {
+                setDateErrors((currentErrors) => ({
+                  ...currentErrors,
+                  startDate: validateDate(
+                    startDate,
+                    'Startdatum',
+                  ),
+                }))
               }}
-              slotProps={{
-                inputLabel: {
-                  shrink: true,
-                },
-                htmlInput: {
-                  min: today,
-                },
-              }}
+              error={dateErrors.startDate}
             />
 
-            <TextField
+            <DateInput
               label="Enddatum"
-              type="date"
               value={endDate}
-              onChange={(event) => {
-                setEndDate(event.target.value)
-                setError('')
+              minDate={toIsoDate(startDate) || today}
+              onChange={handleEndDateChange}
+              onBlur={() => {
+                setDateErrors((currentErrors) => ({
+                  ...currentErrors,
+                  endDate: validateDate(
+                    endDate,
+                    'Enddatum',
+                  ),
+                }))
               }}
-              slotProps={{
-                inputLabel: {
-                  shrink: true,
-                },
-                htmlInput: {
-                  min: startDate || today,
-                },
-              }}
+              error={dateErrors.endDate}
             />
           </Stack>
         </Stack>

@@ -87,7 +87,7 @@ Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 3 be
 |===
 
 == 3. Wichtigste Lernergebnisse aus Sprint 3
-//Til
+
 Beschreiben Sie 2–3 zentrale Erkenntnisse aus Sprint 3. Leitfragen:
 
 * Was hat Ihr Team über die Umsetzung eines nützlichen End-to-End-Inkrements gelernt?
@@ -99,13 +99,15 @@ Beschreiben Sie 2–3 zentrale Erkenntnisse aus Sprint 3. Leitfragen:
 | Kriterium | Ihre Antwort
 
 | Erkenntnis 1
-|
+|Unser Team hat gelernt das erst durch die *Verbindung* einzelner Elemente wie Übersicht, Detailseite, Ausleihanfrage usw. ein sinnvoller Ablauf entsteht, der anschließend ausprobiert und angepasst werden kann. Beispielsweise wurden im Frontend verschiedene Seiten und Komponenten aufgeteilt und separat bearbeitet. Probleme und Unklarheiten wurden dadurch häufig erst bei der Zusammenführung sichtbar. Für den weiteren Verlauf der Projektarbeit ist es daher wichtig, einzelne Bestandteile nicht nur isoliert zu entwickeln, sondern sie regelmäßig in Kombination und im Zusammenspiel mit anderen Komponenten zu testen und bei Bedarf anzupassen.
 
 | Erkenntnis 2
-|
+
+|Bestätigt wurde die Annahme, dass im Ausleihanfrageformular noch einmal eine Liste der ausgewählten Gegenstände zusammen mit ihrem jeweiligen Verfügbarkeitsstatus angezeigt werden soll. Erst nachdem im Formular der gewünschte Zeitraum festgelegt wurde, kann abschließend geprüft werden, welche Gegenstände in diesem Zeitraum tatsächlich verfügbar sind. In der Liste sollen daher nur die verfügbaren Gegenstände erneut ausgewählt werden können, während zugleich sichtbar bleibt, welche Gegenstände für den gewählten Zeitraum nicht verfügbar sind.
 
 | Erkenntnis 3
-|
+
+| Eine wichtige Erkenntnis war, dass Pull Requests nicht nur durch den Product Owner, sondern zusätzlich durch einen Entwickler aus dem jeweils betroffenen Bereich geprüft werden sollten. Bei Änderungen am Frontend sollte daher mindestens ein Frontend-Entwickler am Review beteiligt sein, während Änderungen am Backend von einem Backend-Entwickler geprüft werden sollten. Betrifft ein Pull Request sowohl das Frontend als auch das Backend, sollten möglichst Entwickler aus beiden Bereichen einbezogen werden. Dadurch können bereichsspezifische Fehler, unklare Umsetzungen und mögliche Integrationsprobleme frühzeitig erkannt werden. Dieses Vorgehen soll im weiteren Projektverlauf konsequenter umgesetzt und unter anderem bereits bei der Planung als zusätzlicher zeitlicher Aufwand berücksichtigt werden.
 |===
 
 == 4. Änderungen am Inkrement, Backlog oder an Projektdokumentation

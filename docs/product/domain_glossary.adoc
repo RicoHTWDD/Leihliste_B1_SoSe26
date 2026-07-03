@@ -172,13 +172,12 @@ Es beschreibt die Realität des Problemraums, nicht die Datenbankstruktur._
 //Fügen Sie hier ein Diagramm ein — entweder als eingebettetes PlantUML oder als exportiertes Bild.
 
 [plantuml, domain-model, svg]
+----
+include::diagrams/domaenenmodell1.puml[]
+----
 
-// ----
-// include::diagrams/domaenenmodell1.puml[]
-// ----
 
-
-image::domaenenmodell1.svg[Domänenmodell, 800, align="center"]
+// image::domaenenmodell1.svg[Domänenmodell, 800, align="center"]
 
 
 NOTE: Das Domänenmodell wird im Laufe des Projekts weiterentwickelt.

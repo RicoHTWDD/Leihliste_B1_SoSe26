@@ -111,79 +111,60 @@ _Der Nutzungskontext gemäß DIN EN ISO 9241-11 beschreibt die Lebenswirklichkei
  
 | Benutzer
 | *Eigenschaften*: 
- Heterogene Nutzergruppen mit unterschiedlichem Formalitätsgrad
+ Heterogene Nutzergruppen mit unterschiedlichem Formalitätsgrad +
 
 *Kenntnisse*: 
- Grundlegende digitale Kompetenzen
+ Grundlegende digitale Kompetenzen +
 
-*Erfahrung*: 
+*Erfahrung*:
  Teilweise Efahrung mit komplexeren Systemen
 
-*Motivation*:
-- Transparenz
-
-- Reduktion von organisatorischem Aufwand
-
-- Vermeidung von Konflikten und Verlusten
-
+*Motivation*: +
+- Transparenz +
+- Reduktion von organisatorischem Aufwand +
+- Vermeidung von Konflikten und Verlusten +
 - Wunsch nach einer einfachen, schnellen und verlässlichen Lösung
  
 | Ziele & Aufgaben
-| *Ziele*:
-- Überblick über verfügbare Gegenstände
-
-- Verlässliche Ausleih- und Rückgabeprozesse
-
-- Minimierung von Verlusten und Konflikten
-
+| *Ziele*: +
+- Überblick über verfügbare Gegenstände +
+- Verlässliche Ausleih- und Rückgabeprozesse +
+- Minimierung von Verlusten und Konflikten +
 - Reduktion von Abstimmungsaufwand
 
-
-*Aufgaben*:
-- Gegenstände anlegen und pflegen (Inventar)
-
-- Verfügbarkeit prüfen und Reservierungen/Ausleihen durchführen
-
-- Rückgaben bestätigen und Zustände dokumentieren
-
-- Fristen einhalten (Erinnerungen beachten)
-
-- Historie einsehen (Wer hatte was wann?)
-
+*Aufgaben*: +
+- Gegenstände anlegen und pflegen (Inventar) +
+- Verfügbarkeit prüfen und Reservierungen/Ausleihen durchführen +
+- Rückgaben bestätigen und Zustände dokumentieren +
+- Fristen einhalten (Erinnerungen beachten) +
+- Historie einsehen (Wer hatte was wann?) +
 - Rollen und Rechte verwalten 
  
 | Ressourcen
 | *Hardware*: 
 Desktop-PCs, Laptops, Smartphones
 
-*Software*: 
-- Webbrowser
-
+*Software*: +
+- Webbrowser +
 - Bestehende Tools wie Excel, E-Mail, Messenger
 
 *Eingabe*:
 Tastatur/Maus, Touch, Kamera
  
 | Umgebung
-| *Technische Umgebung*: 
-- Webbasierte Nutzung über gängige Browser
-
+| *Technische Umgebung*: +
+- Webbasierte Nutzung über gängige Browser +
 - Unterschiedliche Netzqualitäten
 
-*Physische Umgebung*: 
-- Büro/Arbeitsplatz (ruhig, stationär)
-
-- Veranstaltungen (teilweise hektisch)
-
+*Physische Umgebung*: +
+- Büro/Arbeitsplatz (ruhig, stationär) +
+- Veranstaltungen (teilweise hektisch) +
 - Zuhause/unterwegs (mobil, wechselne Bedingungen)
 
-*Soziale & organisatorische Umgebung*:
-- Formelle Strukturen (Hochschule/Unternehmen) vs informelle Nutzung (WGs/Vereine)
-
-- Häufige Unterbrechungen und parallele Aufgaben
-
-- Notwendigkeit klarer Verantwortlichkeiten
-
+*Soziale & organisatorische Umgebung*: +
+- Formelle Strukturen (Hochschule/Unternehmen) vs informelle Nutzung (WGs/Vereine) +
+- Häufige Unterbrechungen und parallele Aufgaben +
+- Notwendigkeit klarer Verantwortlichkeiten +
 - Rechtliche Rahmenbedingungen, insbesondere DSGVO
 
 |===
@@ -237,7 +218,7 @@ _Dieser Abschnitt beschreibt Abläufe, die mehrere Features oder Bereiche des Pr
 umfassen. Einzelne Feature-Wireframes werden in den jeweiligen User Stories gepflegt.
 Hier dokumentieren wir nur Flüsse auf Systemebene, z.B. mit UML-Aktivitätsdiagrammen._
 
-=== [Flussname, z. B. Onboarding-Flow]
+=== Onboarding-Flow
 
 _Beschreibe kurz, was dieser Fluss abdeckt und welche Personas er betrifft._
 
@@ -262,6 +243,7 @@ stop
 @enduml
 ....
 
+
 [cols="1,1,2", options="header"]
 |===
 | Schritt | Beteiligte Persona | Anmerkung
@@ -279,8 +261,8 @@ stop
 | Zeigt direkt die wichtigste Funktion — keine unnötige Zwischenseite
 |===
 
+////
 ---
-
 === [Weiterer Fluss, z. B. Buchungsabbruch & Fehlerbehandlung]
 
 _Beschreibe den Fluss und ergänze ein Diagramm nach demselben Muster._
@@ -303,7 +285,7 @@ stop
 
 @enduml
 ....
-
+////
 == Designsystem & Interaktionsprinzipien
 
 _Dieser Abschnitt dokumentiert systemweite Design- und Interaktionsentscheidungen,
@@ -356,8 +338,8 @@ wird begründet, damit sie nicht aus Unwissenheit verletzt wird._
 | Primäre Aktionen befinden sich im unteren Bildschirmbereich (Daumenzone).
   Optimiert für einhändige Smartphone-Nutzung.
 
-| [Weiteres Prinzip]
-| [Beschreibung & Begründung]
+// | [Weiteres Prinzip]
+// | [Beschreibung & Begründung]
 |===
 
 === Barrierefreiheit
@@ -378,8 +360,8 @@ wird begründet, damit sie nicht aus Unwissenheit verletzt wird._
 | Schriftgröße
 | Keine Schrift unter 14px; Nutzer:innen können Systemschriftgröße nutzen
 
-| [Weiterer Aspekt]
-| [Anforderung]
+// | [Weiterer Aspekt]
+// | [Anforderung]
 |===
 
 

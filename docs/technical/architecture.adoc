@@ -84,10 +84,10 @@ Die interne Struktur des Systems ist im Designdokument beschrieben.
 | Zugriff über Web-Oberfläche
 | HTTPS / REST
 
-| Cloud-Server
-| Externes System
-| Speicherung von Protokollen, Bildern und Dokumenten (z.B. NextCloud)
-| WebDAV / HTTPS
+// | Cloud-Server
+// | Externes System
+// | Speicherung von Protokollen, Bildern und Dokumenten (z.B. NextCloud)
+// | WebDAV / HTTPS
 |===
 
 === Laufzeitumgebungen (Container Diagramm)
@@ -160,19 +160,22 @@ sind in <<Architekturentscheidungen>> dokumentiert._
 | Frontend
 | React 19.2.3
 | weit verbreitet und performant; große Community; Komponentenmodell; Skalierbar; bietet viele Vorlagen
-| ADR-001 (Til, Review: Rico)
+| ADR-001
+// (Til, Review: Rico)
 
 | Backend
 // | Django / FastAPI
 | Django
 // | FastAPI -> Geschwindigkeit; automatische Dokumentation; schnelle Fehlersuche; Django -> viele Komponenten für Schnittstellen; integrierter Schutz vor Web-Schwachstellen; Einfachheit; größere Community als FastAPI -> bessere Lösungsfindung online
 | viele Komponenten für Schnittstellen; integrierter Schutz vor Web-Schwachstellen; Einfachheit; größere Community als FastAPI -> bessere Lösungsfindung online
-| ADR-002 (Til, Review: Rico)
+| ADR-002
+// (Til, Review: Rico)
 
 | Datenbank
 | MariaDB - MySQL
 | auf Hochschulinfrastruktur verfügbar; Open-Source; performant; läuft gut auf allen Betriebssystemen;
-| ADR-003 (Julius, Review: Til)
+| ADR-003 
+// (Julius, Review: Til)
 
 //| Authentifizierung
 //| [z. B. OAuth2 / Hochschul-SSO]
@@ -187,40 +190,47 @@ sind in <<Architekturentscheidungen>> dokumentiert._
 | CI/CD
 | GitHub Actions
 | Direkte Integration mit Repository; kostenlos für Studierende
-| ADR-005 (Julius, Review: Til)
+| ADR-005 
+//(Julius, Review: Til)
 
 | Testing
 | pytest, playwright
 | automatisierte Überprüfbarkeit von Kernfunktionalitäten (UI, Kernlogik, Wartbarkeit)
-| ADR-006 (Lidia, Review: Julius)
+| ADR-006
+// (Lidia, Review: Julius)
 
 | Email / Benachrichtigungen
 // | Email/Broadcast
 | SMTP über bspw. gmx.de
 // | SMTP über Brevo/MailJet
 | Versand von Registrierungs-, Bestätigungs- und Erinnerungs-E-Mails ohne Betrieb eines eigenen Mailservers; geringerer Implementierungs- und Wartungsaufwand;
-| ADR-007 (Lidia, Review: Julius)
+| ADR-007
+// (Lidia, Review: Julius)
 
 | (kein) Cloud-Speicher
 | Realisierung über Datenbank
 | ausreichend für die aktuelle Skalierung des Produkts
-| ADR-013 (Jevan, Review: Lidia)
+| ADR-013
+// (Jevan, Review: Lidia)
 // | ADR-008 (Jevan, Review: Lidia), ADR-013 (Jevan, Review: Lidia)
 
 | QR-Code
 | Python (qrcode - Bibliotheken)
 | automatisierte Generierung zum  labeln von Ausleihobjekten
-| ADR-009 (Jevan, Review: Lidia)
+| ADR-009 
+// (Jevan, Review: Lidia)
 
 | Reverse-Proxy
 | nginx
 | SSL-Terminierung; Load-Balancing; Caching
-| ADR-010 (Rico, Review: Jevan)
+| ADR-010 
+// (Rico, Review: Jevan)
 
 | Client
 | PWA (Progressive Web App)
 | läuft im Browser; kann wie eine native App installiert werden
-| ADR-011 (Rico, Review: Jevan)
+| ADR-011 
+// (Rico, Review: Jevan)
 
 //|Monitoring?; Cloudflare? -> Datenschutz
 |===
@@ -551,7 +561,11 @@ Sicherheit, Spam-Schutz, Wartung und Zustellbarkeit) verbunden.
 
 | *Entscheidung*
 | Für den Versand von System-E-Mails verwenden wir einen externen SMTP-kompatiblen Transaktions-Mail-Dienst  mit Serverstandort in der EU. Die Anbindung erfolgt 
-über SMTP mit TLS. Dadurch bleibt der Anbieter bei Bedarf austauschbar. Die finale Auswahl zwischen Brevo und Mailjet erfolgt anhand des Freikontingents und der DSGVO-Vertragsbedingungen, beide Anbieter erfüllen die technischen und rechtlichen Mindestanforderungen.
+über SMTP mit TLS. Dadurch bleibt der Anbieter bei Bedarf austauschbar. Die finale Auswahl
+// zwischen Brevo und Mailjet
+erfolgt anhand des Freikontingents und der DSGVO-Vertragsbedingungen
+//, beide Anbieter erfüllen die technischen und rechtlichen Mindestanforderungen
+.
 
 | *Alternativen*
 | Eigener Mailserver wurde verworfen, weil Betrieb, Absicherung, Spam-Schutz, Monitoring und Wartung
@@ -559,8 +573,7 @@ für das Projekt zu aufwendig wären.
 
 Direkte Anbieter-API wurde zurückgestellt, weil sie stärker an einen konkreten Anbieter bindet. Die API-Endpunkte, Authentifizierung und Datenformate unterscheiden sich je nach Anbieter. SMTP ist für den geplanten Funktionsumfang ausreichend und erleichtert einen späteren Anbieterwechsel.
 
-SendGrid / Amazon SES wurden als weitere externe E-Mail-Anbieter betrachtet. Beide Dienste können grundsätzlich entweder über SMTP oder über eine direkte Anbieter-API angebunden
-werden. Außerdem bei SendGrid / Amazon SES sind Datenverarbeitung primär außerhalb der EU und deshalb erschwert DSGVO-Konformität. 
+SendGrid / Amazon SES wurden als weitere externe E-Mail-Anbieter betrachtet. Beide Dienste können grundsätzlich entweder über SMTP oder über eine direkte Anbieter-API angebunden werden. Außerdem bei SendGrid / Amazon SES sind Datenverarbeitung primär außerhalb der EU und deshalb erschwert DSGVO-Konformität. 
 
 Kein automatischer E-Mail-Versand wurde verworfen, weil Bestätigungen, Erinnerungen und Statusänderungen für die
 Nutzer:innen nachvollziehbar kommuniziert werden müssen.
@@ -569,8 +582,7 @@ Nur In-App-Benachrichtigungen wurden als Ergänzung betrachtet, reichen aber nic
 Informationen auch außerhalb der Anwendung erhalten sollen.
 
 | *Konsequenzen*
-| Das Team muss keinen eigenen Mailserver betreiben. Registrierungs-, Bestätigungs- und Erinnerungs-E-Mails können mit geringerem Implementierungs- und Wartungsaufwand
-versendet werden. Durch SMTP bleibt der Anbieter grundsätzlich austauschbar. Aber es entsteht eine Abhängigkeit von einem externen Dienst. Bei Störungen oder Limitierungen des Anbieters kann der E-Mail-Versand beeinträchtigt sein. Außerdem müssen Datenschutz, Auftragsverarbeitung und Speicherung personenbezogener Daten beim Anbieter geprüft werden.
+| Das Team muss keinen eigenen Mailserver betreiben. Registrierungs-, Bestätigungs- und Erinnerungs-E-Mails können mit geringerem Implementierungs- und Wartungsaufwand versendet werden. Durch SMTP bleibt der Anbieter grundsätzlich austauschbar. Aber es entsteht eine Abhängigkeit von einem externen Dienst. Bei Störungen oder Limitierungen des Anbieters kann der E-Mail-Versand beeinträchtigt sein. Außerdem müssen Datenschutz, Auftragsverarbeitung und Speicherung personenbezogener Daten beim Anbieter geprüft werden.
 
 *Risiken:* Fehlkonfiguration von SMTP, DKIM/SPF oder Absenderadressen kann die Zustellbarkeit verschlechtern. Zugangsdaten müssen sicher verwaltet werden. E-Mail-Inhalte dürfen nur die notwendigen personenbezogenen Daten enthalten.
 Kostenpflichtig bei Überschreiten des Freikontingents.
@@ -647,7 +659,7 @@ Externe QR-Code-Generatoren (z.B. Google Charts API): QR-Codes über externe Die
 | Das System benötigt eine stabile und sichere Schnittstelle zwischen dem Frontend (React) und Backend (Django), um: +
 - HTTPS-Verschlüsselung für alle Kommunikationen zu erzwingen (Qualitätsziel: Cybersecurity) +
 - Lastverteilung bei mehreren Backend-Instanzen zu ermöglichen (Skalierbarkeit) +
-- Statische Dateien (z. B. React-Build) effizient auszuliefern (Performanceziel: Seitenladezeit < 2s) +
+- Statische Dateien (z. B. React-Build) effizient auszuliefern (Performanceziel: Seitenladezeit < 2s)
 
 Die Entscheidung setzt voraus, dass nginx auf der Hochschulinfrastruktur betrieben werden kann.
 
@@ -669,12 +681,12 @@ Ohne Reverse-Proxy müssten diese Aufgaben entweder vom Backend-Framework übern
 |*Positiv:* +
 - Zentrale SSL/TLS-Verwaltung vereinfacht die Zertifikatsrotation +
 - Statische Dateien werden schneller ausgeliefert (geringere Latenz für Nutzende) +
-- Backend-Instanzen werden entlastet (Skalierbarkeit) +
+- Backend-Instanzen werden entlastet (Skalierbarkeit)
 
 *Negativ:* +
 - Zusätzliche Komponente im Deployment erhöht die Komplexität des Setups +
 - Fehlkonfigurationen können zu Sicherheitslücken führen (z. B. offene Ports) +
-- Monitoring des nginx muss separat eingerichtet werden (z. B. Log-Analyse) -
+- Monitoring des nginx muss separat eingerichtet werden (z. B. Log-Analyse)
 
 *Risiken:* +
 - Single Point of Failure: Bei Ausfall des nginx ist das gesamte System nicht erreichbar +
@@ -726,12 +738,12 @@ Zudem soll die Nutzung ohne App-Store-Installation möglich sein (Einschränkung
 - Nutzende können die App direkt aus dem Browser installieren (kein App-Store nötig) +
 - Offline-Zugriff verbessert die Benutzerfreundlichkeit +
 - Push-Benachrichtigungen erhöhen die Zuverlässigkeit (z. B. Rückgabeerinnerungen) +
-- geringere Wartungskosten (keine separaten App-Versionen) +
+- geringere Wartungskosten (keine separaten App-Versionen)
 
 *Negativ:* +
 - Begrenzte Integration mit Gerätefunktionen (z. B. Kamera nur über Browser-APIs) +
 - Performance kann auf älteren Geräten schlechter sein als bei nativen Apps +
-- Browser-Kompatibilität muss getestet werden (z. B. Safari vs. Chrome) +
+- Browser-Kompatibilität muss getestet werden (z. B. Safari vs. Chrome)
 
 *Risiken:* +
 - Offline-Funktionalitäten erfordern komplexes Caching (z. B. Service Worker) +
@@ -759,7 +771,7 @@ Zudem soll die Nutzung ohne App-Store-Installation möglich sein (Einschränkung
 | Das System muss den Datenschutz-Anforderungen entsprechend der DSGVO entsprechen. Relevante Anforderungen für das Produkt sind: +
 - Recht auf Löschung: Nutzer*innen müssen ihre Daten löschen lassen können. +
 - Datensparsamkeit: Nur absolut notwendige personenbezogene Daten speichern. +
-- Zweckbindung: Daten dürfen nur für den definierten Zweck (Ausleihverwaltung) genutzt werden. +
+- Zweckbindung: Daten dürfen nur für den definierten Zweck (Ausleihverwaltung) genutzt werden.
 
 Daraus ergeben sich folgende Herausforderungen: +
 - Die Ausleihhistorie muss für Verleihende erhalten bleiben (z.B. für Schadensfälle), darf aber keine personenbezogenen Daten enthalten. +
@@ -769,7 +781,7 @@ Daraus ergeben sich folgende Herausforderungen: +
 | *Entscheidung*
 | Wir setzen Datensparsamkeit by Design um: + 
 - Wir speichern nur zwingend notwendige Felder: Nutzer-ID, Mail, Name, Rolle +
-- Wir vermeiden redundante Daten: Ausleihhistorie speichert nur Nutzer-ID +
+- Wir vermeiden redundante Daten: Ausleihhistorie speichert nur Nutzer-ID
 
 Wir ersetzen bei Account-Löschung und Löschanfragen personenbezogene Daten (Anonymisierung), wenn diese aus anderen Gründen nicht mehr gespeichert werden müssen: +
 - z.B. Name wird zu "Gelöschter Nutzer", andere Daten werden gelöscht +
@@ -779,7 +791,7 @@ Wir definieren *Gründe, warum eine Löschung noch ausgesetzt wird*: +
 - Die letzte Rückgabe ist noch nicht mehr als 30 Tage her, um Schadensmeldungen nachzuverfolgen.
 
 | *Alternativen*
-| *Hard-Deletes mit Datenbank-Backups:* Physische Löschung aller Nutzerdaten und die Ausleihhistorie wird in separaten Backups archiviert. Verworfen, weil verlagert Problem nur, denn Backups sind dann nicht DSGVO-konform. Außerdem würden Fremdschlüssel auf nicht-existente Nutzer*innen verweisen. +
+| *Hard-Deletes mit Datenbank-Backups:* Physische Löschung aller Nutzerdaten und die Ausleihhistorie wird in separaten Backups archiviert. Verworfen, weil verlagert Problem nur, denn Backups sind dann nicht DSGVO-konform. Außerdem würden Fremdschlüssel auf nicht-existente Nutzer*innen verweisen.
 
 *Soft-Deletes:* Markieren von Daten als "gelöscht" statt physischer Löschung. Verworfen, weil nicht DSGVO-konform, da die personenbezogenen Daten physisch erhalten bleiben.
 
@@ -789,7 +801,7 @@ Wir definieren *Gründe, warum eine Löschung noch ausgesetzt wird*: +
 | *Positiv:* +
 - DSGVO-Konformität: Recht auf Löschung wird umgesetzt, ohne die Ausleihhistorie zu zerstören +
 - Datenintegrität: Fremdschlüssel bleiben erhalten, Referenzen in der Ausleihhistorie bleiben valide +
-- Wartbarkeit: Keine manuellen Backups oder Archivierungen nötig +
+- Wartbarkeit: Keine manuellen Backups oder Archivierungen nötig
 
 *Negativ:* +
 - Umgang mit Lösch-Anfragen, die zeitlich noch gegen Speicher-Gründe widersprechen: Nutzer*innen müssen warten, bevor sie den Account löschen können bzw. Lösch-Anfragen müssen von Betreiber*innen aufbewahrt und später umgesetzt werden
@@ -1052,11 +1064,11 @@ Notification-Service). Dies wurde verworfen, weil: +
 - keine zusätzlichen Kosten +
 - DSGVO-Konformität +
 - keine komplexe Infrastruktur nötig +
-- On-Premise-Hosting ist in der Regel einfacher zu debuggen +
+- On-Premise-Hosting ist in der Regel einfacher zu debuggen
 
 *Negativ:* +
 - bei Skalierung (z.B. > 1.000 Nutzer*innen) Umzug auf andere Hardware nötig +
-- keine automatische Lastverteilung +
+- keine automatische Lastverteilung
 
 *Risiken:* +
 - bei Serverausfällen ist das Team von Support der Hochschule abhängig +
@@ -1093,11 +1105,11 @@ Notification-Service). Dies wurde verworfen, weil: +
 | *Positiv:* +
 - System ist genau auf die Anforderungen zugeschnitten +
 - volle Kontrolle über die Datenverarbeitung (ADR-012) +
-- On-Premise-Hosting auf den Servern der HTW Dresden (ADR-016) +
+- On-Premise-Hosting auf den Servern der HTW Dresden (ADR-016)
 
 *Negativ:* +
 - höherer Zeitaufwand für Testing und Debugging +
-- Team muss das System langfristig warten (z.B. Sicherheitsupdates, Bugfixes) +
+- Team muss das System langfristig warten (z.B. Sicherheitsupdates, Bugfixes)
 
 *Risiken:* +
 - Projektverzögerung, da keine Erfahrung mit Aufwand von Eigenentwicklungen

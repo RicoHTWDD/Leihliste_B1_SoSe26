@@ -2,17 +2,17 @@
 Adrian Hesse <adrian.hesse@stud.htw-dresden.de>; Rico Knorr <rico.knorr@stud.htw-dresden.de>; Justin Rietschel <justin.rietschel@stud.htw-dresden.de>; Jevan Hassan <jevan.hassan@stud.htw-dresden.de>; Til Maximilian Müller <tilmaximilian.mueller@stud.htw-dresden.de>; Julius Neubert <julius.neubert@stud.htw-dresden.de>; Lidiia Pakhomova <lidiia.pakhomova@stud.htw-dresden.de>
 include::../_includes/default-attributes.inc.adoc[]
 {localdatetime}
-:version: 1.0
+:version: 1.1
 
 == Über uns
 _Hier können Sie einen Teamnamen und ggf. ein Motto oder eine kurze Beschreibung hinzufügen, um die Identität Ihres Teams zu stärken._
 
 === Kurzvorstellung
 
-- Rico (L): Teilzeit-Studium bevorzugt Di oder Mi in Präsenz treffen, keine Erfahrung mit github, etwas von Programmieren
-- Justin (DD): Präsenz-Ttreffen bevorzugt Freitags
-- Adrian (DD): zeitlich relativ felxibel, viel Programmier-Erfahrung
-- Julius (DD): zeitlich fleixbel nachmittags, kann sich in Programmieren reinfuchsen, wenig github-Erfahrung
+- Rico (L): Teilzeit-Studium bevorzugt Di oder Mi in Präsenz treffen, keine Erfahrung mit github, etwas mit Programmieren
+- Justin (DD): Präsenz-Treffen bevorzugt Freitags
+- Adrian (DD): zeitlich relativ flexibel, viel Programmier-Erfahrung
+- Julius (DD): zeitlich flexibel nachmittags, kann sich in Programmieren reinfuchsen, wenig github-Erfahrung
 - Jevan (Riesa): Mo und Mi in DD, nachmittags wäre gut, online immer, schon in Java und C programmieren, nicht so Programmier-affin
 - Til (Radebeul): nachmittags geht meistens, Programmieren mit KI geht
 - Lidiia (DD): Programmier-Anfängerin, meistens Montags in Präsenz, online flexibel
@@ -74,7 +74,7 @@ Stellvertretung: Rico
 | Lidiia, Jevan, Julius, Rico, Til
 
 | *Stakeholder* (Hauptansprechpartner)
-| [noch offen]
+| Reviewer*innen
 
 | *Coach*: falls Fragen oder Schwierigkeiten |
 Robert Ringel (robert.ringel@htw-dresden.de)
@@ -88,29 +88,28 @@ Robert Ringel (robert.ringel@htw-dresden.de)
 | Ereignis | Wann | Dauer | Moderation
 
 | Standup (Weekly)
-| via Discord: Sonntags 15:00 Uhr, Ersatz Montag 17:00 Uhr (auch am Pfingstsontag; am 31.05. wäre ohne Rico)
+| via Discord: in der Regel Sonntags 15:00 Uhr, Ersatz-Termin Montags 17:00 Uhr (siehe link:Zeitplan.adoc[Zeitplan])
 | Ziel 15 min, aber erstmal 60 min reservieren für Rückfragen
-| [SM: Adrian]
+| SM: Adrian
 
 | Sprint Planning
-| via Discoird: Sonntags bei Sprintstart anstelle/nach Standup 15:00 - 17:00 Uhr (So, 19.04.; So. 10.05, So, 14.06.)
+| via Discoird: Sonntags bei Sprintstart anstelle/nach Standup 15:00 - 17:00 Uhr (siehe link:Zeitplan.adoc[Zeitplan])
 | 2 h
 | POs Julius und Justin bereiten vor
 
 | Sprint Review
-| [->  muss noch geklärt werden, wenn externe Personen klar sind]
-| [z. B. 1 h]
-| [-> Rolle / Person]
+| Woche 4 von jedem Sprint (siehe link:Zeitplan.adoc[Zeitplan])
+| ca. 1 h
+| wird themenbezogen vereinabrt
 
 | Retrospektive
-| in S531 13:15 - 15:00 Uhr (Mi, 06.05.,; Mi, 10.06.)
--> weiteren Termin ausmachen
+| in Raum S531: Mittwochs in Woche 4 von jedem Sprint von 13:15 - 15:00 Uhr (siehe link:Zeitplan.adoc[Zeitplan])
 | 1,5 h
-| [-> Rolle / Person]
+| SM: Adrian
 
 | Backlog Refinement
 | via Discord: wöchentlich nach Standup
-| [z. B. 1 h]
+| ca. 1 h
 | POs Julius und Justin 
 |===
 
@@ -125,16 +124,16 @@ Robert Ringel (robert.ringel@htw-dresden.de)
 | Discord: alle mit Admin-Rechten, bei allen auf dem Handy und Gruppe entstummen
 
 | Entscheidungsprotokoll
-| Code in github; Kommunikation in Discord mit Untergruppen, ber wird dann bei Meatings in betreffnedes Dokuemnt in github übertragen
+| Code in github; Kommunikation in Discord mit Untergruppen, ber wird dann bei Meetings in betreffendes Dokument in github übertragen
 
 | Erwartete Reaktionszeit
 | in der Regel innerhalb eines Arbeitstages (24 h), bei Fragen zu eigenen Arbeitspaketen reicht Mehrheitsprinzip aus
 
 | Uneinigkeit im Team
-| versuchen einen Kompromis zu finden, ggf. in Kleinteams zwischen Personen, sonst versuchen einen gemeinsmaen Zusatztermin zu finden
+| versuchen einen Kompromiss zu finden, ggf. in Kleinteams zwischen Personen, sonst versuchen einen gemeinsamen Zusatztermin zu finden
 
 | harte Meinungsverschiedenheiten
-| bei persönlichen: Scrum-Master ansprechen; bei inhaltlichen Poduct Owner oder Tech-Lead; möglichst offen kommunizieren
+| bei persönlichen: Scrum-Master ansprechen; bei inhaltlichen: Poduct Owner oder Tech-Lead; möglichst offen kommunizieren
 
 | Blocker / Verhinderung 
 | Bescheid sagen in Discord; bei Terminen ggf. Wechsel auf Ersatztermin, sonst asynchrone Nachricht vor dem Treffen mit den Infos schicken und Zusammenfassung im Protokoll lesen, Aufgabenwahrnehmung durch Stellvertreter*in
@@ -149,7 +148,7 @@ Robert Ringel (robert.ringel@htw-dresden.de)
 | Discord: Meetings bevorzugt synchron
 
 | Asynchrone Abstimmung
-| [z. B. kurze Statusupdates im Issue-Diskussion]
+| Nachrichten in Discord-Themen-Gruppen, bevorzugt: in Issue-Diskussion
 |===
 
 == Arbeitsweise
@@ -258,4 +257,4 @@ _Unsere gesammelten Erkenntnisse aus den Sprints (wird laufend aktualisiert):_
 - *Review-Qualität:* Um mangelhafter Code-Prüfung entgegenzuwirken, ist ab sofort bei Pull Requests zwingend ein zweiter, dedizierter Reviewer mit alleinigem Fokus auf den Code notwendig.
 - *Terminplanung:* Kurzfristige Planungen ("Sonntags-Meetings") stören den Workflow. Für das nächste Semester wird die komplette Event-Planung (Reviews, Retrospektiven) direkt zu Beginn angesetzt.
 
-_Nächste Überprüfung: [06.05.2026] — Diese Charta wird regelmäßig in der Retrospektive aktualisiert._
+_Nächste Überprüfung: [nach Sprint 4] — Diese Charta wird regelmäßig in der Retrospektive aktualisiert._

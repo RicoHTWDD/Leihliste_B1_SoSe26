@@ -29,13 +29,8 @@ nicht wesentlich verändern._
 === Visions-Statement
 
 ____
-Für Hochschulen, Vereine und Unternehmen,
-die gemeinsam genutzte Gegenstände verwalten möchten,
-ist LeihListe
-ein Verwaltungssystem,
-das das Ausleihen von Gegenständen vereinfacht und transparent gestaltet.
-Im Gegensatz zu Excel, ERP-Systemen und anderen Asset-Tools
-bietet unser Produkt eine strukturierte, automatisierte und nutzerfreundliche Lösung.
+Für Hochschulen, Vereine und Unternehmen, die gemeinsam genutzte Gegenstände verwalten möchten, ist LeihListe ein Verwaltungssystem, das das Ausleihen von Gegenständen vereinfacht und transparent gestaltet.
+Im Gegensatz zu Excel, ERP-Systemen und anderen Asset-Tools bietet unser Produkt eine strukturierte, automatisierte und nutzerfreundliche Lösung.
 ____
 
 //Beispiel: Für Studierende der HTWD, die zu wenig Zeit in der Mittagspause zum Essen haben, ist Flying Burger ein Lieferdienst für Burger, der per Drohne liefert. Anders als landgestützte Lieferdienste kann unser Produkt durchs Fenster direkt in den Hörsaal liefern.
@@ -164,7 +159,7 @@ Diese Hauptfunktionen sollten als Epics im Product Backlog für die Gruppierung 
 | Hoch
 
 | Es braucht einen klaren, einheitlichen Prozess, um Missverständnisse bei Ausleihen zu vermeiden
-| Digitaler Ausleihprozess (Anfrage -> Bestätigung -> Übergabe)
+| Digitaler Ausleihprozess (Ausleihanfrage -> Bestätigung -> Reservierung -> Übergabe -> Ausleihe)
 | Hoch
 
 | Nicht alle Nutzer sollen die gleichen Berechtigungen haben
@@ -283,6 +278,10 @@ organisatorische, rechtliche oder zeitliche Vorgaben._
 [cols="1,1,2", options="header"]
 |===
 | Version | Datum | Änderung
+
+| 1.1
+| 03.07.2026
+| Kenntnisstand zum Ende Sprint 3
 
 | 1.0
 | 25.04.2026

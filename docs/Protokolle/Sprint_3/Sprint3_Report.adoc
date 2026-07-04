@@ -7,6 +7,7 @@ Projektname:: Leihliste
 Datum:: 05.07.2026
 Repository-Link:: https://github.com/RicoHTWDD/Leihliste_B1_SoSe26
 
+////
 ====
 Dieser Report soll auf maximal einer Seite zeigen, wie Ihr Team in Sprint 3 gearbeitet hat,
 welche Praktiken Sie angewendet haben, welches erste nützliche Produktinkrement entstanden ist und was Sie daraus gelernt haben.
@@ -14,14 +15,17 @@ welche Praktiken Sie angewendet haben, welches erste nützliche Produktinkrement
 Der Report ist kein Tätigkeitsprotokoll und kein vollständiges Implementierungs- oder Testdokument. Beschreiben Sie nicht nur, *was* Sie umgesetzt haben,
 sondern vor allem, *warum* dieser Ausschnitt für das MVP nützlich ist, welche Evidenz die Umsetzung stützt und wie Review, Verifikation und Verbesserungen zur Qualität beigetragen haben.
 ====
+////
 
 == 1. Sprintziel und nützlicher MVP-Ausschnitt
 
+////
 Formulieren Sie Ihr Sprintziel in 1–2 Sätzen. Leitfragen:
 
 * Welchen zusammenhängenden Nutzerfluss oder welche zusammenhängenden User Stories wollte Ihr Team in diesem Sprint als erstes nützliches End-to-End-Inkrement umsetzen?
 * Welches Nutzerziel sollte durch das Inkrement unterstützt werden?
 * Warum ist dieser Ausschnitt ein sinnvoller Schritt in Richtung MVP?
+////
 //Justin
 [cols="1,3", options="header"]
 |===
@@ -39,6 +43,7 @@ Formulieren Sie Ihr Sprintziel in 1–2 Sätzen. Leitfragen:
 
 == 2. Erwartete Praktiken in Sprint 3
 // Lidia und Jevan
+////
 Wählen Sie 3–5 Praktiken aus, die für Ihren Sprint besonders relevant waren.
 Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 3 beschrieben werden. Mögliche Praktiken:
 
@@ -52,7 +57,7 @@ Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 3 be
 * Verhalten anhand von Akzeptanzkriterien verifizieren
 * Definition of Done vor dem Schließen von Issues prüfen
 * einfachen User-Flow- oder Usability-Check durchführen
-
+////
 [cols="1,2,2,2", options="header"]
 |===
 | Praktik
@@ -91,6 +96,9 @@ a|
 | Durch die bewusste Priorisierung konnte lauffähiger, integrierter Code abgegeben werden, statt viele halbfertige Features. Es wurde deutlich, dass das Zurückstellen abhängiger Funktionalität und deren transparente Markierung im Code die Integration erleichtert und spätere Missverständnisse vermeidet.
 
 | Verantwortlichkeiten im Code durch Presentation/Application/Domain/Infrastructure umsetzen
+
+// -> Rico: Klingt toll, aber ist das wirklich so, dass die Auftrennung in Layer der Aufteilung der Dateien im Backend entspricht und macht der Serializer wirklich die Prüfung der Daten???? Ich wäre hier im Zweifelsfall für weglassen, weil hier gerade 6 Prkatiken stehen, wir aber nur 3 bis 5 machen sollen und das Dokument schon viiiiieeel zu lang ist.
+
 a|
 *Backend:* Das Layer-Pattern wurde konsequent eingehalten: Models (`models.py`) als Domain Layer, Serializers als Application Layer, ViewSets als Controller Layer, MariaDB als Infrastructure Layer. Validierungslogik liegt im Serializer (z.B. Prüfung von Start-/Enddatum und akzeptierten Nutzungsbedingungen beim Erstellen einer Anfrage), nicht im ViewSet. Die eingeloggte Nutzerin wird serverseitig in der View gesetzt, nicht vom Frontend übernommen.
 | `lending/serializers.py`, `lending/views.py`, `inventory/serializers.py`, `inventory/views.py` (Branch `datenbank`)
@@ -138,13 +146,13 @@ a|
 |===
 
 == 3. Wichtigste Lernergebnisse aus Sprint 3
-
+////
 Beschreiben Sie 2–3 zentrale Erkenntnisse aus Sprint 3. Leitfragen:
 
 * Was hat Ihr Team über die Umsetzung eines nützlichen End-to-End-Inkrements gelernt?
 * Welche Annahme zum Nutzerfluss, zur Architektur, zum Design, zur Codebasis oder zur Teamarbeit wurde bestätigt, widerlegt oder präzisiert?
 * Welche Verifikations-, Review- oder Usability-Erkenntnis hatte den größten Einfluss auf Ihre weitere Planung?
-
+////
 [cols="1,3", options="header"]
 |===
 | Kriterium | Ihre Antwort
@@ -163,36 +171,39 @@ Beschreiben Sie 2–3 zentrale Erkenntnisse aus Sprint 3. Leitfragen:
 
 == 4. Änderungen am Inkrement, Backlog oder an Projektdokumentation
 //Rico
+////
 Beschreiben Sie konkret anhand von drei Beispielen, was sich durch Implementierung, Review, Verifikation oder User-Flow-Check verändert hat.
-
+////
 [cols="2,2,2", options="header"]
 |===
 | Ursprüngliche Annahme / geplanter Stand
 | Neue Erkenntnisse
 | Anpassung am Inkrement, Backlog, Code oder an der Dokumentation
 
-|
-|
-|
+| Annahme, dass das Rückgabedatum bereits im Rahmen der Anfrageerstellung festgelegt werden kann.
+| Das Rückgabedatum hängt fachlich vom 'Ausleihvorgang' ab, der erst nach Genehmigung der Anfrage stattfindet. Eine vorzeitige Festlegung ist im aktuellen Datenmodell nicht sauber abbildbar.
+| *Code:* Die Logik für das Rückgabedatum wurde bewusst nicht implementiert und stattdessen als 'ToDo'-Kommentar im Branch und Quellcode markiert. 
+*Backlog:* Die Anforderung wurde in eine zukünftige User Story verschoben, um den Fokus auf den MVP-Kern zu behalten.
 
-|
-|
-|
+| Planung, die Issues nur durch den Product Owner (PO) erstellen zu lassen, um Zeit zu sparen.
+| Viel KI-generierte und isoliert erstellte Issues führten zu Widersprüchen und fehlendem fachlichen Detail (z.B. unklare Akzeptanzkriterien). Es fehlt das "kritische Gegenüber", alleine lassen sich Denkfehler in der Regel nicht erkennen.
+| *Prozess/Backlog:* Einführung eines gemeinsamen Sichtsungsprozesses im Sprint-Planning. Issues werden fortan manuell und detailliert definiert.
 
-|
-|
-|
+| Annahme, dass ein einzelner Reviewer (oft PO) für Code-Reviews ausreicht.
+| Spezifische Code-Fehler (z.B. Datumsvalidierung, Status einer Ausleihanfrage 'TEILWEISE_ABGELEHNT' im Model vs. View) und Integrationsprobleme wurden durch den reinen PO-Review nicht aufgedeckt.
+| *Prozess/Code:* Einführung eines "2. dedizierten Reviewers" (Code-Fokus). Pull Requests müssen zusätzlich von einer Frontend- bzw. Backend-Dev-Person geprüft werden.
 |===
 
 == 5. Produktinkrement, Verifikation und Umsetzungsqualität
 //Julius
+////
 Beschreiben Sie kurz, welche Nachweise zeigen, dass Ihr Produktinkrement nützlich, integriert, überprüft und wartbar umgesetzt wurde. Leitfragen:
 
 * Wie zeigt sich, dass das Inkrement end-to-end lauffähig und für ein Nutzerziel nützlich ist?
 * Welche Akzeptanzkriterien wurden erfüllt und wie wurde dies überprüft?
 * Wie wurde die Definition of Done eingehalten?
 * Welche Erkenntnisse ergab der User-Flow- oder Usability-Check?
-
+////
 [cols="1,3", options="header"]
 |===
 | Kriterium | Ihre Antwort
@@ -218,13 +229,14 @@ Beschreiben Sie kurz, welche Nachweise zeigen, dass Ihr Produktinkrement nützli
 
 == 6. Nächste MVP-Schritte und Anpassung der Arbeitsweise
 //Adrian mit MVP von Justin
+////
 Beschreiben Sie, was Ihr Team nach Sprint 3 beibehalten, ändern oder gezielt verbessern will. Leitfragen:
 
 * Welche Implementierungs-, Review- oder Koordinationsweise hat gut funktioniert?
 * Was hat Ihre Umsetzung, Integration, Verifikation oder Zusammenarbeit behindert?
 * Welcher nächste MVP-Schritt ist fachlich oder technisch am wichtigsten?
 * Welche offenen Produkt-, Technik- oder Qualitätsfragen sollten in der weiteren Projektarbeit aufgegriffen werden?
-
+////
 [cols="1,3", options="header"]
 |===
 | Kriterium | Ihre Antwort

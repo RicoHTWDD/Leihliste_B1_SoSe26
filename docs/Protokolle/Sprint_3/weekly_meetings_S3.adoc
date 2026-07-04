@@ -117,3 +117,15 @@
 ==== 4) Ausblick: Letztes Meeting
 * Das kommende Meeting wird voraussichtlich das letzte reguläre Projekttreffen sein. 
 * Der Fokus wird dort vollständig auf der Finalisierung des Abschlussberichts liegen.
+
+== Meeting 04.07.2026
+:id: meeting04072026
+
+*Datum:* 04.07.2026  
+*Dauer:* 
+*Teilnehmende:* 
+
+=== Agenda
+1. Letzten Aufgaben abstimmen (10 min)
+2. Report abstimmen (10 min)
+3. Letzte offenen Fragen klären (10 min)

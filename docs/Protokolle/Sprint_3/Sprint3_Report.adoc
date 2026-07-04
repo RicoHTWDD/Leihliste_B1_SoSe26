@@ -32,13 +32,13 @@ Formulieren Sie Ihr Sprintziel in 1–2 Sätzen. Leitfragen:
 | Kriterium | Ihre Antwort
 
 | Sprintziel
-|
+| Ausleiher können Gegenstände finden und eine Ausleihanfrage stellen.
 
 | Ausgewählter MVP-Ausschnitt / Nutzerfluss
-|
+| Ausleiher können Gegenstände einsehen -> Ausleiher können für einen oder mehrere Gegenstände Ausleihanfragen erstellen -> Ausleiher können den Status ihrer Anfrage einsehen
 
 | Zentrale Annahme oder Umsetzungsfrage
-|
+| Lässt sich der komplette Nutzerfluss "Gegenstände finden -> Ausleihanfrage erstellen -> Anfragestatus einsehen" als funktionierendes End-to-End-Inkrement umsetzen?
 |===
 
 == 2. Erwartete Praktiken in Sprint 3
@@ -257,7 +257,7 @@ a|
 * *Transparenz:* Diskussionen zu Issues werden ab sofort (zumindest teilweise) direkt auf GitHub geführt, um sie für den Coach nachvollziehbar zu machen.
 
 | Nächster MVP-Schritt
-|
+| Die Implementierung des vollständigen Ausleihprozesses oder der vollständigen Inventarverwaltung.
 
 | Offene Fragen / Risiken für die weitere Projektarbeit
 a|

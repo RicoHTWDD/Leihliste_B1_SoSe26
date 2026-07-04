@@ -44,7 +44,7 @@ Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 3 be
 
 * nützliche Funktionalität für Sprint 3 auswählen
 * Definition of Done für das Produktinkrement festlegen oder anwenden
-* Aufgaben aus User Stories ableiten 
+* Aufgaben aus User Stories ableiten
 * Implementierungsüberlegungen in Issues, Tasks oder Pull Requests dokumentieren
 * Pull Requests mit Bezug zu Issues, Tasks oder User Stories vorbereiten
 * Code Reviews durchführen und Review-Ergebnisse einarbeiten
@@ -60,30 +60,81 @@ Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 3 be
 | Nachweis / Artefakt (Link einfügen)
 | Nutzen, Erkenntnis oder Anpassung
 
-|
-|
-|
-|
+| Aufgaben aus User Stories ableiten
+a|
+*Frontend:* Aus den User Stories zur Statusanzeige und zur Verwaltung von Ausleihanfragen wurden konkrete Frontend-Aufgaben abgeleitet: Gegenstandsübersicht (#121), Gegenstand-Detailseite (#131), Anfragen-Übersichten (#125, #126) und Grundlayout (#142). Wiederkehrende Anforderungen wie Statusdarstellungen, Hinweise und Fehlermeldungen wurden in einer eigenen Aufgabe für gemeinsame UI-Komponenten gebündelt (#140: StatusBadge, HintBox, ErrorMessage).
 
-|
-|
-|
-|
+*Backend:* Alle Backend-Issues wurden ebenfalls direkt aus User Stories abgeleitet und referenzieren eine übergeordnete Story (z.B. #127 → Story #36, #119 → Story #18, #135 → Story #23). Abhängigkeiten zwischen Issues wurden explizit dokumentiert (z.B. #127 abhängig von #128, #135 abhängig von #134).
+a|
+*Frontend:*
 
-|
-|
-|
-|
+* #121 Gegenstandsübersicht https://github.com/RicoHTWDD/Leihliste_B1_SoSe26/issues/121
+* #122 Filter-UI https://github.com/RicoHTWDD/Leihliste_B1_SoSe26/issues/122
+* #126 Meine Anfragen https://github.com/RicoHTWDD/Leihliste_B1_SoSe26/issues/126
+* #131 Statusanzeige Detailansicht https://github.com/RicoHTWDD/Leihliste_B1_SoSe26/issues/131
+* #140 UI-Grundkomponenten https://github.com/RicoHTWDD/Leihliste_B1_SoSe26/issues/140
+* #142 Grundlayout https://github.com/RicoHTWDD/Leihliste_B1_SoSe26/issues/142
 
-|
-|
-|
-|
+*Backend:*
 
-|
-|
-|
-|
+* #118, #119, #127, #128, #132, #135 auf GitHub
+| Durch die Bündelung wiederkehrender UI-Anforderungen in #140 wurden Doppelarbeit vermieden und einheitliche Darstellungen vorbereitet. Im Backend sorgte die konsequente Story-Referenzierung für klare Rückverfolgbarkeit; Abhängigkeiten wurden früh erkannt und die Bearbeitungsreihenfolge entsprechend angepasst.
+
+| nützliche Funktionalität für Sprint 3 auswählen
+a|
+*Backend:* Das Backend-Team fokussierte sich bewusst auf die Kernfunktionalität, die für den End-to-End-Nutzerfluss nötig war: das Statusmodell für Gegenstände (#118) und Ausleihanfragen (#128), die Gegenstandsübersicht (#119), die Detailansicht eines Exemplars (#132), das Einsehen der eigenen Anfragen (#127) sowie das Erstellen einer Anfrage mit Validierung. Funktionalität, die von noch nicht implementierten Modellen abhängt – insbesondere das Rückgabedatum, das den `Ausleihvorgang` bzw. die `Leihhistorie` voraussetzt – wurde bewusst zurückgestellt und im Code als TODO markiert, statt sie halbfertig zu implementieren.
+a|
+*Backend:*
+
+* Kern-Issues #118, #119, #127, #128, #132
+* TODO-Kommentare zum Rückgabedatum in `inventory/serializers.py` (Branch `datenbank`)
+| Durch die bewusste Priorisierung konnte lauffähiger, integrierter Code abgegeben werden, statt viele halbfertige Features. Es wurde deutlich, dass das Zurückstellen abhängiger Funktionalität und deren transparente Markierung im Code die Integration erleichtert und spätere Missverständnisse vermeidet.
+
+| Verantwortlichkeiten im Code durch Presentation/Application/Domain/Infrastructure umsetzen
+a|
+*Backend:* Das Layer-Pattern wurde konsequent eingehalten: Models (`models.py`) als Domain Layer, Serializers als Application Layer, ViewSets als Controller Layer, MariaDB als Infrastructure Layer. Validierungslogik liegt im Serializer (z.B. Prüfung von Start-/Enddatum und akzeptierten Nutzungsbedingungen beim Erstellen einer Anfrage), nicht im ViewSet. Die eingeloggte Nutzerin wird serverseitig in der View gesetzt, nicht vom Frontend übernommen.
+| `lending/serializers.py`, `lending/views.py`, `inventory/serializers.py`, `inventory/views.py` (Branch `datenbank`)
+| Die klare Schichtentrennung erleichterte die parallele Arbeit im Backend-Team ohne gegenseitige Konflikte. Die serverseitige Zuweisung der Nutzerin verhinderte zudem, dass Anfragen im Namen anderer Nutzer erstellt werden können.
+
+| Code Reviews durchführen und Review-Ergebnisse einarbeiten
+a|
+*Frontend:* Pull Requests wurden vor dem Merge gegenseitig reviewt, da Code Review Teil unserer Definition of Done ist. Beim Review von PR #151 zum Ausleihanfrage-Formular (#137) wurden zwei Punkte festgestellt: ein Fehler in der Datumsvalidierung und eine unklare Benennung in der Navigation. Auch der PR zur Statusanzeige auf der Detailseite (#131) wurde vor dem Merge reviewt. Die Rückmeldungen wurden anschließend eingearbeitet.
+
+*Backend:* Beim Aufbau des Endpunkts für die Anfrageübersicht (#127) wurde im vorhandenen Code ein Fehler erkannt: Der Status `TEILWEISE_ABGELEHNT` wurde in der View verwendet, war im Model aber auskommentiert. Diese Rückmeldung wurde an den zuständigen Entwickler weitergegeben und eingearbeitet. Julius glich seinen Fork-Stand mit dem `demo-integration` Branch ab.
+a|
+*Frontend:*
+
+* Review-Kommentare zu PR #151 (#137) https://github.com/RicoHTWDD/Leihliste_B1_SoSe26/pull/151
+* Review zum PR zu #131 https://github.com/RicoHTWDD/Leihliste_B1_SoSe26/pull/152
+
+*Backend:*
+
+* Kommentar/Rückmeldung im Issue #128
+* `demo-integration` Branch https://github.com/RicoHTWDD/Leihliste_B1_SoSe26/tree/demo-integration
+| Reviews machten nicht nur Codefehler, sondern auch konzeptionelle Probleme sichtbar: Der Namenskonflikt in der Navigation führte zu einer Teamdiskussion über die Anfrage-Flows, und der Model-View-Widerspruch im Backend wäre ohne Review erst zur Laufzeit aufgefallen. Das gegenseitige Review verhinderte, dass fehlerhafter Code ungeprüft in den Integrationsstand gelangte.
+
+| Verhalten anhand von Akzeptanzkriterien verifizieren
+a|
+*Frontend:* Zur Vorbereitung der Prototyp-Demonstration wurde der Nutzerfluss „Gegenstandsübersicht → Detailseite → Statusanzeige“ auf dem Integrationsbranch durchgespielt. Für #131 wurden alle Statusvarianten mit Mock-Daten geprüft, bevor das Backend-Feld final verfügbar war.
+
+*Backend:* Jedes Issue hatte ein explizites Fertigstellungskriterium als Akzeptanzkriterium (z.B. #127: „API liefert alle Anfragen mit Status und Zeitraum“; #135: „API lehnt Anfragen mit nicht verfügbaren Gegenständen ab“). Fehlende Funktionalität wie das Rückgabedatum – abhängig vom noch nicht implementierten `Ausleihvorgang` – wurde als TODO dokumentiert statt halbfertig geliefert.
+a|
+*Frontend:*
+
+* `demo-integration` Branch https://github.com/RicoHTWDD/Leihliste_B1_SoSe26/tree/demo-integration
+
+*Backend:*
+
+* Fertigstellungskriterien in #118, #119, #127, #128, #132, #135
+* TODO-Kommentare in `inventory/serializers.py`
+| Fertigstellungskriterien machten den DoD-Check konkret und nachvollziehbar. Die Prüfung mit Mock-Daten ermöglichte es, alle Statuskombinationen unabhängig vom Backend-Fortschritt zu testen. Bewusst zurückgestellte Funktionalität wurde transparent im Code markiert.
+
+| Einfachen User-Flow- oder Usability-Check durchführen
+a|
+*Frontend:* Beim Durchklicken der Anfrage-Flows fiel auf, dass es zwei ähnliche Wege zur Erstellung einer Ausleihanfrage gibt: den Checkbox-Flow über „Ausleihe hinzufügen“ und das Formular „Neue Anfrage“. Der Demo-Flow von der Übersicht bis zur Detailseite wurde vollständig durchgespielt.
+| `demo-integration` Branch https://github.com/RicoHTWDD/Leihliste_B1_SoSe26/tree/demo-integration
+| Der Durchlauf stellte sicher, dass der Demo-Flow funktioniert, und machte eine Unklarheit in der Nutzerführung sichtbar, die im reinen Code Review wahrscheinlich nicht aufgefallen wäre. Die Produktentscheidung zu den zwei Anfrage-Flows steht noch aus.
+
 |===
 
 == 3. Wichtigste Lernergebnisse aus Sprint 3

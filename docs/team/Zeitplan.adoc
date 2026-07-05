@@ -33,8 +33,10 @@ include::../_includes/default-attributes.inc.adoc[]
 | (Woche 2) | Standup (Weekly) ✓ | So 14.06.26 | 14:00 – 15:25 | Discord | link:../Protokolle/Sprint_3/weekly_meetings_S3.adoc#meeting14062026[Weekly]
 | (Woche 3)| Standup (Weekly) ✓ | So 21.06.26 | 12:00 – 14:00 | Discord | link:../Protokolle/Sprint_3/weekly_meetings_S3.adoc#meeting21062026[Weekly]
 | (Woche 4)| Standup (Weekly) ✓ | So 28.06.26 | 14:00 – 15:00 | Discord | link:../Protokolle/Sprint_3/weekly_meetings_S3.adoc#meeting28062026[Weekly]
-| (Woche 4)| *Präsentation (als Sprint-Review)*| Di 30.06.26 | 11:30 – 13:00 (12:06)| Z107 |
-| (Woche 4)| Retrospektive | KW27  | Umfrage läuft | ?S531 | Rico via BBB
-| (Woche 4)| *Standup (Weekly)* | So 05.07.26 | 14:00 – 15:00 | Discord | 
+| (Woche 4)| Präsentation (als Sprint-Review) ✓ | Di 30.06.26 | 11:30 – 13:00 (12:06)| Z107 | Feedback: einheitliche Namensgebung (Glossar beachten)
+| (Woche 4)| Retrospektive ✓ | Do 02.07.26  | 14:00 - 15:00 | S531 und BBB | link:../Protokolle/Sprint_3/Retrospektive_S3.adoc[Retrospektive]
+| (Woche 4)| Standup (Weekly) ✓ | So 05.07.26 | 14:00 – 15:00 | Discord | link:../Protokolle/Sprint_3/weekly_meetings_S3.adoc#meeting04072026[Weekly], link:../Protokolle/Sprint_3/Sprint3_Report.adoc[Report]
+
+
 
 |===

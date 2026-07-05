@@ -118,10 +118,10 @@
 * Das kommende Meeting wird voraussichtlich das letzte reguläre Projekttreffen sein. 
 * Der Fokus wird dort vollständig auf der Finalisierung des Abschlussberichts liegen.
 
-== Meeting 04.07.2026
+== Meeting 05.07.2026
 :id: meeting04072026
 
-*Datum:* 04.07.2026  
+*Datum:* 05.07.2026  
 *Dauer:* 
 *Teilnehmende:* 
 

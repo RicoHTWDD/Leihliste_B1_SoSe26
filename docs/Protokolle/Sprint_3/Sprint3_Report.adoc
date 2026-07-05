@@ -58,7 +58,7 @@ Beziehen Sie sich bevorzugt auf Praktiken, die in den Hinweisen für Sprint 3 be
 * Definition of Done vor dem Schließen von Issues prüfen
 * einfachen User-Flow- oder Usability-Check durchführen
 ////
-[cols="1,3,1,1", options="header"]
+[cols="2,6,3,3", options="header"]
 |===
 | Praktik
 | Konkrete Anwendung in unserem Sprint
@@ -168,7 +168,7 @@ Beschreiben Sie 2–3 zentrale Erkenntnisse aus Sprint 3. Leitfragen:
 * Welche Annahme zum Nutzerfluss, zur Architektur, zum Design, zur Codebasis oder zur Teamarbeit wurde bestätigt, widerlegt oder präzisiert?
 * Welche Verifikations-, Review- oder Usability-Erkenntnis hatte den größten Einfluss auf Ihre weitere Planung?
 ////
-[cols="1,3", options="header"]
+[cols="1,6", options="header"]
 |===
 | Kriterium | Ihre Antwort
 
@@ -189,7 +189,7 @@ Beschreiben Sie 2–3 zentrale Erkenntnisse aus Sprint 3. Leitfragen:
 ////
 Beschreiben Sie konkret anhand von drei Beispielen, was sich durch Implementierung, Review, Verifikation oder User-Flow-Check verändert hat.
 ////
-[cols="2,2,2", options="header"]
+[cols="3,5,5", options="header"]
 |===
 | Ursprüngliche Annahme / geplanter Stand
 | Neue Erkenntnisse
@@ -219,7 +219,7 @@ Beschreiben Sie kurz, welche Nachweise zeigen, dass Ihr Produktinkrement nützli
 * Wie wurde die Definition of Done eingehalten?
 * Welche Erkenntnisse ergab der User-Flow- oder Usability-Check?
 ////
-[cols="1,3", options="header"]
+[cols="1,5", options="header"]
 |===
 | Kriterium | Ihre Antwort
 
@@ -252,7 +252,7 @@ Beschreiben Sie, was Ihr Team nach Sprint 3 beibehalten, ändern oder gezielt ve
 * Welcher nächste MVP-Schritt ist fachlich oder technisch am wichtigsten?
 * Welche offenen Produkt-, Technik- oder Qualitätsfragen sollten in der weiteren Projektarbeit aufgegriffen werden?
 ////
-[cols="1,3", options="header"]
+[cols="1,5", options="header"]
 |===
 | Kriterium | Ihre Antwort
 

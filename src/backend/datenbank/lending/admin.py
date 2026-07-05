@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Ausleihanfrage, Anfragestatus
+from .models import Ausleihanfrage, Anfragestatus, Reservierung
 
 # admin.site.register(Ausleihanfrage)
 @admin.register(Ausleihanfrage)
@@ -49,3 +49,35 @@ class AusleihanfrageAdmin(admin.ModelAdmin):
         queryset.update(anfragestatus=Anfragestatus.ABGELEHNT)
         self.message_user(request, f"{queryset.count()} Anfragen abgelehnt.")
     lehne_ausgewaehlte_ab.short_description = "Ausgewählte Anfragen ablehnen"
+
+
+@admin.register(Reservierung)
+class ReservierungAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'ausleihanfrage_id',
+        'gegenstandsexemplar_id',
+        'nutzer_id',
+        'startdatum',
+        'enddatum',
+        'erstellt_am'
+    ]
+    list_filter = ['startdatum', 'enddatum']
+    search_fields = [
+        'gegenstandsexemplar_id__inventarnummer',
+        'nutzer_id__vollstaendiger_name'
+    ]
+    readonly_fields = ['erstellt_am', 'aktualisiert_am']
+       
+    fieldsets = (
+        ('Details', {
+            'fields': ('ausleihanfrage_id', 'gegenstandsexemplar_id', 'nutzer_id')
+        }),
+        ('Zeitraum', {
+            'fields': ('startdatum', 'enddatum')
+        }),
+        ('Metadaten', {
+            'fields': ('erstellt_am', 'aktualisiert_am'),
+            'classes': ('collapse',)
+        }),
+    )

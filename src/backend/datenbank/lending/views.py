@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Ausleihanfrage, Anfragestatus
+from .services import pruefe_exemplar_verfuegbarkeit, hole_verfuegbare_typen_im_zeitraum
 from .serializers import AusleihanfrageSerializer, AnfrageStatusOverviewSerializer
 
 
@@ -176,3 +177,61 @@ class AusleihanfrageViewSet(viewsets.ModelViewSet):
         anfrage.save()
         
         return Response(self.get_serializer(anfrage).data)
+    
+    @action(detail=False, methods=['get'])
+    def pruefe_verfuegbarkeit(self, request):
+        """
+        API 1: Prüft Verfügbarkeit eines spezifischen Gegenstandsexemplars.
+        """
+        exemplar_id = request.query_params.get('exemplar_id')
+        startdatum = request.query_params.get('startdatum')
+        enddatum = request.query_params.get('enddatum')
+
+        if not all([exemplar_id, startdatum, enddatum]):
+            return Response(
+                {'error': 'Missing parameters: exemplar_id, startdatum, enddatum required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            from .services import pruefe_exemplar_verfuegbarkeit
+            ergebnis = pruefe_exemplar_verfuegbarkeit(exemplar_id, startdatum, enddatum)
+            
+            # Wenn nicht verfügbar, geben wir Status 400 zurück, damit das Frontend weiß, dass was falsch ist
+            if not ergebnis['ist_verfuegbar']:
+                return Response(ergebnis, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response(ergebnis)
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['get'])
+    def verfuegbare_typen(self, request):
+        """
+        API 2: Gibt alle Gegenstandstypen mit freien Exemplaren im Zeitraum zurück.
+        
+        Query Params:
+        - startdatum (date): YYYY-MM-DD
+        - enddatum (date): YYYY-MM-DD
+        - organisation_id (int, optional): Filter nach Organisation
+        """
+        startdatum = request.query_params.get('startdatum')
+        enddatum = request.query_params.get('enddatum')
+        organisation_id = request.query_params.get('organisation_id')
+
+        if not all([startdatum, enddatum]):
+            return Response(
+                {'error': 'Missing parameters: startdatum, enddatum required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            ergebnis = hole_verfuegbare_typen_im_zeitraum(startdatum, enddatum, organisation_id)
+            return Response({
+                'zeitraum': f"{startdatum} bis {enddatum}",
+                'ergebnisse': ergebnis
+            })
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

@@ -115,3 +115,4 @@ class Gegenstandsexemplar(models.Model):
 
     def __str__(self):
         return f"{self.inventarnummer} ({self.verfuegbarkeitsstatus})"
+    

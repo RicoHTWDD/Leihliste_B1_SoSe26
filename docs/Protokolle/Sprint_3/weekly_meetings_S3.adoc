@@ -122,8 +122,8 @@
 :id: meeting04072026
 
 *Datum:* 05.07.2026  
-*Dauer:* 
-*Teilnehmende:* 
+*Dauer:* 20 min.
+*Teilnehmende:* Alle Teammitglieder
 
 === Agenda
 1. Letzten Aufgaben abstimmen (10 min)

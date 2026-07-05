@@ -209,22 +209,22 @@ Beschreiben Sie kurz, welche Nachweise zeigen, dass Ihr Produktinkrement nützli
 | Kriterium | Ihre Antwort
 
 | Umgesetzter End-to-End-Nutzerfluss
-|
+|In Sprint 3 wurde erstmalig ein zusammenhängender Nutzerfluss umgesetzt: Gegenstände einsehen → Ausleihanfrage erstellen → Anfragestatus einsehen. Die Umsetzung ist im Zusammenspiel von Frontend-Issues (u. a. #121, #126, #131, #137) und Backend-Issues (u. a. #118, #127, #128, #132, #135) nachvollziehbar. Auf dem Branch (demo-integration) konnte der Ablauf lokal durchgeklickt und demonstriert werden.
 
 | Akzeptanzkriterien und Definition of Done
-|
+|Die Bearbeitung orientierte sich an Issue-spezifischen Fertigstellungskriterien (z. B. API liefert Anfragen inkl. Status/Zeitraum; ungültige Statuswechsel werden serverseitig abgelehnt). Zusätzlich galt die teamweite DoD: implementiert, getestet/verifiziert, per Pull-Request über PO und/oder Tech-Lead reviewed und erst danach gemerged. In den Reviews wurde auf fachliche Korrektheit, Integrationsfähigkeit.
 
 | Akzeptanzorientierte Verifikation
-|
+|Die Verifikation erfolgte entlang der Akzeptanzkriterien in den Issues sowie über konkrete Nutzungsfälle mit Mock-/Testdaten. Dabei wurden insbesondere Statuskombinationen und Anfragefälle geprüft. Offene Punkte (z. B. Rückgabedatum erst im späteren Ausleihvorgang sinnvoll) wurden transparent als ToDo markiert und bewusst aus dem Sprintumfang herausgenommen, um den aktuellen MVP stabil und unproblematisch fertigzustellen.
 
 | Code Review, Integration und main branch
-|
+|Änderungen wurden über Pull Requests integriert; vor dem Merge wurden Review-Kommentare eingearbeitet (z. B. aus Pull-Request #151, #152). Review-Funde betrafen nicht nur Stil, sondern auch fachliche Konsistenz (z. B. Statuswert-Konflikte zwischen Model/View, Unklarheiten in Anfrage-Flows). Dadurch wurden Fehler vor der Übernahme in den Hauptentwicklungsbranch bzw. in diesem Fall auch in den "demo-integration"-Branch behoben und die Integrationsqualität verbessert.
 
 | Wartbarkeitsverbesserung / Refactoring
-|
+|Zur Verbesserung der Wartbarkeit wurden wiederverwendbare UI-Bausteine und ein Grundlayout gebündelt (z. B. #140, #142), um Redundanz zu reduzieren. Im Backend wurde die Schichtung (Model/Serializer/ViewSet) konsequent eingehalten, was Verantwortlichkeiten klar trennt und Änderungen erleichtert. Nicht sprintkritische, aber fachlich relevante Punkte wurden als dokumentierte Folgeaufgaben/ToDos ausgelagert statt „halbfertig“ eingebaut.
 
 | User-Flow- oder Usability-Check
-|
+|Beim Durchlauf des Demo-Flows wurde eine UX-Unklarheit sichtbar: zwei ähnliche Wege zur Anfrageerstellung (Checkbox-Flow vs. Formular) können verwirren. Diese Erkenntnis floss in die weitere Produktplanung ein (Vereinheitlichung der Nutzerführung, klarere Benennung/Navigation). Der Check zeigte damit nicht nur technische Funktionsfähigkeit, sondern lieferte konkrete Hinweise zur Verbesserung der Bedienbarkeit.
 |===
 
 == 6. Nächste MVP-Schritte und Anpassung der Arbeitsweise

@@ -129,3 +129,11 @@
 1. Letzten Aufgaben abstimmen (10 min)
 2. Report abstimmen (10 min)
 3. Letzte offenen Fragen klären (10 min)
+
+=== Beschluesse & Aufgaben für die Sommerpause
+
+Da dies das abschließende Meeting für das aktuelle Semester war, haben wir die verbleibenden To-Dos besprochen, die über die Sommersemesterferien erledigt werden:
+
+* Rico übernimmt über die Sommerpause die Bearbeitung von Issue #135.
+* Wir ziehen die besprochenen Git-Regeln durch und räumen unser Repository auf. Alle alten, ungenutzten oder bereits integrierten Branches werden gelöscht.
+* Die letzten noch offenen Pull Requests werden final geprüft, angenommen und gemergt.

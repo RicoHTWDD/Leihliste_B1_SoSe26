@@ -1,0 +1,51 @@
+= Aufarbeitung des Feedbacks
+
+[cols="3,3,3,2", options="header"]
+|===
+| Kritikpunkt (kurz) | Was geändert werden muss (Prof-Feedback gekürzt) | Anmerkungen | Verantwortlichkeit
+
+| **1. Akzeptanzkriterien (Miro)**
+| Akzeptanzkriterien gehören nicht in eine User Story Map, sondern in die User Stories im Backlog. Die USM dient primär dem Identifizieren von User Stories.
+| War nur als dokumentation gedacht, ist nicht im fertigen Miroboard. 
+| -
+
+| **2. PO-Verantwortung (teamcharter)**
+| Es ist ungewöhnlich, dass der PO Review und Merge von Code als Verantwortung hat. Besser beim TechLead oder Dev-Kollegen aufheben. Bitte konsistente Regeln festlegen.
+| Lösen beim nächsten Meeting -> jeder macht sich dahin Gedanken wie wir das lösen (wer Techlead ist)
+| 
+
+| **3. Domänenmodell (domain_glossary)**
+| "Gegenstand" statt "Gegenstandsexemplar" nutzen. Standort vom Typ lösen (eher an Gegenstand oder eigene Klasse binden). "Kategorie" braucht kein Attribut von Typ zu sein. Optionale Attribute mit [0..1] kennzeichnen und in den richtigen UML-Abschnitt (nicht Methoden) verschieben.
+| Gegenstand und Gegenstandstyp mehr veralgemeinern.
+| Rico
+
+| **4. Sprintziel Sprint 3**
+| Sprintziel in Sprint 3 ist zu kleinteilig. Eher "Umsetzung der Ausleihanfrage als erste nützliche Funktionalität" formulieren, Details kommen später.
+| Angenommen, wird in zukünftigen Sprintzielen umgesetzt.
+| -
+
+| **5. KI-Formulierungen (Sprint 3 Report)**
+| Zuviele KI-Formulierungen in den Sprint Reports. Bitte selber denken und schreiben. Die Reflexion ist für das Verständnis und Lernen sehr wichtig.
+| Aufgrund der Zeitknappheit kurz vor Prüfung wurde KI genutzt. In Zukunft wird drauf geachtet weniger generische Formulierungen zu nutzen.
+| -
+
+| **6. Verzeichnis \src\Walking_Skeleton**
+| Wieso gibt es ein extra Verzeichnis \src\Walking_Skeleton? Das WS ist ein Entwicklungsstand, aus dem Features aufgebaut werden, kein separater Prototyp.
+| Waren gedacht als Prototypen für unsere Bibliotheken, die wir aber nicht weiterverfolgt haben. Werden verschoben in Backup
+| Justin/Rico
+
+| **7. Status der User Stories**
+| Wie kommt es, dass noch keine einzige User Story "done" (state:closed) ist? Am Ende von Sprint 3 müssten die ausgewählten Stories "done" sein.
+| DoDs des Teamcharter wird angepasst und im laufe der nächsten 
+| Justin/Adrian
+
+| **8. Definition of Done (teamcharter)**
+| DoD fordert "grüne Unittests". Sie haben aber noch keine Tests im Einsatz, demnach kann das (noch) nicht als Voraussetzung gefordert werden.
+| DoDs wurden dementsprechend angepasst. (Unittests werden erstmal rausgenommen)
+| Adrian
+
+| **9. Konsistenz Code vs. Modell**
+| Code enthält im Backend `Organisationstyp` und `Organisation`. Diese finden sich nicht im Domänenmodell wieder. Achten Sie auf Konsistenz.
+| Domänenmodell wird abgeglichen mit dem Code und ggf. angepasst.
+| Rico
+|===

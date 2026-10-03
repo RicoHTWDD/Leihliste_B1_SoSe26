@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { StatusBadge, ErrorMessage } from "../components/ui";
+import { ermittleAnzeigeStatus, ermittleZusatzinfo } from "../utils/anzeigeStatus";
 
 const MOCK = true; // auf false setzen, sobald #132 existiert und gemerged ist
 const MOCK_GEGENSTAND = {
@@ -19,6 +20,11 @@ const MOCK_GEGENSTAND = {
   name: "Mikroskop 1b",
   kategorie: "Elektronik",
   verfuegbarkeitsstatus: "verfuegbar", // verfuegbar | nicht_verfuegbar
+  zustand: "gut", // zum Testen: "defekt" oder "verloren" -> Badge "Defekt"
+  standort: "Labor 2", // wird bei Status "Verfügbar" als Zusatzinfo angezeigt (Story #18)
+  // Sobald das Backend den Ziel-Kontrakt liefert, zum Testen z. B.:
+  // anzeige_status: "ausgeliehen", rueckgabedatum: "2026-07-15",
+  // anzeige_status: "reserviert",  reservierungsdatum: "2026-07-10",
   // beschreibung: liefert der Serializer aktuell nicht -> Platzhalter
 };
 
@@ -86,6 +92,13 @@ export default function GegenstandDetail({ gegenstandId = 1 }) {
 
   const name = gegenstand.name ?? gegenstand.inventarnummer;
 
+  // ===== #131: abgeleiteter Anzeige-Status (Logik: utils/anzeigeStatus.js) =====
+  // Nutzt `anzeige_status` vom Backend, sobald vorhanden; bis dahin Fallback
+  // aus zustand + verfuegbarkeitsstatus. Zusatzinfo laut Story #18:
+  // Rueckgabedatum (ausgeliehen) / Reservierungsdatum (reserviert) / Standort (verfuegbar).
+  const anzeigeStatus = ermittleAnzeigeStatus(gegenstand);
+  const zusatzinfo = ermittleZusatzinfo(gegenstand);
+
   return (
     <Box sx={{ p: 2 }}>
       {/* Breadcrumb-Titel: Gegenstände - {Kategorie} - {Name} */}
@@ -136,10 +149,15 @@ export default function GegenstandDetail({ gegenstandId = 1 }) {
               {gegenstand.beschreibung ?? "Beschreibung …"}
             </Typography>
 
-            {/* ===== #131: Verfuegbarkeitsstatus ===== */}
-            <Box sx={{ my: 2 }}>
-              <StatusBadge status={gegenstand.verfuegbarkeitsstatus} />
-            </Box>
+            {/* ===== #131: Statusanzeige (Badge + statusabhängige Zusatzinfo) ===== */}
+            <Stack direction="row" spacing={1.5} alignItems="center" sx={{ my: 2 }}>
+              <StatusBadge status={anzeigeStatus} />
+              {zusatzinfo && (
+                <Typography variant="body2" color="text.secondary">
+                  {zusatzinfo}
+                </Typography>
+              )}
+            </Stack>
             {/* ===== Ende #131 ===== */}
 
             {/* PLATZHALTER (Story Ausleihprozess): Anzahl + Aktion, bewusst disabled */}

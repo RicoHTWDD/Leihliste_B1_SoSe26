@@ -9,6 +9,8 @@ import {
   Select,
   MenuItem,
   FormControl,
+  FormControlLabel,
+  Switch,
   Checkbox,
   Avatar,
   Table,
@@ -48,7 +50,6 @@ async function fetchGegenstaende() {
   const res = await fetch('/api/inventory/alle-exemplare/');
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const daten = await res.json();
- 
 
   // Nur die im Frontend benötigten Felder übernehmen.
   // Hinweis: Es wird die erste Seite geladen. Bei mehr Exemplaren als die
@@ -70,7 +71,8 @@ async function fetchGegenstaende() {
 }
 
 // Spaltendefinition für die sortierbaren Kopfzellen.
-// Status bleibt als Spalte erhalten (Badge), wird aber nicht mehr gefiltert.
+// Status bleibt als Spalte erhalten (Badge); gefiltert wird er über den
+// Verfügbarkeitsschalter (#122), nicht über ein eigenes Dropdown.
 const SPALTEN = [
   { feld: 'name', label: 'Name' },
   { feld: 'status', label: 'Status' },
@@ -83,10 +85,13 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
   const [ladestatus, setLadestatus] = useState('laedt'); // 'laedt' | 'fertig' | 'fehler'
 
   const [suche, setSuche] = useState('');
-  // Zwei unabhängige Filter, die kombiniert wirken (UND-Verknüpfung).
-  // 'alle' = Filter inaktiv.
+  // Drei unabhängige Filter, die kombiniert wirken (UND-Verknüpfung).
+  // 'alle' = Dropdown-Filter inaktiv; false = Verfügbarkeitsfilter inaktiv.
   const [kategorieFilter, setKategorieFilter] = useState('alle');
   const [standortFilter, setStandortFilter] = useState('alle');
+  // Verfügbarkeitsfilter (#122): true = nur Exemplare anzeigen, deren
+  // (abgeleiteter) Anzeige-Status 'verfuegbar' ist.
+  const [nurVerfuegbar, setNurVerfuegbar] = useState(false);
   const [sortierung, setSortierung] = useState({ feld: 'name', richtung: 'asc' });
   const [ausgewaehlt, setAusgewaehlt] = useState([]);
 
@@ -123,14 +128,22 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
     [gegenstaende]
   );
 
-  // Filtern + Sortieren – clientseitig, solange das Backend keine Query-Parameter kennt.
-  // Kategorie- und Standort-Filter werden nacheinander angewandt => kombinierbar.
+  // Filtern + Sortieren – clientseitig, solange das Backend keine Query-
+  // Parameter kennt (Backend-Filterlogik: #120). Alle Filter wirken
+  // kombiniert (UND-Verknüpfung).
   const sichtbar = useMemo(() => {
     let liste = gegenstaende;
 
     if (suche.trim()) {
       const q = suche.trim().toLowerCase();
       liste = liste.filter((g) => g.name.toLowerCase().includes(q));
+    }
+    if (nurVerfuegbar) {
+      // #122: "Nur verfügbare Gegenstände anzeigen" — verglichen wird der
+      // Anzeige-Status; 'ausgeliehen', 'reserviert', 'defekt' usw. fallen raus.
+      // Clientseitig, bis die Backend-Filterlogik (#120) einen Query-Parameter
+      // anbietet (Umstellung dann zentral in fetchGegenstaende).
+      liste = liste.filter((g) => g.status === 'verfuegbar');
     }
     if (kategorieFilter !== 'alle') {
       liste = liste.filter((g) => g.kategorie === kategorieFilter);
@@ -145,7 +158,23 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
       const wertB = String(b[sortierung.feld] ?? '');
       return wertA.localeCompare(wertB, 'de') * faktor;
     });
-  }, [gegenstaende, suche, kategorieFilter, standortFilter, sortierung]);
+  }, [gegenstaende, suche, nurVerfuegbar, kategorieFilter, standortFilter, sortierung]);
+
+  // Steuert den Disabled-Zustand des Zurücksetzen-Buttons: aktiv, sobald
+  // mindestens ein Filter etwas bewirken kann.
+  const filterAktiv =
+    nurVerfuegbar || kategorieFilter !== 'alle' || standortFilter !== 'alle';
+
+  // Zurücksetzen-Button (#122). Bewusste Auslegung: Der Button setzt ALLE
+  // Filter zurück (Verfügbarkeit, Kategorie, Standort) — bei drei Filter-
+  // Bedienelementen wäre ein Reset nur für den Schalter irritierend.
+  // Die Suche bleibt unberührt: sie ist eine Suche, kein Filter im Sinne
+  // der Story.
+  function filterZuruecksetzen() {
+    setNurVerfuegbar(false);
+    setKategorieFilter('alle');
+    setStandortFilter('alle');
+  }
 
   function sortierenNach(feld) {
     setSortierung((prev) =>
@@ -242,6 +271,29 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
             Ausleihe hinzufügen
           </Button>
         </Stack>
+      </Stack>
+
+      {/* Verfügbarkeitsfilter (#122): "Checkbox oder Schalter" laut
+          Beschreibung — der Switch kommuniziert das Ein-/Ausschalten besser.
+          Eigene Zeile unterhalb der Kopfzeile, damit diese nicht überläuft. */}
+      <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2 }}>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={nurVerfuegbar}
+              onChange={(e) => setNurVerfuegbar(e.target.checked)}
+            />
+          }
+          label="Nur verfügbare Gegenstände anzeigen"
+        />
+        <Button
+          size="small"
+          variant="outlined"
+          disabled={!filterAktiv}
+          onClick={filterZuruecksetzen}
+        >
+          Filter zurücksetzen
+        </Button>
       </Stack>
 
       {/* Ladezustand */}

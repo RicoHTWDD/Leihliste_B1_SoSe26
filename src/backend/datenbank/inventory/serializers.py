@@ -151,3 +151,25 @@ class GegenstandsexemplarUebersichtSerializer(serializers.ModelSerializer):
     def get_zustand_display(self, obj):
         """Gibt den lesbaren Zustands-Namen zurück"""
         return obj.get_zustand_display()
+
+
+
+
+class GegenstandsexemplarDetailSerializer(GegenstandsexemplarUebersichtSerializer):
+    """
+    Serializer für Detailansicht eines Gegenstandsexemplars
+    TODO: rückgabedatum wird None zurückgeben bis Ausleihvorgang/Leihhistorie
+    in lending/models.py implementiert ist
+    """
+    rückgabedatum = serializers.SerializerMethodField(read_only=True)
+
+    class Meta(GegenstandsexemplarUebersichtSerializer.Meta):
+        fields = GegenstandsexemplarUebersichtSerializer.Meta.fields + ['rückgabedatum']
+        read_only_fields = fields
+
+    def get_rückgabedatum(self, obj):
+        """
+        TODO: Wenn Ausleihvorgang implementiert ist, hier das enddatum
+        des aktiven Ausleihvorgangs zurückgeben
+        """
+        return None

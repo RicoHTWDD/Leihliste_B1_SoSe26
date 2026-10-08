@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from .models import Gegenstandsexemplar, Verfuegbarkeitsstatus
-from .serializers import GegenstandsexemplarUebersichtSerializer, VerfügbareGegenstandsexemplarSerializer
+from .serializers import GegenstandsexemplarUebersichtSerializer, VerfügbareGegenstandsexemplarSerializer, GegenstandsexemplarDetailSerializer
 
 class VerfügbareGegenstandsexemplarViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -56,3 +56,19 @@ class GegenstandsexemplarViewSet(viewsets.ReadOnlyModelViewSet):
     ).all()
     
     serializer_class = GegenstandsexemplarUebersichtSerializer
+
+    # Detail-Endpunkt für ein einzelnes Gegenstandsexemplar
+
+class GegenstandsexemplarDetailViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet für Detailansicht eines Gegenstandsexemplars
+    
+    API Endpoints:
+    - GET /api/inventory/exemplare/{id}/ - Detail eines Exemplars
+    """
+    serializer_class = GegenstandsexemplarDetailSerializer
+    queryset = Gegenstandsexemplar.objects.select_related(
+        'gegenstand',
+        'gegenstand__standort',
+        'gegenstand__kategorie'
+    ).all()

@@ -4,7 +4,7 @@
 :toc: left
 
 == Datum
-28.06.2026; [Uhrzeit ergänzen]
+02.07.2026; 14:00 Uhr
 
 == Teilnehmer
 Alle Mitglieder des Teams

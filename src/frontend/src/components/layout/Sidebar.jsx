@@ -15,23 +15,27 @@ import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
 const navigationItems = [
   {
     label: 'Home',
+    page: 'home',
     icon: <HomeOutlinedIcon />,
   },
   {
     label: 'Gegenstände',
+    page: 'items',
     icon: <Inventory2OutlinedIcon />,
   },
   {
     label: 'Kategorien',
+    page: 'categories',
     icon: <CategoryOutlinedIcon />,
   },
   {
     label: 'Anfragen',
+    page: 'loan-request',
     icon: <AssignmentOutlinedIcon />,
   },
 ]
 
-function Sidebar() {
+function Sidebar({ currentPage, onNavigate }) {
   return (
     <Box
       component="aside"
@@ -60,7 +64,8 @@ function Sidebar() {
           <ListItemButton
             key={item.label}
             title={item.label}
-            selected={item.label === 'Home'}
+            selected={currentPage === item.page}
+            onClick={() => onNavigate(item.page)}
             sx={{
               justifyContent: {
                 xs: 'center',

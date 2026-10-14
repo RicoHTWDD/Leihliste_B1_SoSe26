@@ -32,11 +32,11 @@ Technische Implementierungsdetails gehören nicht hierher!
 | Entleiher, Nutzer; abzugrenzen von "Verleiher" und "Admin"
 
 | Ausleihanfrage
-| Eine formelle Anfrage eines Nutzers, einen oder mehrere Gegenstandsexemplare *genau eines Gegenständstyps* für einen bestimmten Zeitraum auszuleihen. Eine Ausleihanfrage kann zu einer Reservierung führen. Ausleihanfragen können nur für verfügbare Gegenstandsexemplare gestellt werden. Verschiedene Gegenstandstypen führen zu verschiedenen Ausleihanfragen. Die Ausleihanfrage geht an *alle Verleiher, die für den Gegenstandstyp als zuständig eingetragen sind*.
+| Eine formelle Anfrage eines Nutzers, einen oder mehrere Gegenstände für einen bestimmten Zeitraum auszuleihen. Eine Ausleihanfrage kann zu einer Reservierung führen. Ausleihanfragen können nur für verfügbare Gegenstämde gestellt werden. Verschiedene Gegenstände führen zu verschiedenen Ausleihanfragen. Die Ausleihanfrage geht an *alle Verleiher, die für den Gegenstand als zuständig eingetragen sind*.
 | Leihanfrage; abzugrenzen von "Ausleihe" und "Reservierung"
 
 | Ausleihhistorie
-| Eine chronologische Aufzeichnung aller Ausleihen und Reservierungen eines Gegenstands oder Nutzers, inklusive Ausleihdatum, Rückgabedatum, beteiligten Nutzern und Zustandsdokumentation.
+| Eine chronologische Aufzeichnung aller Ausleihvorgänge eines Gegenstands oder Nutzers. Enthält Ausleihdatum, Rückgabedatum, Zustand vorher/nachher und wird automatisch bei jeder Ausleihe erstellt. Kann als Bericht oder Historie abgerufen werden.
 | Leihhistorie, Ausleihprotokoll
 
 // | Authentifizierungstoken -> zu technisch
@@ -62,21 +62,21 @@ Technische Implementierungsdetails gehören nicht hierher!
  | Der Prozess der Übergabe (Check-out) und Rückgabe (Check-in) eines Gegenstands, bei dem der Zustand dokumentiert wird. Check-out erfolgt nach Bestätigung einer Ausleihanfrage, Check-in nach Rückgabe.
  | Übergabeprozess, Rückgabeprozess
 
-| Gegenstandsexemplar
-| Ein konkretes physisches Exemplar eines Gegenstandstyps (z. B. "Mikroskop #42"). Jedes Exemplar hat eine eindeutige Inventarnummer, einen Zustandsstatus und einen Verfügbarkeitsstatus.
+| Gegenstand
+| Ein konkretes physisches Exemplar eines Gegenstandstyps (z. B. "Mikroskop #42"). Jedes Exemplar hat eine eindeutige Inventarnummer, einen Zustandsstatus, einen Standort und einen Verfügbarkeitsstatus.
 | Inventarstück, Einzelstück; abzugrenzen von "Gegenstandstyp" (allgemeine Beschreibung)
 
 | Gegenstandstyp
-| Eine Kategorie von Gegenständen *an einem Standort* mit gemeinsamen Eigenschaften (z. B. "Mikroskop Leica DM500"). Ein Gegenstandstyp kann aus mehreren Gegenstandsexemplaren bestehen. Verschiedene Standorte eines gleichen Typs sind verscheiedene Gegensandstypen.
-| Artikelgruppe, Modell; abzugrenzen von "Gegenstandsexemplar" (konkretes Exemplar)
+| Eine Kategorie von Gegenständen mit gemeinsamen Eigenschaften (z. B. "Mikroskop Leica DM500"). Ein Gegenstandstyp kann aus mehreren Gegenständen bestehen.
+| Artikelgruppe, Modell, Typ; abzugrenzen von "Gegenstand" (konkretes Exemplar)
 
 | Inventarnummer
-| Eine eindeutige Nummer für jedes Gegenstandsexemplar. Eine einmal vergebene Inventarnummer darf auch bei gelöschten Gegenstandsexemplaren nicht erneut vergeben werden. Die Inventarnummer muss so gestaltet sein, dass sie sowohl händisch als auch via Barcode/QR-Code eingebar ist.
+| Eine eindeutige Nummer für jeden Gegenstand. Eine einmal vergebene Inventarnummer darf auch bei gelöschten Gegenständen nicht erneut vergeben werden. Die Inventarnummer muss so gestaltet sein, dass sie sowohl händisch als auch via Barcode/QR-Code eingebar ist.
 | Gegenstands-ID, QR-Code
 
 | Kategorie
 | Eine Klassifizierung für Gegenstände, die ähnliche Eigenschaften oder Nutzungszwecke haben (z. B. "Bücher", "Elektronik", "Werkzeug"). Kategorien werden zentral von Admins verwaltet.
-| Gegenstandsgruppe, Typ
+| Gegenstandsgruppe; abzugrenzen von "Gegenstandstyp"
 
 | Kontostatus
 | Der aktuelle Zustand eines Nutzerkontos. Mögliche Status sind: +
@@ -95,15 +95,19 @@ Technische Implementierungsdetails gehören nicht hierher!
 | Anwender, Benutzer
 
 | Organisation
-| Eine formelle oder informelle Gruppe (z. B. Hochschule, Verein, Unternehmen), die das System nutzt. Jede Organisation verwaltet eigene Gegenstände, Standorte und Nutzer.
+| Eine konkrete formelle oder informelle Gruppe (z.B. HTW Dresden, Verein XYZ e.V., Unternehmen ABC), die das System nutzt. Jede Organisation verwaltet eigene Gegenstände, Standorte und Nutzer.
 | Institution, Gruppe
 
+| Organisationstyp
+| Eine Klassifikation für formelle oder informelle Gruppen (z.B. Hochschule, Verein, Unternehmen), die ähnliche Anforderungen an Leihprozesse haben (z.B. Nutzungsbedingugen, Zustandsprotokoll).
+| Institutions-Kategorie
+
 | Reservierung
-| Eine Vormerkung eines Gegenstandsexemplars für einen zukünftigen Ausleihzeitraum. Eine Reservierung entsteht aus einer genehmigten Ausleihanfrage und kann zu einer Ausleihe führen. Eine Ausleihanfrage für ein (inzwischen) nicht mehr verfügbares Gegenstandsexemplar kann nicht zu einer Reservierung führen.
+| Eine Vormerkung eines Gegenstands für einen zukünftigen Ausleihzeitraum. Eine Reservierung entsteht aus einer genehmigten Ausleihanfrage und kann zu einer Ausleihe führen. Eine Ausleihanfrage für ein (inzwischen) nicht mehr verfügbaren Gegenstand kann nicht zu einer Reservierung führen.
 | Vormerkung; abzugrenzen von "Ausleihe" und "Ausleihanfrage"
 
 | Standort
-| Der physische Ort, an dem sich ein Gegenstandsexemplar befindet (z. B. "Bibliothek", "Labor A", "WG-Keller"). Standorte werden zentral von Admins verwaltet.
+| Der physische Ort, an dem sich ein Gegenstand befindet (z. B. "Bibliothek", "Labor A", "WG-Keller"). Standorte werden zentral von Admins verwaltet.
 | Lagerort, Aufbewahrungsort
 
 | Status einer Ausleihe
@@ -123,17 +127,17 @@ Technische Implementierungsdetails gehören nicht hierher!
 | Anfragestatus
 
 | Verfügbarkeitsstatus
-| Der Zustand eines Gegenstandsexemplars, der angibt, ob es aktuell ausgeliehen werden kann. Mögliche Status sind: +
-  - verfügbar: Gegenstandsexemplar kann ausgeliehen werden +
-  - nicht verfügbar: Gegenstandsexemplar kann nicht reserviert oder ausgeliehen werden (weitere Differentzierung möglich z.B. defekt, Verlust)
+| Der Zustand eines Gegenstands, der angibt, ob es aktuell ausgeliehen werden kann. Mögliche Status sind: +
+  - verfügbar: Gegenstand kann ausgeliehen werden +
+  - nicht verfügbar: Gegenstand kann nicht reserviert oder ausgeliehen werden (weitere Differentzierung möglich z.B. defekt, Verlust)
 | Status
 
-| Verifizierungsstatus
-| Der Zustand der Überprüfung eines Nutzerkontos durch einen Admin. Mögliche Status sind: +
-  - Ausstehend: Konto wurde noch nicht geprüft +
-  - Genehmigt: Konto wurde freigeschaltet +
-  - Abgelehnt: Konto wurde gesperrt 
-| Prüfstatus
+// | Verifizierungsstatus
+// | Der Zustand der Überprüfung eines Nutzerkontos durch einen Admin. Mögliche Status sind: +
+//  - Ausstehend: Konto wurde noch nicht geprüft +
+//  - Genehmigt: Konto wurde freigeschaltet +
+//  - Abgelehnt: Konto wurde gesperrt 
+// | Prüfstatus
 
 | Verleiher
 | Ein registrierter Nutzer, der Gegenstände besitzt und diese zur Ausleihe anbietet. Verleiher können Ausleihanfragen bestätigen oder ablehnen und den Zustand von Gegenständen dokumentieren.
@@ -148,7 +152,7 @@ Technische Implementierungsdetails gehören nicht hierher!
 // | Verlängerungsanfrage-Status
 
 | Zustand (eines Gegenstands)
-| Die physische oder funktionale Beschaffenheit eines Gegenstandsexemplars. Mögliche Zustände sind: +
+| Die physische oder funktionale Beschaffenheit eines Gegenstands. Mögliche Zustände sind: +
   -  Gut: Keine Schäden +
   - Beschädigt: Leichte Gebrauchsspuren +
   - Defekt: Funktion beeinträchtigt +
@@ -156,7 +160,7 @@ Technische Implementierungsdetails gehören nicht hierher!
 | Beschaffenheit, Erhaltungszustand
 
 | Zustandsprotokoll
-| Eine Dokumentation des Zustands eines Gegenstandsexemplars bei Übergabe (Check-out) oder Rückgabe (Check-in). Enthält Notizen, Fotos und den Zustandsstatus.
+| Eine Dokumentation des Zustands eines Gegenstands bei Übergabe (Check-out) oder Rückgabe (Check-in). Enthält Notizen, Fotos und den Zustandsstatus.
 | Übergabeprotokoll, Schadensprotokol
 
 |===
@@ -196,34 +200,37 @@ Kurze Erläuterung zu den im Modell enthaltenen Entitäten.
 | Repräsentiert eine Person, die das System verwendet. Jeder Nutzer hat eine eindeutige Identität (E-Mail), eine Rolle (Admin, Verleiher, Ausleiher) und kann Ausleihanfragen stellen, Gegenstände verwalten oder das System administrieren.
 
 | Organisation
-| Eine formelle oder informelle Gruppe (z. B. Hochschule, Verein, Unternehmen), die das System nutzt. Organisationen verwalten eigene Nutzer, Gegenständstypen und Standorte.
+| Eine konkrete formelle oder informelle Gruppe (z.B. HTW Dresden, Verein XYZ e.V., Unternehmen ABC), die das System nutzt. Jede Organisation verwaltet eigene Gegenstände, Standorte und Nutzer.
+
+| Organisationstyp
+| Eine Klassifikation für formelle oder informelle Gruppen (z.B. Hochschule, Verein, Unternehmen), die ähnliche Anforderungen an Leihprozesse haben.
 
 | Gegenstandstyp
-| Eine Kategorie von Gegenständen mit gemeinsamen Eigenschaften (z. B. "Mikroskop Leica DM500") an *einem gemeinsamen Standort*. Ein Gegenstandstyp kann aus mehreren konkreten Exemplaren bestehen.
+| Eine Kategorie von Gegenständen mit gemeinsamen Eigenschaften (z. B. "Mikroskop Leica DM500"). Ein Gegenstandstyp kann aus mehreren konkreten Exemplaren bestehen.
 
-| Gegenstandsexemplar
-| Ein konkretes physisches Exemplar eines Gegenstandstyps (z. B. "Mikroskop #42"). Jedes Exemplar hat eine eindeutige Inventarnummer, eine Beschreibung, einen Zustand und einen Verfügbarkeitsstatus.
+| Gegenstand
+| Ein konkretes physisches Exemplar eines Gegenstandstyps (z. B. "Mikroskop #42"). Jeder Gegenstand hat eine eindeutige Inventarnummer, eine Beschreibung, einen Zustand und einen Verfügbarkeitsstatus.
 
 | Ausleihanfrage
-| Eine formelle Anfrage eines Nutzers, einen oder mehrere Gegenstände *eines Gegenstandstypen* für einen bestimmten Zeitraum auszuleihen. Eine Ausleihanfrage durchläuft verschiedene Status (z. B. "offen", "genehmigt" und "abgelehnt") und kann zu einer Reservierung führen.
+| Eine formelle Anfrage eines Nutzers, einen oder mehrere Gegenstände für einen bestimmten Zeitraum auszuleihen. Eine Ausleihanfrage durchläuft verschiedene Status (z. B. "offen", "genehmigt" und "abgelehnt") und kann zu einer Reservierung führen.
 
 | Reservierung
-| Eine Vormerkung *eines oder mehrerer Gegenstandsexemplare eines Gegenstandstyps* für einen zukünftigen Ausleihzeitraum. Eine Reservierung entsteht aus einer genehmigten Ausleihanfrage und kann zu einer Ausleihe führen.
+| Eine Vormerkung *eines oder mehrerer Gegenstände* für einen zukünftigen Ausleihzeitraum. Eine Reservierung entsteht aus einer genehmigten Ausleihanfrage und kann zu einer Ausleihe führen.
 
 | Ausleihe
 | Die praktische Umsetzung einer Reservierung, bei der ein oder mehrere Gegenstände tatsächlich an den Ausleiher übergeben werden. Eine Ausleihe hat einen definierten Status (z. B. "aktiv", "überfällig", "zurückgegeben").
 
 | Zustandsprotokoll
-| Eine Dokumentation des Zustands eines Gegenstandsexemplars bei Übergabe (Check-out) oder Rückgabe (Check-in). Enthält Notizen, Fotos und den Zustand des Gegenstands.
+| Eine Dokumentation des Zustands eines Gegenstands bei Übergabe (Check-out) oder Rückgabe (Check-in). Enthält Notizen, Fotos und den Zustand des Gegenstands.
 
 | Benachrichtigung
 | Eine automatisierte Nachricht per Mail an Nutzer über wichtige Ereignisse (z. B. "Reservierung bestätigt", "Ausleihe bald fällig").
 
 | AusleihHistorie
-| Eine chronologische Aufzeichnung aller Ausleihen eines Gegenstandsexemplars oder Nutzers, inklusive Ausleihdatum, Rückgabedatum und Zustandsdokumentation.
+| Eine chronologische Aufzeichnung aller Ausleihvorgänge eines Gegenstands oder Nutzers. Enthält Ausleihdatum, Rückgabedatum, Zustand vorher/nachher und wird automatisch bei jeder Ausleihe erstellt. Kann als Bericht oder Historie abgerufen werden.
 
 | Standort
-| Der physische oder logische Ort, an dem sich ein Gegenstandsexemplar befindet (z. B. "Bibliothek", "Labor A", "WG-Keller"). Standorte werden zentral von Admins verwaltet.
+| Der physische oder logische Ort, an dem sich ein Gegenstand befindet (z. B. "Bibliothek", "Labor A", "WG-Keller"). Standorte werden zentral von Admins verwaltet.
 
 | Kategorie
 | Eine Klassifizierung für Gegenstandstypen, die ähnliche Eigenschaften oder Nutzungszwecke haben (z. B. "Bücher", "Elektronik", "Werkzeug").
@@ -249,15 +256,17 @@ Beschreibung der wichtigsten Beziehungen zwischen den Entitäten, sofern diese b
 
 | Nutzer | Reservierung | 1 zu 0..* | Ein Nutzer kann keine oder mehrere Reservierungen haben (= bestätigte Ausleihanfragen).
 
+| Organisationstyp | Organisation | 1 zu 0..* | Ein Organisationstyp kann keine oder mehrere Organisation enthalten. Jede Organisation gehört genau zu einem Organisationstyp.
+
 | Organisation | Nutzer | 1 zu 0..* | Eine Organisation kann keine oder mehrere Nutzer enthalten.
 
 | Organisation | Gegenstandstyp | 1 zu 0..* | Eine Organisation kann keine oder mehrere Gegenstandstypen verwalten.
 
-| Gegenstandstyp | Gegenstandsexemplar | 1 zu 0..* | Ein Gegenstandstyp besteht aus keinen oder mehreren Gegenstandsexemplaren.
+| Gegenstandstyp | Gegenstand | 1 zu 0..* | Ein Gegenstandstyp besteht aus keinen oder mehreren Gegenständen.
 
-| Gegenstandsexemplar | Reservierung | 1 zu 0..* | Ein Gegenstandsexemplar kann keine oder mehrere Reservierungen haben.
+| Gegenstand | Reservierung | 1 zu 0..* | Ein Gegenstand kann keine oder mehrere Reservierungen haben.
 
-| Gegenstandsexemplar | Ausleihe | 1 zu 0..1 | Ein Gegenstandsexemplar kann keine oder eine Ausleihe haben.
+| Gegenstand | Ausleihe | 1 zu 0..1 | Ein Gegenstand kann keine oder eine Ausleihe haben.
 
 | Ausleihanfrage | Reservierung | 1 zu 0..1 | Eine Ausleihanfrage kann zu keiner oder einer Reservierung führen (wenn sie genehmigt wird).
 
@@ -269,7 +278,7 @@ Beschreibung der wichtigsten Beziehungen zwischen den Entitäten, sofern diese b
 
 | Gegenstandstyp | Kategorie | 0..* zu 1 | Ein Gegenstandstyp gehört zu genau einer Kategorie, aber eine Kategorie kann keine oder mehrere Gegenstandstypen enthalten.
 
-| Gegenstandsexemplar | Standort | 0..* zu 1 | Ein Gegenstandsexemplar befindet sich an genau einem Standort, aber ein Standort kann keinen oder mehrere Gegenstandsexemplare enthalten.
+| Gegenstand | Standort | 0..* zu 1 | Ein Gegenstand befindet sich an genau einem Standort, aber an einem Standort können sich keine oder mehrerer Gegenstände befinden.
 
 | Nutzer | Benachrichtigung | 1 zu 0..* | Ein Nutzer kann keine oder mehrere Benachrichtigungen erhalten.
 

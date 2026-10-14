@@ -4,23 +4,26 @@ class Nutzer {
   Name
   Passwort
   E-Mail
-  (Telefonnummer)
+  Telefonnummer [0..1]
   Nutzerrolle
+  Kontostatus
 }
 
 class Organisation {
   Name
-  Typ
+}
+
+class Organisationstyp {
+  Name
+  Beschreibung
 }
 
 class Gegenstandstyp {
   Name
-  Kategorie
-  Standort
   Beschreibung
 }
 
-class Gegenstandsexemplar {
+class Gegenstand {
   Inventarnummer
   Beschreibung
   Zustand
@@ -31,7 +34,7 @@ class Ausleihanfrage {
   Startdatum
   Enddatum
   Status
-  (Ablehnungsgrund)
+  Ablehnungsgrund [0..1]
 }
 
 
@@ -40,7 +43,7 @@ class Ausleihe {
   Enddatum
   Status
   Übergabetermin
-  (Rückgabedatum)
+  Rückgabedatum [0..1]
 }
 
 class Reservierung {
@@ -52,7 +55,7 @@ class Reservierung {
 class Zustandsprotokoll {
   Typ
   Notiz
-  (Fotos)
+  Fotos [0..1]
 }
 
 class Benachrichtigung {
@@ -60,8 +63,6 @@ class Benachrichtigung {
   Inhalt
   Status
 }
-
-
 
 class AusleihHistorie {
   Ausleihdatum
@@ -90,16 +91,20 @@ Nutzer "1" --> "0..*" Ausleihe : tätigt
 Nutzer "1" --> "0..*" Reservierung : tätigt / bekommt / hat
 Organisation "1" --> "0..*" Nutzer : enthält
 Organisation "1" --> "0..*" Gegenstandstyp : verwaltet
-Gegenstandstyp "1" --> "0..*" Gegenstandsexemplar : besteht aus
-Gegenstandsexemplar "1" --> "0..*" Reservierung : wird reserviert in
-Gegenstandsexemplar "1" --> "0..1" Ausleihe : wird ausgeliehen in
+Gegenstandstyp "1" --> "0..*" Gegenstand : besteht aus
+Gegenstandstyp "0..*" --> "1" Kategorie : gehört zu
+Kategorie "1" --> "0..*" Gegenstandstyp : enthält
+Gegenstand "1" --> "0..*" Reservierung : wird reserviert in
+Gegenstand "1" --> "0..1" Ausleihe : wird ausgeliehen in
 Ausleihanfrage "1" --> "0..1" Reservierung : führt zu
 Reservierung "1" --> "0..1" Ausleihe : wird umgesetzt in
 Ausleihe "1" --> "0..2" Zustandsprotokoll : dokumentiert
-Ausleihe "1..*" --> "1" AusleihHistorie : dokumentiert
+Ausleihe "1..*" --> "1" AusleihHistorie : wird dokumentiert in
 Gegenstandstyp "0..*" --> "1" Kategorie : gehört zu
-Gegenstandsexemplar "0..*" --> "1" Standort : befindet sich in
+Gegenstand "1" --> "1" Standort : befindet sich in
+Standort "0..*" --> "1" Gegenstand : enthält
 Nutzer "1" --> "0..*" Benachrichtigung : erhält
 Ausleihe "0..*" --> "0..1" Nutzungsbedingungen : akzeptiert
+Organisation "1" --> "0..*" Organisationstyp : gehört zu
 
 @enduml

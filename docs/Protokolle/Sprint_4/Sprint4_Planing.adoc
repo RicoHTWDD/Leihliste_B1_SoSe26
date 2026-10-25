@@ -10,10 +10,10 @@
 * **Sprint-Ziel:** 
   Verleiher können Gegenstände in das System einpflegen und verwalten, sowie Ausleihanfragen bearbeiten.
 * **Ausgewählte User Stories (GitHub):**
-  - Issue #33 : Gegenstand erfassen, bearbeiten und löschen
-  - Issue #47 : Kategorien und Standorte verwalten
-  - Issue #34 : Bestehenden Gegenstand duplizieren
-  - Issue #24 : Ausleihanfragen bearbeiten
+  - Issue #33 : Gegenstand erfassen, bearbeiten und löschen   : Jevan
+  - Issue #47 : Kategorien und Standorte verwalten            : Julius
+  - Issue #34 : Bestehenden Gegenstand duplizieren            : 
+  - Issue #24 : Ausleihanfragen bearbeiten                    : 
 
 ---
 
@@ -22,39 +22,39 @@
 === Woche 1: Analyse, Planung & Design Impact
 * **Aufgabe 1: User Stories & Sprint-Board einrichten**
   - Auswählen der Stories und Erfassen im GitHub Project Board[cite: 7].
-  - *Verantwortlich:* [ ]
+  - *Verantwortlich:* [PO]
 * **Aufgabe 2: Design-Impact-Analyse durchführen**
   - Untersuchen der geplanten Änderungen anhand der 6 Gestaltungsaspekte (Zustand, Verhalten, Kopplung, Kohäsion, Variabilität, Repräsentation)[cite: 7, 8].
-  - *Verantwortlich:* [ ]
+  - *Verantwortlich:* [Devs]
 * **Aufgabe 3: Betroffene Strukturen & Modelle prüfen**
   - Statische/dynamische Modelle sichten oder skizzieren, sofern für die Analyse nötig[cite: 8].
-  - *Verantwortlich:* [ ]
+  - *Verantwortlich:* [Devs]
 
 === Woche 2 & 3: Entwurf, Umsetzung & Refactoring
 * **Aufgabe 4: Entwurf präzisieren und Design Smells prüfen**
   - Prüfen, ob Verantwortlichkeiten passen und ob Entwurfsschwächen oder Design Smells vorliegen[cite: 9].
   - Bei größeren Strukturänderungen: Mindestens zwei Alternativen vergleichen[cite: 9].
-  - *Verantwortlich:* [ ]
+  - *Verantwortlich:* [Techlead]
 * **Aufgabe 5: Produktinkrement in kleinen Schritten umsetzen**
   - Implementierung in Feature-Branches, Einhaltung von Akzeptanzkriterien und Definition of Done[cite: 9].
   - Nutzung von Pull Requests und Code Reviews (2er-Review-Regel beachten)[cite: 9].
   - Durchführung begründeter Refactorings (Patterns nur bei echtem Problem einsetzen)[cite: 9].
-  - *Verantwortlich:* [ ]
+  - *Verantwortlich:* [Devs]
 
 === Woche 4: Integration, Dokumentation & Abschluss
 * **Aufgabe 6: Review & Integration**
   - Letzte PRs mergen, Branches aufräumen und sicherstellen, dass fertige User Stories im Board auf *closed* stehen.
-  - *Verantwortlich:* [ ]
+  - *Verantwortlich:* [Techlead]
 * **Aufgabe 7: Technische Dokumentation aktualisieren**
   - Dauerhaftes technisches Wissen in `docs/technical/architecture.adoc` oder `docs/technical/design.adoc` übertragen[cite: 8].
   - Ggf. neue ADRs für wichtige Entscheidungen anlegen[cite: 9].
-  - *Verantwortlich:* [ ]
+  - *Verantwortlich:* [Devs]
 * **Aufgabe 8: Technische Schulden festhalten**
   - Offene technische Probleme dokumentieren und begründen, welche bewusst als technische Schuld aufgeschoben werden[cite: 9].
-  - *Verantwortlich:* [ ]
+  - *Verantwortlich:* [Devs & Techlead]
 * **Aufgabe 9: Sprint Review vorbereiten**
   - Ergebnisse (Produktinkrement, Design-Impact, Refactorings, offene Schulden) für die Präsentation zusammenstellen[cite: 10].
-  - *Verantwortlich:* [ ]
+  - *Verantwortlich:* [PO]
 
 ---
 
@@ -62,6 +62,13 @@
 [Hier Platz für spontane Notizen, offene Fragen oder teaminterne Absprachen während des Plannings]
 
 Entscheidung: TechLead?
-    Was sind seine Aufgaben?
     Wer ist TechLead?
+      - Til
+
+    Was sind seine Aufgaben?
+      - PRs prüfen und mergen
+      - Experte für Code
+      - Bindeglied zwischen Frontend und Backend
+
     Wenn nein, wie lösen wir das PR-Problem?
+    /

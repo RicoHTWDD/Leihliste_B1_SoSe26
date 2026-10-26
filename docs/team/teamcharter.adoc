@@ -67,8 +67,8 @@ Lösungsfindung, Erinnern an Treffen, Zeitpläne und Ablauf, eskaliert bei Block
 | Adrian, 
 Stellvertretung: Rico
 
-| *Tech Lead* footnote:[optionale Rolle, aber empfohlen, um technische Entscheidungen zu koordinieren]: letztes Wort bei technischen Architekturentscheidungen, wenn vorher im Team keine Einigung
-| [wird noch besprochen]
+| *Tech Lead* footnote:[optionale Rolle, aber empfohlen, um technische Entscheidungen zu koordinieren]: Prüft PRs und mergt. Ist Experte für Code und Bindeglied zwischen Frontend und Backend.
+| Til
 
 | *Entwickler*innen*
 | Lidiia, Jevan, Julius, Rico, Til
@@ -88,22 +88,22 @@ Robert Ringel (robert.ringel@htw-dresden.de)
 | Ereignis | Wann | Dauer | Moderation
 
 | Standup (Weekly)
-| via Discord: in der Regel Sonntags 15:00 Uhr, Ersatz-Termin Montags 17:00 Uhr (siehe link:Zeitplan.adoc[Zeitplan])
+| TBA
 | Ziel 15 min, aber erstmal 60 min reservieren für Rückfragen
 | SM: Adrian
 
 | Sprint Planning
-| via Discoird: Sonntags bei Sprintstart anstelle/nach Standup 15:00 - 17:00 Uhr (siehe link:Zeitplan.adoc[Zeitplan])
+| TBA
 | 2 h
 | POs Julius und Justin bereiten vor
 
 | Sprint Review
-| Woche 4 von jedem Sprint (siehe link:Zeitplan.adoc[Zeitplan])
+| Woche 4 von jedem Sprint
 | ca. 1 h
 | wird themenbezogen vereinabrt
 
 | Retrospektive
-| in Raum S531: Mittwochs in Woche 4 von jedem Sprint von 13:15 - 15:00 Uhr (siehe link:Zeitplan.adoc[Zeitplan])
+| TBA
 | 1,5 h
 | SM: Adrian
 

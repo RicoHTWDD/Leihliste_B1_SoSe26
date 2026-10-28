@@ -15,26 +15,24 @@ class VerfügbareGegenstandsexemplarViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = VerfügbareGegenstandsexemplarSerializer
    
     def get_queryset(self):
-        """
-        Nur verfügbare Gegenstandsexemplare zurückgeben
-        
-        WICHTIG: select_related optimiert die Abfrage durch JOINs:
-        - gegenstand (Gegenstandstyp)
-        - gegenstand__standort (Standort vom Gegenstandstyp)
-        - gegenstand__kategorie (Kategorie vom Gegenstandstyp)
-        
-        Dadurch werden N+1 Query-Probleme vermieden!
-        """
-        return Gegenstandsexemplar.objects.filter(
-            verfuegbarkeitsstatus=Verfuegbarkeitsstatus.VERFUEGBAR
-        ).select_related(
-            'gegenstand',              # ← JOIN mit Gegenstandstyp
-            'gegenstand__standort',    # ← JOIN mit Standort (über Gegenstandstyp)
-            'gegenstand__kategorie'    # ← JOIN mit Kategorie (über Gegenstandstyp)
+        queryset = Gegenstandsexemplar.objects.select_related(
+            'gegenstand',
+            'gegenstand__standort',
+            'gegenstand__kategorie',
         ).order_by(
             'gegenstand__name',
-            'inventarnummer'
+            'inventarnummer',
         )
+        
+        verfuegbar = self.request.query_params.get(verfuegbar)
+        
+        if verfuegbar == 'true':
+            queryset = queryset.filter(
+                Verfuegbarkeitsstatus=Verfuegbarkeitsstatus.VERFUEGBAR
+            )
+        
+        return queryset
+
 
 class GegenstandsexemplarViewSet(viewsets.ReadOnlyModelViewSet):
     """

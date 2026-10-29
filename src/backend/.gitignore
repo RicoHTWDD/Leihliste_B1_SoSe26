@@ -1,0 +1,4 @@
+# Local environment configuration
+.env.*
+!.env.example
+*.local

@@ -1,0 +1,25 @@
+== Meeting 29.10.2026 
+:id: meeting01112026
+
+*Datum:* 29.10.2026  
+*Dauer:* 45 Minuten 
+*Teilnehmende:* Justin, Adrian, Til, Jevan
+
+=== Agenda
+. Was die Woche los war (Probleme)
+. Aufgaben für nächste Woche
+. Sonstiges
+
+=== Beschlüsse & Ergebnisse
+
+* *1. Was die Woche los war (Probleme):*
+  ** Es gab in der vergangenen Woche keine besonderen Vorkommnisse.
+
+* *2. Aufgaben für nächste Woche:*
+  ** *Lidiia & Jevan* übernehmen die Bearbeitung von *Issue #33* und *Issue #34*
+  ** *Julius & Rico* übernehmen die Bearbeitung von *Issue #24* und *Issue #47*
+  ** *Abweichung Code vs. User Story:* Es wurde festgestellt, dass der Code teilweise nicht mit der User Story übereinstimmt. Die Lösung dafür wird direkt im Anschluss an das Meeting besprochen.
+
+* *3. Sonstiges:*
+  ** *Terminfindung (Nuudel):* Die Umfragen für den Coaching-Termin mit Herrn Ringel sowie für den Fachaustausch wurden erstellt[cite: 5]. *Deadline* zum Eintragen ist *dieser Sonntag*.
+  ** *Branches aufräumen:* Da es zu viele Branches im Repository geworden sind, prüft jede*r eigenständig, welche eigenen Branches gelöscht werden können. Nicht mehr benötigte Branches bitte direkt selbst löschen oder dem Tech Lead Bescheid geben

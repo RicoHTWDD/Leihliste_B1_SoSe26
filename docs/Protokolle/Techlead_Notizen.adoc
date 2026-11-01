@@ -1,0 +1,15 @@
+= Notizen des Techleads
+
+== Thema: Branches
+
+Veraltete bzw. bereits gemergte und nicht mehr benutzte Branches sollten der Übersichtlichkeit halber gelöscht werden.
+
+=== Veraltete bzw. gemergte Branches
+
+* `datenbank_zum_Testen_Rico`
+* `feature/121-statusanzeige-uebersicht`
+* `feature/126-meine-anfragen`
+* `feature/137-ausleihanfrage-formular` (Til)
+* `feature/140-ui-grundkomponenten`
+* `spike/docker-seeding`
+* `spike/frontend-state-management`

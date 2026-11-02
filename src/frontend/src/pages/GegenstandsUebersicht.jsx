@@ -43,9 +43,21 @@ import { ermittleAnzeigeStatus, ermittleZusatzinfo } from '../utils/anzeigeStatu
 //   - sonst clientseitiger Fallback (defekt/verloren aus "zustand",
 //     ansonsten der gespeicherte Verfügbarkeitsstatus).
 // ---------------------------------------------------------------------------
-async function fetchGegenstaende() {
-  // Relativer Pfad: der Vite-Dev-Server proxyt /api auf Django (Port 8000).
-  const res = await fetch('/api/inventory/alle-exemplare/');
+async function fetchGegenstaende(statusFilter = 'alle') {
+  const url = new URL(
+    '/api/inventory/alle-exemplare/',
+    window.location.origin
+  );
+
+  if (statusFilter === 'verfuegbar') {
+    url.searchParams.set('verfuegbar', 'true');
+  }
+
+  if (statusFilter === 'nicht_verfuegbar') {
+    url.searchParams.set('verfuegbar', 'false');
+  }
+
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const daten = await res.json();
  
@@ -85,6 +97,7 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
   const [suche, setSuche] = useState('');
   // Zwei unabhängige Filter, die kombiniert wirken (UND-Verknüpfung).
   // 'alle' = Filter inaktiv.
+  const [statusFilter, setStatusFilter] = useState('alle');
   const [kategorieFilter, setKategorieFilter] = useState('alle');
   const [standortFilter, setStandortFilter] = useState('alle');
   const [sortierung, setSortierung] = useState({ feld: 'name', richtung: 'asc' });
@@ -94,7 +107,7 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
   useEffect(() => {
     let aktiv = true;
     setLadestatus('laedt');
-    fetchGegenstaende()
+    fetchGegenstaende(statusFilter)
       .then((daten) => {
         if (!aktiv) return;
         setGegenstaende(daten);
@@ -106,7 +119,7 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
     return () => {
       aktiv = false;
     };
-  }, []);
+  }, [statusFilter]);
 
   // Kategorien dynamisch aus den Daten (für das Kategorie-Dropdown)
   const kategorien = useMemo(
@@ -216,7 +229,7 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
             </Select>
           </FormControl>
 
-          {/* Filter 2: Standort (rechts) — kombinierbar mit dem Kategorie-Filter */}
+          {/* Filter 2: Standort (mitte) — kombinierbar mit dem Kategorie-Filter */}
           <FormControl size="small" sx={{ minWidth: 160 }}>
             <Select
               value={standortFilter}
@@ -229,6 +242,21 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
                   {s}
                 </MenuItem>
               ))}
+            </Select>
+          </FormControl>
+
+          {/* Filter 3: Status (rechts)*/}
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <Select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              displayEmpty
+            >
+              <MenuItem value="alle">Alle Gegenstände</MenuItem>
+              <MenuItem value="verfuegbar">Nur verfügbar</MenuItem>
+              <MenuItem value="nicht_verfuegbar">
+                Nur nicht verfügbar
+              </MenuItem>
             </Select>
           </FormControl>
 

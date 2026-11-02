@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 import AppLayout from './components/layout/AppLayout.jsx'
 import HomePage from './pages/HomePage.jsx'
+import GegenstandsUebersicht from './pages/GegenstandsUebersicht.jsx'
 import LoanRequestPage from './pages/LoanRequestPage.jsx'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home')
 
   let pageContent = <HomePage />
+
+  if (currentPage === 'items') {
+    pageContent = <GegenstandsUebersicht />
+  }
 
   if (currentPage === 'loan-request') {
     pageContent = <LoanRequestPage />

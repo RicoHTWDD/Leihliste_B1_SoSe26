@@ -1,3 +1,6 @@
+from datetime import date
+
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -45,6 +48,25 @@ class Ausleihanfrage(models.Model):
 
     class Meta:
         db_table = 'ausleihanfrage'
+        
+    def clean(self):
+        super().clean()
+
+        if self.startdatum and self.startdatum <= date.today():
+            raise ValidationError({
+                'startdatum': 'Das Startdatum muss in der Zukunft liegen.'
+            })
+
+        if (
+            self.startdatum
+            and self.enddatum
+            and self.enddatum <= self.startdatum
+        ):
+            raise ValidationError({
+                'enddatum': (
+                    'Das Rückgabedatum muss nach dem Startdatum liegen.'
+                )
+            })
 
     def __str__(self):
         return f"Anfrage {self.id} von {self.nutzer} ({self.anfragestatus})"

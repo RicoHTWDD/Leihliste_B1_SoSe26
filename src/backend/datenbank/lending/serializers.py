@@ -1,5 +1,6 @@
+from datetime import date
 from rest_framework import serializers
-from .models import Ausleihanfrage, Anfragestatus
+from .models import Ausleihanfrage
 
 
 class AusleihanfrageSerializer(serializers.ModelSerializer):
@@ -14,30 +15,64 @@ class AusleihanfrageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ausleihanfrage
         fields = [
-            'id',
-            'nutzer',
-            'nutzer_name',
-            'nutzer_email',
-            'gegenstand',
-            'gegenstand_name',
-            'organisation',
-            'organisation_name',
-            'startdatum',
-            'enddatum',
-            'anfragestatus',
-            'anfragestatus_display',
-            'ablehnungsgrund',
-            'bedingungen_akzeptiert',
-            'erstellt_am',
-            'aktualisiert_am'
-        ]
+                'id',
+                'nutzer',
+                'nutzer_name',
+                'nutzer_email',
+                'gegenstand',
+                'gegenstand_name',
+                'organisation',
+                'organisation_name',
+                'startdatum',
+                'enddatum',
+                'anfragestatus',
+                'anfragestatus_display',
+                'ablehnungsgrund',
+                'bedingungen_akzeptiert',
+                'erstellt_am',
+                'aktualisiert_am',
+            ]
         read_only_fields = [
-            'erstellt_am',
-            'aktualisiert_am',
-            'nutzer',
-            'organisation',
-            'anfragestatus',
-        ]
+                'id',
+                'nutzer',
+                'organisation',
+                'anfragestatus',
+                'erstellt_am',
+                'aktualisiert_am',
+            ]
+    
+    def validate(self, attrs):
+        startdatum = attrs.get('startdatum')
+        enddatum = attrs.get('enddatum')
+
+        if startdatum is None:
+            raise serializers.ValidationError({
+                'startdatum': 'Das Startdatum ist erforderlich.'
+            })
+
+        if enddatum is None:
+            raise serializers.ValidationError({
+                'enddatum': 'Das Rückgabedatum ist erforderlich.'
+            })
+
+        if startdatum <= date.today():
+            raise serializers.ValidationError({
+                'startdatum': 'Das Startdatum muss in der Zukunft liegen.'
+            })
+
+        if enddatum <= startdatum:
+            raise serializers.ValidationError({
+                'enddatum': (
+                    'Das Rückgabedatum muss nach dem Startdatum liegen.'
+                )
+            })
+
+        if not attrs.get('gegenstand'):
+            raise serializers.ValidationError({
+                'gegenstand': 'Ein Gegenstand muss ausgewählt werden.'
+            })
+
+        return attrs
     
     def get_anfragestatus_display(self, obj):
         """Gibt den lesbaren Status-Namen zurück"""

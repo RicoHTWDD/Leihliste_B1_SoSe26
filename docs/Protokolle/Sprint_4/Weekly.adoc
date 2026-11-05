@@ -23,3 +23,32 @@
 * *3. Sonstiges:*
   ** *Terminfindung (Nuudel):* Die Umfragen für den Coaching-Termin mit Herrn Ringel sowie für den Fachaustausch wurden erstellt[cite: 5]. *Deadline* zum Eintragen ist *dieser Sonntag*.
   ** *Branches aufräumen:* Da es zu viele Branches im Repository geworden sind, prüft jede*r eigenständig, welche eigenen Branches gelöscht werden können. Nicht mehr benötigte Branches bitte direkt selbst löschen oder dem Tech Lead Bescheid geben
+
+== Meeting 05.11.2026
+:id: meeting05112026
+ 
+*Dauer:* 
+*Teilnehmende:* 
+
+=== Agenda
+. Kurzes Gesrpäch zum Coach Meeting
+. Fachaustausch
+. Probleme diese Woche
+. Aufgaben für nächste Woche
+. Sonstiges
+
+
+=== Beschluesse
+* *Coach Meeting:*
+  ** *Status-Check:* Jeden *Montag* erfolgt ein Ping in Discord, um den aktuellen Stand der Aufgaben bei allen abzufragen.
+* *Fachaustausch:*
+  ** *Jevan, Til und Julius* übernehmen die Vorstellung beim Fachaustausch.
+  ** Die drei treffen sich am kommenden *Sonntag* noch einmal separat, um die genauen Details abzustimmen.
+
+* *Aufgaben & Zeitplan für nächste Woche:*
+  ** Es werden in dieser Woche *keine neuen Aufgaben* vergeben; der Fokus liegt auf den laufenden Punkten.
+  ** *Deadline:* Bis *Sonntag* sollen die aktuellen Vorarbeiten/Aufgaben fertiggestellt sein, damit im Zeitraum von *Sonntag bis Donnerstag* die eigentliche Implementierung erfolgen kann.
+
+* *Sonstiges & Organisatorisches:*
+  ** *Terminfindung:* Es müssen zeitnah noch Termine für das kommende *Sprint Review* und die *Retrospektive* gefunden werden.
+  ** *Team-Änderung (Rico):* Rico verlässt das Projektteam und klärt das weitere Vorgehen direkt mit Prof. Anke ab. Für technische Rückfragen oder administrative Themen rund um das GitHub-Repository steht er uns aber weiterhin unterstützend zur Verfügung.

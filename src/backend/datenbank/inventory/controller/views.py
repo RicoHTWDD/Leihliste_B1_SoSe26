@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from .models import Gegenstandsexemplar, Verfuegbarkeitsstatus
-from .serializers import GegenstandsexemplarUebersichtSerializer, VerfügbareGegenstandsexemplarSerializer, GegenstandsexemplarDetailSerializer
+from inventory.infrastruktur.models import Gegenstandsexemplar, Verfuegbarkeitsstatus
+from inventory.controller.serializers import GegenstandsexemplarUebersichtSerializer, VerfügbareGegenstandsexemplarSerializer, GegenstandsexemplarDetailSerializer
 
 class VerfügbareGegenstandsexemplarViewSet(viewsets.ReadOnlyModelViewSet):
     """

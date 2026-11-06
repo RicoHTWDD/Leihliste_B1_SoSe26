@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Gegenstandsexemplar
+from inventory.infrastruktur.models import Gegenstandsexemplar
 
 
 class VerfügbareGegenstandsexemplarSerializer(serializers.ModelSerializer):

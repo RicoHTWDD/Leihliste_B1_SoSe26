@@ -48,7 +48,26 @@ services:
     # Bei jedem Start: migrate + seed_data + runserver
     command: >
       sh -c "python manage.py migrate &&
+             python manage.py seed_data &&
              python manage.py runserver 0.0.0.0:8000"
+
+  # React Frontend (Vite-Entwicklungsserver)
+  # Erreichbar unter http://localhost:5173
+  # Leitet alle Aufrufe an /api/ an den Backend-Container weiter (siehe vite.config.js)
+  frontend:
+    image: node:22-alpine
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    environment:
+      API_PROXY_TARGET: http://backend:8000
+    volumes:
+      - ./src/frontend:/app
+      # node_modules bleiben im Container (sonst Konflikte mit Windows-node_modules)
+      - /app/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
 
 # Persistente Datenspeicherung
 # Daten bleiben auch nach docker compose down erhalten

@@ -1,0 +1,126 @@
+@startuml proposed-structure
+
+set separator none
+
+title Soll-Struktur: Statusregel in der Entity Ausleihanfrage (Variante B)
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam noteBackgroundColor #FFFDE7
+skinparam noteBorderColor #9E9D24
+hide empty members
+
+package "django.db.models" {
+  class QuerySet <<Django-ORM>> {
+    __iter__()
+  }
+  note bottom of QuerySet
+    unverändert; die Admin-Aktionen rufen
+    update() nicht mehr auf, sondern laden
+    jede Anfrage einzeln.
+  end note
+}
+
+package "lending" {
+  enum Anfragestatus {
+    EINGEREICHT
+    GENEHMIGT
+    ABGELEHNT
+    ZURUECKGEZOGEN
+    ABGELAUFEN
+  }
+
+  class StatusuebergangNichtErlaubt <<Exception>> #C8E6C9 {
+    Meldung, z. B. „Anfrage ist bereits genehmigt.“
+  }
+
+  class Ausleihanfrage <<Model>> #FFF59D {
+    startdatum : Date
+    enddatum : Date
+    anfragestatus : Anfragestatus = EINGEREICHT
+    ablehnungsgrund : String [0..1]
+    erstellt_am : DateTime
+    aktualisiert_am : DateTime
+    --
+    ~__str__() : String
+    <color:#2E7D32>**+ ist_unbearbeitet() : Boolean**</color>
+    <color:#2E7D32>**+ genehmigen()**</color>
+    <color:#2E7D32>**+ ablehnen(grund : String [0..1] = None)**</color>
+    <color:#2E7D32>**- _pruefe_unbearbeitet()**</color>
+  }
+
+  class AusleihanfrageViewSet <<ModelViewSet>> #FFF59D {
+    get_queryset() : QuerySet
+    genehmigen(request, pk)  « POST »
+    ablehnen(request, pk)  « POST »
+    <color:#C62828><s>update_status(request, pk)  « PATCH »</s></color>
+  }
+
+  class AusleihanfrageSerializer <<ModelSerializer>> {
+    anfragestatus, anfragestatus_display, ablehnungsgrund
+    read_only_fields: …, anfragestatus
+  }
+
+  class AusleihanfrageAdmin <<ModelAdmin>> #FFF59D {
+    fieldsets: … „Status“: anfragestatus, ablehnungsgrund
+    readonly_fields: erstellt_am, aktualisiert_am,
+    <color:#2E7D32>**anfragestatus, ablehnungsgrund**</color>
+    actions: genehmige_ausgewaehlte, lehne_ausgewaehlte_ab
+    --
+    genehmige_ausgewaehlte(request, queryset)
+    lehne_ausgewaehlte_ab(request, queryset)
+    <color:#2E7D32>**- _entscheiden(request, queryset, entscheidung, ergebnis)**</color>
+  }
+
+  note right of Ausleihanfrage
+    **Entscheidung (neu) in der Entity:**
+    genehmigen() und ablehnen() prüfen über
+    ist_unbearbeitet(), ob der Status EINGEREICHT
+    ist, sonst StatusuebergangNichtErlaubt.
+    Sie ändern nur den Zustand und speichern
+    nicht; dadurch lässt sich die Regel ohne
+    Datenbank testen. ablehnen() speichert
+    einen leeren Grund als None (AK 11).
+  end note
+
+  note left of AusleihanfrageViewSet
+    Ruft die Entity auf, speichert und
+    übersetzt den fachlichen Fehler in
+    409 Conflict {error: Meldung}.
+    Kein Ablehnungsgrund mehr Pflicht.
+    update_status() entfällt.
+  end note
+
+  note bottom of AusleihanfrageAdmin
+    Aktionen verarbeiten die Auswahl einzeln
+    und melden übersprungene Anfragen.
+    Status und Grund ändern sich nur noch
+    über die Aktionen, nicht im Formular.
+  end note
+
+  note bottom of AusleihanfrageSerializer
+    unverändert
+  end note
+}
+
+Ausleihanfrage ..> Anfragestatus
+Ausleihanfrage .[#2E7D32].> StatusuebergangNichtErlaubt : löst aus
+AusleihanfrageViewSet .[#2E7D32].> Ausleihanfrage : genehmigen(), ablehnen(grund),\nsave()
+AusleihanfrageViewSet .[#2E7D32].> StatusuebergangNichtErlaubt : fängt ab → 409
+AusleihanfrageViewSet ..> AusleihanfrageSerializer : serialisiert
+AusleihanfrageAdmin -[#2E7D32,dashed]left-> QuerySet : for anfrage in queryset
+QuerySet ..> Ausleihanfrage : liefert Anfragen
+AusleihanfrageAdmin .[#2E7D32].> Ausleihanfrage : je Anfrage genehmigen()\noder ablehnen(), save()
+AusleihanfrageAdmin .[#2E7D32].> StatusuebergangNichtErlaubt : fängt ab → überspringen
+
+legend right
+  |= Markierung |= Bedeutung |
+  |<#C8E6C9>     | neuer Baustein |
+  |<#FFF59D>     | geänderter Baustein |
+  | <color:#2E7D32>**fett grün**</color> | neue Operation oder Angabe |
+  | <color:#C62828><s>rot durchgestrichen</s></color> | entfällt |
+  | grüne Pfeile | neue Abhängigkeit |
+endlegend
+
+@enduml

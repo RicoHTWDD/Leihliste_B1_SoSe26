@@ -1,0 +1,198 @@
+= Entwurfsentscheidung: Entscheiden nur über unbearbeitete Ausleihanfragen
+include::../_includes/default-attributes.inc.adoc[]
+
+[horizontal]
+User Story:: #24 Ausleihanfragen bearbeiten (Persona Gerhard Großverleiher), Akzeptanzkriterien 7 und 9–12
+Grundlage:: `design-impact.adoc`, `current-flow.puml`, `current-structure.puml`
+Modelle:: `proposed-structure.puml`, `proposed-flow.puml`
+Codestand:: `main`, Commit `1c7de95` vom 29.10.2026
+
+== Ausgangslage aus der Design-Impact-Analyse
+
+*Änderung:* Eine Ausleihanfrage kann nur bestätigt oder abgelehnt werden, solange sie unbearbeitet ist (Status `eingereicht`).
+Danach bleibt die Entscheidung bestehen, und ein weiterer Versuch wird als fachlicher Fehler gemeldet.
+Ein Ablehnungsgrund ist optional.
+
+*Anforderungen:* AK 7 und 10 (bestätigen bzw. ablehnen, wenn die Anfrage unbearbeitet ist), AK 9 und 12 (nicht erneut bestätigen bzw. ablehnen) und AK 11 (Ablehnungsgrund speichern, sofern angegeben).
+Einen User Flow für Verleiher gibt es noch nicht; die Oberfläche gehört zur Umsetzung von #24 insgesamt.
+
+*Beobachtungen, die den Entwurf am stärksten beeinflussen:*
+
+. Der Status wird auf sechs Wegen geschrieben, und keiner prüft den aktuellen Wert: drei Aktionen im ViewSet, zwei Admin-Aktionen und das Admin-Formular.
+. Die Regel hat keinen zuständigen Baustein; schon heute gelten für den Ablehnungsgrund in API und Admin unterschiedliche Regeln.
+. Die Admin-Aktionen verarbeiten eine Auswahl pauschal mit `queryset.update()`.
+
+*Entwurfsfrage:* Wer prüft, ob eine Ausleihanfrage noch entschieden werden darf: jede Aktion in ViewSet und Admin selbst oder die Entity `Ausleihanfrage`?
+
+*In beiden Varianten gleich* und deshalb nicht Teil des Vergleichs:
+
+* `update_status()` entfällt.
+Die Aktion doppelt `genehmigen` und `ablehnen`, kein Frontend-Code ruft sie auf, und beliebige Übergänge widersprechen der Regel.
+* Im Admin-Formular sind `anfragestatus` und `ablehnungsgrund` nur noch lesbar; beide ändern sich nur über die Aktionen.
+* Der Ablehnungsgrund ist optional; ein leerer Grund wird als `None` gespeichert (AK 11).
+* Fehlerfall „Anfrage bereits bearbeitet“: Die API antwortet mit `409 Conflict` und der Meldung im Feld `error`, der Admin überspringt die Anfrage und meldet das.
+* Keine Migration und keine Änderung im Frontend.
+
+== Entwurfsvarianten
+
+[cols="1,9", options="header"]
+|===
+| Variante | Entwurf
+
+| A
+| *Prüfung in jeder Aktion.* `genehmigen()` und `ablehnen()` im `AusleihanfrageViewSet` prüfen selbst, ob `anfrage.anfragestatus` gleich `EINGEREICHT` ist, und antworten sonst mit 409.
+Die Admin-Aktionen filtern die Auswahl auf `eingereicht`, ändern sie weiter mit einem `queryset.update()` und melden die Zahl der übersprungenen Anfragen.
+Die Regel liegt wie heute in der Präsentationsschicht; der vorhandene Entwurf wird nur ergänzt.
+
+| B
+| *Prüfung in der Entity.* `Ausleihanfrage.genehmigen()` und `Ausleihanfrage.ablehnen(grund=None)` prüfen über `ist_unbearbeitet()`, ob der Status `EINGEREICHT` ist, und lösen sonst `StatusuebergangNichtErlaubt` aus.
+Sie ändern nur den Zustand und speichern nicht.
+ViewSet und Admin rufen die Methoden auf, speichern und übersetzen den Fehler: die API in 409, der Admin in eine Meldung.
+Die Admin-Aktionen verarbeiten die Auswahl einzeln.
+|===
+
+*Unterschiede:*
+
+* *Zustand:* In A schützt jede Aktion den Status selbst, in B schützt ihn die Entity.
+* *Verantwortung:* In A entscheiden ViewSet und Admin fachlich.
+In B entscheidet die Entity über den Übergang, ViewSet und Admin übersetzen nur das Ergebnis.
+* *Daten:* in beiden Varianten gleich, nämlich der aktuelle Status der Anfrage und der optionale Grund.
+* *Fehlerfall „bereits bearbeitet“:* In A baut jede Aktion ihre eigene Antwort und der Admin seinen eigenen Filter.
+In B gibt es eine Exception mit einer Meldung, auf die ViewSet und Admin reagieren.
+
+== Bevorzugter Entwurf: statische und dynamische Sicht
+
+Vorläufig gewählt ist Variante B; die Begründung folgt in der Bewertung.
+
+.Statische Sicht des bevorzugten Entwurfs
+[plantuml, proposed-structure, svg]
+----
+include::proposed-structure.puml[]
+----
+
+.Ablauf des bevorzugten Entwurfs mit Fehlerfall
+[plantuml, proposed-flow, svg]
+----
+include::proposed-flow.puml[]
+----
+
+*Neue oder veränderte Entscheidungen:*
+
+* `Ausleihanfrage.genehmigen()` und `ablehnen()`: nur aus `eingereicht` (AK 7, 9, 10, 12), Grund optional (AK 11).
+* `genehmigen()` und `ablehnen()` im ViewSet: übersetzen `StatusuebergangNichtErlaubt` in 409 und verlangen keinen Grund mehr.
+* Admin-Aktionen: verarbeiten jede Anfrage einzeln und überspringen bereits bearbeitete.
+
+*Gezeigter Fehlerfall:* Die Anfrage ist bereits bearbeitet. Die API antwortet mit 409, nichts wird gespeichert; der Admin überspringt die Anfrage und meldet das.
+
+*Abgleich der Modelle:* Alle Teilnehmer des Sequenzdiagramms kommen im Klassendiagramm vor, jede Nachricht entspricht dort einer Operation oder Abhängigkeit.
+`save()`, `get_object()` und `QuerySet` stammen aus Django bzw. DRF.
+
+== Bewertung der Varianten
+
+Ausschlaggebend für die Entscheidung sind die fett markierten Aspekte.
+
+[cols="2,4,4", options="header"]
+|===
+| Gestaltungsaspekt | Variante A | Variante B
+
+| *Zustand & Invarianten*
+| Die Regel gilt nur in den Aktionen, in die sie kopiert wird: zwei im ViewSet, zwei im Admin.
+Ein neuer Weg, der den Status setzt, umgeht sie.
+| Die Regel steht einmal in der Entity; jeder Weg über `genehmigen()` und `ablehnen()` hält sie ein.
+Eine direkte Zuweisung an `anfragestatus` oder ein `queryset.update()` umgeht sie weiterhin.
+
+| *Verhalten & Verantwortlichkeit*
+| ViewSet und Admin treffen die fachliche Entscheidung und bauen zugleich die Antwort.
+Die Regel bleibt in der Präsentationsschicht.
+| Die Entity entscheidet über den Übergang.
+ViewSet und Admin übersetzen nur das Ergebnis in HTTP 409 bzw. eine Meldung.
+
+| Abhängigkeiten & Kopplung
+| ViewSet und Admin müssen wissen, welcher Statuswert „unbearbeitet“ bedeutet.
+| ViewSet und Admin kennen nur die Methoden und die Exception; welcher Wert „unbearbeitet“ bedeutet, weiß nur das Modell.
+Neu ist die Abhängigkeit beider Aufrufer von `StatusuebergangNichtErlaubt`.
+
+| Grenzen & Kohäsion
+| Kein neues Element; die Regel bleibt auf `views.py` und `admin.py` verteilt.
+| Regel und Fehlerfall liegen gebündelt in `models.py`; dafür kommt eine Exception-Klasse hinzu.
+
+| *Änderung & Variabilität*
+| Ein weiterer Übergang, etwa `zurueckgezogen` durch die Ausleiherin, braucht eine weitere Kopie der Prüfung.
+Testen lässt sich die Regel nur über API- und Admin-Aufrufe.
+| Ein weiterer Übergang ist eine weitere Methode an der Entity.
+Im Prototyp prüfen vier Tests die Regel ohne Datenbank und ohne HTTP (`SimpleTestCase`).
+
+| Repräsentation & Verarbeitungsform
+| Status und Grund bleiben, wie sie sind.
+Der Admin behält die Massenverarbeitung mit einer SQL-Anweisung und filtert vorher auf `eingereicht`.
+| Status und Grund bleiben, wie sie sind.
+Der Admin verarbeitet die Auswahl einzeln: eine Abfrage und ein `save()` je Anfrage.
+Bei den heutigen Mengen spielt das keine Rolle.
+|===
+
+[[architektur]]
+== Architekturverträglichkeit
+
+. *Modulgrenzen:* Die Änderung bleibt in `lending`; andere Module müssen über die Regel nichts wissen.
+Das Frontend kennt nur Endpunkte und JSON-Felder.
+Neu für künftige Aufrufer ist die Antwort 409 mit dem Feld `error`.
+
+. *Technische Abhängigkeiten:* Es kommt keine Bibliothek hinzu.
+Die neuen Methoden stellen keine Datenbankabfragen und speichern nicht; deshalb laufen ihre Tests ohne Datenbank.
+`StatusuebergangNichtErlaubt` ist eine einfache Python-Exception; HTTP kennt nur der ViewSet.
+Eine Abhängigkeit von MariaDB entsteht nicht.
+
+. *Änderungsbedarf:* Die bestehende Architektur trägt den Entwurf.
+Begründet ist eine begrenzte Verbesserung: Die fachliche Regel wandert aus der Präsentationsschicht (ViewSet, Admin) in die Entity.
+Das passt zur Schichtenbeschreibung in `docs/technical/design.adoc`, die der Domänenschicht „Fachliche Entitäten und Regeln kapseln; Invarianten sicherstellen“ zuweist.
+Für den Status eines Gegenstands legt ADR-018 fest, dass Statusänderungen nur durch kontrollierte Backend-Logik ausgelöst werden; Variante B setzt das für den Anfragestatus um.
+Eine Service-Schicht braucht es dafür nicht, weil der Ablauf nur aus Prüfen, Setzen und Speichern besteht.
+
+*Wichtigste Beobachtung und Konsequenz:* Der Entwurf passt zur bestehenden Architektur und verändert keine Modulgrenzen.
+Weitere Übergänge der Anfrage, etwa Zurückziehen und Ablaufen, sollen demselben Muster folgen.
+Weil die Entscheidung damit über diese Änderung hinaus gilt, kann sie als ADR in `architecture.adoc` festgehalten werden.
+
+== Entscheidung
+
+*1. Bevorzugte Variante:* B, die Statusregel liegt in der Entity `Ausleihanfrage`.
+
+*2. Begründung:*
+
+* Heute wird der Status auf sechs Wegen ohne Prüfung geschrieben.
+Mit B gibt es eine Stelle für die Regel, und API und Admin verhalten sich gleich (Zustand & Invarianten).
+* Die fachliche Entscheidung trifft der Baustein, der den Zustand besitzt; ViewSet und Admin übersetzen nur das Ergebnis (Verhalten & Verantwortlichkeit).
+* Weitere Übergänge kommen als Methoden hinzu, und die Regel ist ohne Datenbank und ohne HTTP testbar (Änderung & Variabilität).
+
+*3. Nötige Änderungen:*
+
+* `lending/models.py`: `StatusuebergangNichtErlaubt`, `ist_unbearbeitet()`, `genehmigen()`, `ablehnen(grund=None)`,
+* `lending/views.py`: `genehmigen()` und `ablehnen()` rufen die Entity auf und antworten bei `StatusuebergangNichtErlaubt` mit 409; kein Pflicht-Grund mehr; `update_status()` entfällt,
+* `lending/admin.py`: `anfragestatus` und `ablehnungsgrund` in `readonly_fields`; die Aktionen verarbeiten die Auswahl einzeln und melden übersprungene Anfragen,
+* `lending/tests.py`: Tests für Entity, API und Admin.
+
+Was als Vorteil bleibt: Die Regel steht an einer Stelle, API und Admin verhalten sich gleich, und die Regel ist einzeln testbar.
+
+Was als Nachteil bleibt: Eine direkte Zuweisung an `anfragestatus` oder ein `queryset.update()` umgeht die Regel weiterhin und muss im Code Review auffallen.
+Der Admin verarbeitet Anfragen einzeln statt mit einer SQL-Anweisung.
+Dazu kommt eine Exception-Klasse.
+
+*4. Konsequenz aus dem Architektur-Check:* Eine strukturelle Änderung über `lending` hinaus ist nicht nötig.
+Neue Übergänge der Anfrage werden als Methoden der Entity umgesetzt; optional halten wir das als ADR fest.
+
+=== Prototyp
+
+Variante B ist auf einer Kopie von `main` (Commit `1c7de95`) umgesetzt und mit SQLite statt MariaDB getestet.
+Zehn Tests laufen durch: vier für die Entity ohne Datenbank, vier für die API und zwei für den Admin.
+Dieselben Tests schlagen auf dem unveränderten `main` fehl (sechs Fehlschläge, vier Fehler, weil die Methoden fehlen).
+Für die API-Tests ist der `Nutzer` direkt als `request.user` gesetzt, weil die Zuordnung auf `main` fehlt.
+
+=== Offene Punkte und technische Schulden
+
+* *Gleichzeitige Entscheidungen:* Entscheiden zwei Personen zur selben Zeit, gewinnt die zuletzt gespeicherte Änderung.
+Bei einem Verleiher ist das unwahrscheinlich.
+Sobald an der Bestätigung eine Reservierung hängt (AK 8), wird eine Sperre der Zeile nötig, wie ADR-018 sie mit atomaren Datenbankoperationen vorsieht.
+* *Zuordnung `request.user` → `Nutzer`* (Nebenbefund N1): Ohne sie erreicht ein angemeldeter Verleiher die API-Aktionen nicht; sie ist Voraussetzung für die Oberfläche.
+* *Admin als Weg für Entscheidungen:* Ob ein Superuser den Status bewusst korrigieren darf, klärt das Team; der Entwurf schließt das aus.
+* *Wer und wann:* Wer eine Anfrage entschieden hat und wann, wird nicht gespeichert; die Akzeptanzkriterien verlangen das nicht.
+* *Bezug zur Umsetzung von #24 insgesamt:* Reservierung (AK 8) und Benachrichtigung (AK 14) schließen an eine erfolgreiche Entscheidung an.
+Kommen sie hinzu, kann eine Service-Funktion `genehmigen()` und die Folgeschritte in einer Transaktion zusammenfassen; die Regel in der Entity bleibt dabei unverändert.

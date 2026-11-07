@@ -52,7 +52,7 @@ export function ermittleZusatzinfo(exemplar, { standortAnzeigen = true } = {}) {
   const status = ermittleAnzeigeStatus(exemplar);
 
   if (status === "ausgeliehen") {
-    const datum = formatiereDatum(exemplar.rueckgabedatum);
+    const datum = formatiereDatum(exemplar.rueckgabedatum ?? exemplar["rückgabedatum"]);
     return datum ? `Rückgabe: ${datum}` : null;
   }
   if (status === "reserviert") {

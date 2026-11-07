@@ -11,31 +11,21 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { StatusBadge, ErrorMessage } from "../components/ui";
-
-const MOCK = true; // auf false setzen, sobald #132 existiert und gemerged ist
-const MOCK_GEGENSTAND = {
-  id: 1,
-  inventarnummer: "INV-0001",
-  name: "Mikroskop 1b",
-  kategorie: "Elektronik",
-  verfuegbarkeitsstatus: "verfuegbar", // verfuegbar | nicht_verfuegbar
-  // beschreibung: liefert der Serializer aktuell nicht -> Platzhalter
-};
+import {
+  ermittleAnzeigeStatus,
+  ermittleZusatzinfo,
+} from "../utils/anzeigeStatus";
 
 // Router-Resource laut inventory/urls.py: "exemplare". Prefix vermutlich /api/inventory/.
 const API_BASE = "/api/inventory/exemplare";
 
-export default function GegenstandDetail({ gegenstandId = 1 }) {
-  const [gegenstand, setGegenstand] = useState(MOCK ? MOCK_GEGENSTAND : null);
-  const [ladevorgang, setLadevorgang] = useState(!MOCK);
+export default function GegenstandDetail({ gegenstandId, onBack }) {
+  const [gegenstand, setGegenstand] = useState(null);
+  const [ladevorgang, setLadevorgang] = useState(true);
   const [fehler, setFehler] = useState(null);
 
   useEffect(() => {
-    if (MOCK) return;
-
     let aktiv = true;
-    setLadevorgang(true);
-    setFehler(null);
 
     fetch(`${API_BASE}/${gegenstandId}/`, { credentials: "include" })
       .then((res) => {
@@ -85,6 +75,8 @@ export default function GegenstandDetail({ gegenstandId = 1 }) {
   }
 
   const name = gegenstand.name ?? gegenstand.inventarnummer;
+  const anzeigeStatus = ermittleAnzeigeStatus(gegenstand);
+  const zusatzinfo = ermittleZusatzinfo(gegenstand);
 
   return (
     <Box sx={{ p: 2 }}>
@@ -94,10 +86,10 @@ export default function GegenstandDetail({ gegenstandId = 1 }) {
       </Typography>
 
       <Paper variant="outlined" sx={{ p: 3 }}>
-        {/* Zurück - wird spaeter ans Routing angebunden (eigene Aufgabe) */}
+        {/* Zurück zur Gegenstandsübersicht */}
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => window.history.back()}
+          onClick={onBack}
           sx={{ color: "text.secondary", mb: 2 }}
         >
           Zurück
@@ -138,7 +130,17 @@ export default function GegenstandDetail({ gegenstandId = 1 }) {
 
             {/* ===== #131: Verfuegbarkeitsstatus ===== */}
             <Box sx={{ my: 2 }}>
-              <StatusBadge status={gegenstand.verfuegbarkeitsstatus} />
+              <StatusBadge status={anzeigeStatus} />
+
+              {zusatzinfo && (
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                >
+                  {zusatzinfo}
+                </Typography>
+              )}
             </Box>
             {/* ===== Ende #131 ===== */}
 

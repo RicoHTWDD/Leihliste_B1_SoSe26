@@ -42,6 +42,13 @@ class Ausleihanfrage(models.Model):
     erstellt_am = models.DateTimeField(auto_now_add=True)
     aktualisiert_am = models.DateTimeField(auto_now=True)
     is_seed = models.BooleanField(default=False)
+    seed_key = models.CharField(
+        max_length=100,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="Eindeutiger Schlüssel für vom Projekt verwaltete Seed-Daten."
+    )
 
     class Meta:
         db_table = 'ausleihanfrage'

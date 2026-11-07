@@ -43,12 +43,24 @@ import { ermittleAnzeigeStatus, ermittleZusatzinfo } from '../utils/anzeigeStatu
 //   - sonst clientseitiger Fallback (defekt/verloren aus "zustand",
 //     ansonsten der gespeicherte Verfügbarkeitsstatus).
 // ---------------------------------------------------------------------------
-async function fetchGegenstaende() {
-  // Relativer Pfad: der Vite-Dev-Server proxyt /api auf Django (Port 8000).
-  const res = await fetch('/api/inventory/alle-exemplare/');
+async function fetchGegenstaende(statusFilter = 'alle') {
+  const url = new URL(
+    '/api/inventory/alle-exemplare/',
+    window.location.origin
+  );
+
+  if (statusFilter === 'verfuegbar') {
+    url.searchParams.set('verfuegbar', 'true');
+  }
+
+  if (statusFilter === 'nicht_verfuegbar') {
+    url.searchParams.set('verfuegbar', 'false');
+  }
+
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const daten = await res.json();
- 
+
 
   // Nur die im Frontend benötigten Felder übernehmen.
   // Hinweis: Es wird die erste Seite geladen. Bei mehr Exemplaren als die
@@ -70,7 +82,8 @@ async function fetchGegenstaende() {
 }
 
 // Spaltendefinition für die sortierbaren Kopfzellen.
-// Status bleibt als Spalte erhalten (Badge), wird aber nicht mehr gefiltert.
+// Status bleibt als Spalte zur Anzeige und Sortierung erhalten.
+// Die Filterung erfolgt separat über das Status-Dropdown.
 const SPALTEN = [
   { feld: 'name', label: 'Name' },
   { feld: 'status', label: 'Status' },
@@ -80,21 +93,55 @@ const SPALTEN = [
 
 export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe }) {
   const [gegenstaende, setGegenstaende] = useState([]);
+  const [alleGegenstaende, setAlleGegenstaende] = useState(null);
   const [ladestatus, setLadestatus] = useState('laedt'); // 'laedt' | 'fertig' | 'fehler'
 
   const [suche, setSuche] = useState('');
-  // Zwei unabhängige Filter, die kombiniert wirken (UND-Verknüpfung).
-  // 'alle' = Filter inaktiv.
+
+// Drei Filter, die kombiniert wirken (UND-Verknüpfung).
+// Status wird serverseitig, Kategorie und Standort clientseitig gefiltert.
+// 'alle' = jeweiliger Filter inaktiv.
+
+  const [statusFilter, setStatusFilter] = useState('alle');
   const [kategorieFilter, setKategorieFilter] = useState('alle');
   const [standortFilter, setStandortFilter] = useState('alle');
   const [sortierung, setSortierung] = useState({ feld: 'name', richtung: 'asc' });
   const [ausgewaehlt, setAusgewaehlt] = useState([]);
 
-  // Daten laden
+  // Ungefilterte Gegenstände einmal laden.
+  // Dienen als Grundlage für die Kategorie- und Standortfilter.
   useEffect(() => {
     let aktiv = true;
+
+    fetchGegenstaende('alle')
+      .then((daten) => {
+        if (!aktiv) return;
+        setAlleGegenstaende(daten);
+      })
+      .catch(() => {
+        if (aktiv) setLadestatus('fehler');
+      });
+
+    return () => {
+      aktiv = false;
+    };
+  }, []);
+
+  // Angezeigte Gegenstände abhängig vom Statusfilter laden.
+  useEffect(() => {
+    if (alleGegenstaende === null) return;
+
+    // Bei "Alle" die bereits geladenen Daten verwenden.
+    if (statusFilter === 'alle') {
+      setGegenstaende(alleGegenstaende);
+      setLadestatus('fertig');
+      return;
+    }
+
+    let aktiv = true;
     setLadestatus('laedt');
-    fetchGegenstaende()
+
+    fetchGegenstaende(statusFilter)
       .then((daten) => {
         if (!aktiv) return;
         setGegenstaende(daten);
@@ -103,28 +150,33 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
       .catch(() => {
         if (aktiv) setLadestatus('fehler');
       });
+
     return () => {
       aktiv = false;
     };
-  }, []);
+  }, [statusFilter, alleGegenstaende]);
 
-  // Kategorien dynamisch aus den Daten (für das Kategorie-Dropdown)
+  // Kategorien dynamisch aus allen geladenen Daten.
+  // Bleiben unabhängig vom aktiven Statusfilter verfügbar.
   const kategorien = useMemo(
-    () => [...new Set(gegenstaende.map((g) => g.kategorie))].sort((a, b) => a.localeCompare(b, 'de')),
-    [gegenstaende]
+    () => [...new Set((alleGegenstaende ?? []).map((g) => g.kategorie))].sort((a, b) => a.localeCompare(b, 'de')),
+    [alleGegenstaende]
   );
 
-  // Standorte dynamisch aus den Daten (für das Standort-Dropdown)
+  // Standorte dynamisch aus allen geladenen Daten.
+  // Bleiben unabhängig vom aktiven Statusfilter verfügbar.
   const standorte = useMemo(
     () =>
-      [...new Set(gegenstaende.map((g) => g.standort).filter(Boolean))].sort((a, b) =>
+      [...new Set((alleGegenstaende ?? []).map((g) => g.standort).filter(Boolean))].sort((a, b) =>
         a.localeCompare(b, 'de')
       ),
-    [gegenstaende]
+    [alleGegenstaende]
   );
 
-  // Filtern + Sortieren – clientseitig, solange das Backend keine Query-Parameter kennt.
-  // Kategorie- und Standort-Filter werden nacheinander angewandt => kombinierbar.
+// Suche, Kategorie und Standort werden clientseitig gefiltert.
+// Der Statusfilter wird bereits beim Laden der Daten im Backend berücksichtigt.
+// Kategorie- und Standort-Filter werden nacheinander angewandt => kombinierbar.
+
   const sichtbar = useMemo(() => {
     let liste = gegenstaende;
 
@@ -216,7 +268,7 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
             </Select>
           </FormControl>
 
-          {/* Filter 2: Standort (rechts) — kombinierbar mit dem Kategorie-Filter */}
+          {/* Filter 2: Standort (mitte) — kombinierbar mit dem Kategorie-Filter */}
           <FormControl size="small" sx={{ minWidth: 160 }}>
             <Select
               value={standortFilter}
@@ -229,6 +281,21 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
                   {s}
                 </MenuItem>
               ))}
+            </Select>
+          </FormControl>
+
+          {/* Filter 3: Status (rechts)*/}
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <Select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              displayEmpty
+            >
+              <MenuItem value="alle">Alle Gegenstände</MenuItem>
+              <MenuItem value="verfuegbar">Nur verfügbar</MenuItem>
+              <MenuItem value="nicht_verfuegbar">
+                Nur nicht verfügbar
+              </MenuItem>
             </Select>
           </FormControl>
 

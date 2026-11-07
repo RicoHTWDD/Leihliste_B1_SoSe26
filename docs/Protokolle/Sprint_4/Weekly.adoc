@@ -1,8 +1,8 @@
-== Meeting 29.10.2026 
+== Meeting 29.10.2026
 :id: meeting29102026
 
-*Datum:* 29.10.2026  
-*Dauer:* 45 Minuten 
+*Datum:* 29.10.2026
+*Dauer:* 45 Minuten
 *Teilnehmende:* Justin, Adrian, Til, Jevan, Lidiia
 
 === Agenda

@@ -1,0 +1,125 @@
+@startuml current-flow
+' Design-Impact-Analyse #33 (Issue #159) – dynamische Sicht des IST-Zustands (Stand main, vor der Planung)
+' Keine Schichten Controller/Service/Domäne: views.py greift direkt auf models.py zu.
+' Gleiche Abschnitte wie proposed-flow.puml, damit man beide vergleichen kann.
+' Orange = von der Änderung betroffen · Rote Notizen = Befund (geprüft am laufenden System)
+
+scale 0.85
+skinparam ParticipantPadding 12
+skinparam BoxPadding 8
+
+actor "Verleiher" as V
+participant "Frontend\nGegenstandsUebersicht /\nGegenstandDetail" as FE #FFE0B2
+
+box "Backend (Django) – inventory/" #F2F2F2
+  participant "views.py\nGegenstandsexemplarViewSet /\nGegenstandsexemplarDetailViewSet\n<<ReadOnlyModelViewSet>>" as VS #FFE0B2
+  participant "serializers.py\nGegenstandsexemplar-\nUebersichtSerializer" as SER #FFE0B2
+  participant "admin.py\nGegenstandsexemplarAdmin /\nGegenstandstypAdmin\n(Django-Admin)" as ADM #FFE0B2
+  participant "models.py\nGegenstandstyp /\nGegenstandsexemplar" as M #FFE0B2
+end box
+
+database "MariaDB" as DB
+
+== 1. Gegenstände anzeigen ==
+autonumber 1
+V -> FE : Menüpunkt "Gegenstände"
+FE -> VS : GET /api/inventory/alle-exemplare/
+VS -> M : queryset = objects.select_related(gegenstand, standort, kategorie)
+note right of VS #FFCDD2
+  views.py greift direkt auf das Model zu
+  (keine Schicht dazwischen)
+end note
+M -> DB : SELECT ... JOIN
+DB --> M : Datensätze
+M --> VS : QuerySet
+VS -> SER : serialisieren (Python → JSON)
+SER --> VS : JSON
+VS --> FE : 200 OK {Exemplare in JSON}
+FE --> V : Tabelle mit Status, Kategorie, Standort
+note right of FE
+  GegenstandsUebersicht.jsx ruft fetch() selbst auf;
+  jeder Fehler wird pauschal angezeigt (.catch).
+end note
+
+== 2. Gegenstand anlegen ==
+autonumber 1
+V -> FE : "Gegenstand erfassen"
+note right of FE #FFCDD2
+  Kein Formular und kein Button vorhanden
+end note
+FE -> VS : POST /api/inventory/exemplare/
+VS --> FE : 405 Method Not Allowed
+note right of VS #FFCDD2
+  ReadOnlyModelViewSet: nur GET erlaubt
+end note
+V -> ADM : Admin-Formular ausfüllen, "Sichern"
+ADM -> ADM : ModelForm prüft nur Feldtypen,\nAuswahlwerte und unique
+ADM -> M : save()
+M -> DB : INSERT gegenstandsexemplar
+DB --> M : gespeichert
+ADM --> V : Admin-Liste mit neuem Exemplar
+note right of ADM #FFCDD2
+  Keine fachliche Prüfung (geprüft):
+  zustand=defekt + verfuegbar wird gespeichert (R1).
+  Name bis 255 Zeichen erlaubt (AK: 100).
+end note
+
+== 3. Gegenstand bearbeiten ==
+autonumber 1
+V -> FE : Detailansicht "Bearbeiten"
+note right of FE #FFCDD2
+  Detailseite nicht eingebunden (MOCK = true),
+  kein Button "Bearbeiten"
+end note
+FE -> VS : PATCH /api/inventory/exemplare/{id}/
+VS --> FE : 405 Method Not Allowed
+V -> ADM : Exemplar im Admin ändern, "Sichern"
+ADM -> M : save()
+M -> DB : UPDATE gegenstandsexemplar
+DB --> M : gespeichert
+ADM --> V : Admin-Liste
+note right of ADM #FFCDD2
+  Keine fachliche Prüfung:
+  Zustand kann auf "verloren" gesetzt werden,
+  Exemplar bleibt "verfügbar" (R1)
+end note
+
+== 4. Gegenstand löschen ==
+autonumber 1
+V -> FE : Detailansicht "Löschen"
+note right of FE #FFCDD2
+  Kein Button "Löschen", keine Rückfrage
+end note
+FE -> VS : DELETE /api/inventory/exemplare/{id}/
+VS --> FE : 405 Method Not Allowed
+V -> ADM : Exemplar im Admin löschen
+ADM --> V : Bestätigungsseite des Django-Admin
+V -> ADM : "Ja, ich bin sicher"
+ADM -> M : delete()
+M -> DB : DELETE gegenstandsexemplar
+DB --> M : gelöscht
+ADM --> V : Admin-Liste
+note right of ADM #FFCDD2
+  Keine fachliche Prüfung:
+  auch das letzte Exemplar eines Typs
+  wird gelöscht (R5)
+end note
+
+== 5. Gegenstandstyp löschen ==
+autonumber 1
+V -> ADM : Gegenstandstyp im Admin löschen
+ADM --> V : Bestätigungsseite des Django-Admin\n(listet abhängige Objekte)
+V -> ADM : "Ja, ich bin sicher"
+ADM -> M : delete()
+M -> DB : DELETE gegenstandsexemplar (CASCADE)
+M -> DB : DELETE ausleihanfrage (CASCADE, App lending)
+M -> DB : DELETE gegenstandstyp
+DB --> M : gelöscht
+ADM --> V : Admin-Liste
+note right of DB #FFCDD2
+  Geprüft: Löschen von "Mikroskop Leica DM500"
+  entfernt 3 Exemplare UND 1 Ausleihanfrage.
+  on_delete=CASCADE in lending/models.py –
+  Verleihhistorie geht verloren (R6).
+end note
+@enduml

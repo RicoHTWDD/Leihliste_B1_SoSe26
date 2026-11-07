@@ -1,0 +1,203 @@
+= Entwurfsentscheidung: #33 Gegenstand erfassen, bearbeiten und löschen
+:toc: left
+:sectnums:
+
+
+
+Dieses Dokument baut auf `design-impact.adoc` auf. Es beschreibt zwei mögliche Entwürfe, vergleicht sie und begründet die Entscheidung.
+
+== Ausgangslage 
+
+=== Betrachtete Änderung
+
+Verleiher sollen in der Oberfläche Gegenstandsexemplare und Gegenstandstypen anlegen, bearbeiten und löschen können.
+
+=== Wichtigste Beobachtungen aus der Analyse
+
+. *Löschen eines Typs löscht Ausleihanfragen mit.* Grund ist `on_delete=CASCADE` in `lending/models.py`. Die Verleihhistorie geht verloren.
+. *Es gibt keinen Ort für fachliche Regeln.* `views.py` holt die Daten selbst und kann nicht schreiben. Der Django-Admin schreibt ohne fachliche Prüfung.
+. *Fachliche Regeln werden nicht eingehalten.* Ein defektes Exemplar kann verfügbar sein. Das letzte Exemplar eines Typs kann gelöscht werden. Der Name darf zu lang sein.
+. `views.py` erledigt alles selbst.
+
+=== Entwurfsfrage
+
+
+====
+*Wo werden die fachlichen Regeln sowie Fachlogik beim Anlegen, Bearbeiten und Löschen eines Gegenstandstyps und Gegenstandsexemplars implementiert – und wie kommt eine Ablehnung im Falle einer Verletzung  zurück ins Formular (Frontend)?*
+====
+
+=== Fachliche Regeln
+
+[cols="3,2",options="header"]
+|===
+| Regel | Quelle
+| Pflichtfelder müssen ausgefüllt sein. | Akzeptanzkriterien #33
+| Der Name eines Gegenstandstyps hat höchstens 100 Zeichen. | Akzeptanzkriterien #33
+| Standort, Kategorie und Zustand werden aus vorgegebenen Werten gewählt. | Akzeptanzkriterien #33
+| Jedes Exemplar gehört zu genau einem Gegenstandstyp. | Akzeptanzkriterien #33
+| Gelöscht wird erst nach einer Rückfrage. | Akzeptanzkriterien #33
+| Ein defektes oder verlorenes Exemplar darf nicht verfügbar sein. | Kommentar in `models.py`
+| Das letzte Exemplar eines Typs wird nicht einzeln gelöscht. | Datenmodell: ein Typ hat mindestens ein Exemplar
+| Ein Gegenstandstyp mit Ausleihanfragen darf nicht gelöscht werden. | jede Ausleihe muss nachvollziehbar bleiben
+|===
+
+Technisch sichert die Datenbank zusätzlich ab, dass die Inventarnummer eindeutig ist.
+
+=== Annahmen, die der PO bestätigen muss
+
+
+== Zwei Entwurfsvarianten 
+
+[cols="1,3,3",options="header"]
+|===
+| Baustein | Variante A: bisheriges Muster erweitern | Variante B: Trennung in Schichten
+
+| Ordner in `inventory/`
+| bleibt wie heute: `views.py`, `serializers.py`, `admin.py`, `models.py` nebeneinander
+| neue Ordner `controller/`, `service/`, `domaene/`, `infrastruktur/`
+
+| `views.py`
+| nimmt die Anfrage an, liest und speichert selbst über das Model
+| nimmt nur die HTTP-Anfrage an, gibt sie an den Service weiter, erhält später ein Response und schickt die Antwort mit Statuscode und Daten/Meldung zurück
+
+| `serializers.py`
+| prüft das Format *und* die fachlichen Regeln
+| prüft nur das Format: Datentyp, Pflichtfeld vorhanden
+
+| Service
+| gibt es nicht
+| `service/exemplare.py` und `service/typen.py`. Einziger Eingang zum Lesen und Schreiben. Fragt immer zuerst die Domäne und speichert erst danach.
+
+| Domäne
+| gibt es nicht, Regeln stehen im Serializer und im ViewSet
+| `domaene/regeln.py`. Alle fachlichen Regeln an einer Stelle. Kennt weder Datenbank noch HTTP. Meldet „erfüllt“ oder einen Regelverstoß mit Feldname an den Service.
+
+| Infrastruktur
+| `models.py` und `CASCADE` bleiben
+| `infrastruktur/models.py` enthält nur die Datenstruktur. Namenslänge 100 und eindeutige Inventarnummer als technische Absicherung. `CASCADE` wird zu `PROTECT`.
+
+| Django-Admin
+| speichert weiter ohne fachliche Prüfung
+| ruft denselben Service auf wie die REST-Schnittstelle
+
+| Fehlerfall
+| Regelverstoß → 400, das Frontend zeigt eine allgemeine Meldung
+| Regelverstoß beim Anlegen oder Bearbeiten → 400 mit Feldname → Meldung am Feld. Verbotenes Löschen → 409 → Hinweis in der Detailansicht.
+|===
+
+*Variante A* ist das übliche Vorgehen in Django und entspricht dem bisherigen Muster in der App `inventory`.
+
+*Variante B* setzt die Schichten aus der Vorlesung um mit einer winzigen Modifikation von mir: Der Controller nimmt Anfragen an, der Service steuert den Ablauf, die Domäne entscheidet, die Infrastruktur speichert.
+
+== Modelle des Entwurfs 
+
+* `ziel_statische_Sicht.puml`: Klassendiagramm von Variante B. Jede Schicht hat eine eigene Farbe.
+* `ziel_dynamische_Sicht.puml`: Sequenzdiagramm von 
+* Zudem wurden die Diagramme für `aktuell_statische_Sicht` und `aktuell_dynamische_Sicht` erstellt. Sie zeigen die heutige Situation.
+
+So unterscheiden sich Ist-Zustand und Soll-Zustand (Entwurf):
+
+[cols="1,2,2",options="header"]
+|===
+| Ablauf | Heute | Entwurf
+
+| Gegenstände anzeigen
+| `views.py` liest direkt aus dem Model.
+| Controller → Service → Model  . Der Controller kennt das Model nicht und erreicht ihn nur über Service
+
+| Gegenstand anlegen
+| Über REST nicht möglich (405). Nicht möglich, da ViewSet ReadOnly unterstützt.
+| Controller → Service → Domäne. Regeln erfüllt: -> in Model speichern, 201. Nicht erfüllt: 400 mit Meldung am Feld.
+
+| Gegenstand bearbeiten
+| Über REST nicht möglich (405). Nicht möglich, da ViewSet ReadOnly unterstützt.
+| Wie Anlegen. Regeln erfüllt: 200. Nicht erfüllt: 400 mit Meldung am Feld.
+
+| Gegenstand löschen
+| Über REST nicht möglich (405). Nicht möglich, da ViewSet ReadOnly unterstützt.
+| Rückfrage, dann Controller → Service → Domäne. Erlaubt: 204. Letztes Exemplar: 409 mit Hinweis.
+
+| Gegenstandstyp löschen
+| Nicht möglich, da ViewSet ReadOnly unterstützt.
+| Rückfrage, dann Controller → Service → Domäne. Erlaubt: 204. Ausleihanfragen vorhanden: 409 mit Hinweis.
+|===
+
+== Vergleich der Varianten
+
+[cols="1,3,3",options="header"]
+|===
+| Gestaltungsaspekt | Variante A | Variante B
+
+| Zustand & Invarianten
+| Die Regeln gelten nur, wenn über die REST-Schnittstelle gespeichert wird. Der Admin umgeht sie.
+| Die Regeln gelten für jeden Weg, weil REST und Admin nur über den Service speichern. Die Datenbank sichert zusätzlich ab.
+
+| *Verhalten & Verantwortlichkeit* 
+| `views.py` und der Serializer machen alles: HTTP, Regeln und Datenzugriff.
+| Jede Schicht hat genau eine Aufgabe. Controller: HTTP. Service: Ablauf. Domäne: Entscheidung. Infrastruktur: Daten.
+
+| *Abhängigkeiten & Kopplung* 
+| views.py hängt gleichzeitig an HTTP, am Model und an den Regeln. Die Regeln hängen am Serializer. 
+| Abhängigkeiten zeigen nur nach unten. Die Domäne hängt an nichts Technischem und lässt sich ohne Datenbank testen. Für die Regel zu Ausleihanfragen liest der Service nur die Anzahl der Anfragen `model`, ohne die App bzw. das Modul `lending` anzufassen.
+
+| Grenzen & Kohäsion
+| Die Klassen in `views.py` und `serializers.py` werden mit jeder neuen Funktion größer.
+| Die Regeln stehen gebündelt in der Domänenschicht in der Datei `regeln.py`. Die Abläufe/Geschäftslogik befinden sich in den Service. Und Controller ist das Tor zwischen Frontend und Backend, gehört aber trotzdem zum Backend. die Infrastruktur/Persistenzschicht hält die Daten. Jede Schicht hat eine klare Aufgabe.
+
+| *Änderung & Variabilität* 
+| Die Regeln stehen an mehreren Stellen im Code. Ein neuer Weg muss die Regeln selbst implementieren.
+| Eine neue oder geänderte Regel betrifft nur `regeln.py`. Ein neuer Weg ruft einfach den vorhandenen Service auf.
+
+| Repräsentation & Verarbeitungsform
+| Die Regeln sind `if`-Abfragen im Serializer und im ViewSet.
+| Die Regeln sind Funktionen in der Domänenschicht. Sie bekommen Werte und melden „erfüllt“ oder einen Regelverstoß mit Feldname.
+|===
+
+2,3,5 = ausschlaggebend für die Entscheidung.
+
+*Variante A* hat weniger Dateien und ist für einzelne, kleine Regeln angemessen. Für ein komplexes Projekt eignet sich *Variante B* besser aus folgenden Gründen:
+
+. *Übersichtlichkeit:* Jede Schicht hat genau eine Aufgabe: HTTP, Ablauf, Regeln oder Daten. Man weiß sofort, wo man suchen muss (Trennung der Zuständigkeiten).
+. *Leichte Wartbarkeit:* Eine Änderung bleibt lokal. Ändert sich eine Regel, wird nur `regeln.py` angepasst (hohe Kohäsion, lose Kopplung).
+. *Unabhängig entwickeln und austauschen:* Die Schichten lassen sich getrennt bauen, ändern und bei Bedarf ersetzen (Modularisierung, Geheimnisprinzip).
+. *Einfacher zu testen:* Die Regeln in der Domäne kennen weder Datenbank noch HTTP und lassen sich ohne Server testen.
+              
+
+== Passt der Entwurf zur Architektur? 
+
+[cols="2,3",options="header"]
+|===
+| Frage | Antwort
+| Werden Modulgrenzen eingehalten?
+| Der Service fragt das Model Gegenstandstyp, wie viele Ausleihanfragen es hat. Aus dem Modul lending wird dafür nichts aufgerufen oder importiert. Also Nein. Die Modulgrenzen werden eingehalten.
+
+| Entstehen neue technische Abhängigkeiten?
+| Nein. Alle geplanten Schichten sind in Python implementierbar. Es wird nur an der Vorgehensweise etwas geändert, nicht an der Technik.
+
+| Muss die Architektur geändert werden?
+| Erstmal zwischen den Apps nicht. Innerhalb von `inventory` kommen die vier Ordner dazu. Django findet Models und Admin nur unter `inventory/models.py` und `inventory/admin.py`. Deshalb bleiben dort zwei Dateien, die nur weiterleiten. Tabellen und Migrationen ändern sich dadurch nicht. Die Ordnerstruktur ist für Django ungewohnt, aber erlaubt.
+|===
+
+== Entscheidung 
+
+*Entscheidung:* Variante B – Trennung in Controller, Service, Domäne und Infrastruktur.
+
+*Begründung:*
+
+. *Verhalten & Verantwortlichkeit:* Jede Schicht hat genau eine Aufgabe. Der Controller greift nie selbst auf Model oder Datenbank zu.
+. *Änderung & Variabilität:* Jede Regel steht genau einmal im Code. REST, Admin und weitere Funktionalitäten im Modul Inventory nutzen denselben Service.
+. *Abhängigkeiten & Kopplung:* das Ziel der losen Kopplung erreicht, und Abhängigkeiten zeigen nur nach unten. Controller kennt nur den Service, der Service kennt alle Bausteine da er die Hauptaufgabe übernimmt also Anfrage von Controller annimmt diese von regeln.py prüfen lässt und mit DB kontaktiert, und entsprechende Response an den Controller liefert zwecks Weiterleitung an das Frontend. Die Domäne kennt nur den Service. Die DB kennt nur den Service.
+
+
+
+*Verbleibende Nachteile:*
+
+* Es gibt mehr Dateien, und die Struktur ist für Django ungewohnt.
+* Die neue Projektstruktur könne die Teammitglieder verwirren, die bisher nur mit `views.py` und `serializers.py` gearbeitet haben. Aber Hinweis von Prof. Anke eingehalten dass ich es über mehrere Dateien verteilen soll, um die Komplexität zu reduzieren. Außerdem ist es eine gute Gelegenheit, die Schichtenarchitektur bewusst zu gestalten.
+
+
+
+*Konsequenzen:*
+
+* `CASCADE` → `PROTECT` in `lending/models.py` soll ich mit dem Entwickler abstimmen der in der App lending gearbeitet hat.
+* Die neue Ordnerstruktur und die Weiterleitungsdateien im Team bekannt machen.

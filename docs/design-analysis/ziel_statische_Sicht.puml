@@ -1,0 +1,157 @@
+@startuml proposed-structure
+' Praktikum SE 2, Teil 2 – statische Sicht des Entwurfs für #33
+' Strikte Schichtung: Controller → Service → Domäne / Infrastruktur
+' Farben wie im Sequenzdiagramm (current-flow.puml / proposed-flow.puml)
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam nodesep 40
+skinparam ranksep 50
+hide empty members
+hide circle
+
+legend top left
+  | Farbe | Schicht | Aufgabe |
+  |<#FFE0B2>| Präsentation | Formulare, Rückmeldungen (React) |
+  |<#BBDEFB>| Controller | HTTP/JSON rein und raus, nur Formatprüfung |
+  |<#C8E6C9>| Service | Ablauf koordinieren, einziger Eingang |
+  |<#FFF59D>| Domäne | fachlich entscheiden (ohne DB/HTTP) |
+  |<#E1BEE7>| Infrastruktur | Daten speichern/lesen |
+endlegend
+
+package "Frontend (React)" {
+  class GegenstandFormularSeite <<Präsentation>> #FFE0B2 {
+    Formular anlegen / bearbeiten
+    Pflichtfelder markiert, Reset, Abbruch
+    Fehler am Feld (400)
+  }
+  class GegenstandDetail <<Präsentation>> #FFE0B2 {
+    Buttons "Bearbeiten" / "Löschen"
+    Rückfrage vor dem Löschen
+    Hinweis bei 409
+  }
+}
+
+package "Backend (Django) – inventory/" {
+
+  package "controller/" {
+    class "GegenstandsexemplarViewSet" as VSE <<views.py>> #BBDEFB {
+      GET    /api/inventory/alle-exemplare/
+      POST   /api/inventory/exemplare/
+      PATCH  /api/inventory/exemplare/{id}/
+      DELETE /api/inventory/exemplare/{id}/
+    }
+    class "GegenstandstypViewSet" as VST <<views.py>> #BBDEFB {
+      DELETE /api/inventory/typen/{id}/
+    }
+    class "Serializer" as SER <<serializers.py>> #BBDEFB {
+      is_valid() : nur Format
+      (Datentyp, Pflichtfeld vorhanden)
+      serialisieren : Python → JSON
+    }
+    class "GegenstandsexemplarAdmin" as ADM <<admin.py>> #BBDEFB {
+      save_model() → service
+      delete_model() → service
+      delete_queryset() → service
+    }
+  }
+
+  package "service/" {
+    class "exemplare" as SVE <<exemplare.py>> #C8E6C9 {
+      alle_lesen()
+      anlegen(daten)
+      bearbeiten(id, aenderungen)
+      loeschen(id)
+    }
+    class "typen" as SVT <<typen.py>> #C8E6C9 {
+      anlegen(daten)
+      bearbeiten(id, aenderungen)
+      loeschen(id)
+    }
+  }
+
+  package "domaene/" {
+    class "regeln" as REG <<regeln.py>> #FFF59D {
+      pruefe_exemplar_anlegen(daten)
+      pruefe_zustand_verfuegbarkeit(zustand, status)
+      pruefe_exemplar_loeschung(anzahl)
+      pruefe_typ_loeschung(anzahl)
+      pruefe_name(name)
+    }
+    class "RegelVerstoss" as RV <<Fehler>> #FFF59D {
+      feldfehler / code
+      meldung
+    }
+  }
+
+  package "infrastruktur/" {
+    class Gegenstandstyp <<models.py>> #E1BEE7 {
+      name : CharField(100)
+      beschreibung
+      kategorie, standort
+      maximale_ausleihzeit
+    }
+    class Gegenstandsexemplar <<models.py>> #E1BEE7 {
+      inventarnummer : unique
+      zustand : Zustand
+      verfuegbarkeitsstatus
+    }
+  }
+
+  class "models.py / admin.py\n(Wurzel von inventory/)" as WEITER #F5F5F5 {
+    nur Weiterleitung, damit Django
+    Models und Admin findet
+  }
+}
+
+package "lending/" {
+  class Ausleihanfrage <<models.py>> #E1BEE7 {
+    gegenstand : FK on_delete=PROTECT
+  }
+}
+
+class "MariaDB" as DB <<Datenbank>> #E1BEE7
+
+' --- Präsentation → Controller (HTTP) ---
+GegenstandFormularSeite ..> VSE : POST / PATCH
+GegenstandDetail ..> VSE : DELETE Exemplar
+GegenstandDetail ..> VST : DELETE Typ
+
+' --- Controller → Service ---
+VSE ..> SER
+VST ..> SER
+VSE ..> SVE
+VST ..> SVT
+ADM ..> SVE
+
+' --- Service → Domäne / Infrastruktur ---
+SVE ..> REG : Regel fragen
+SVT ..> REG : Regel fragen
+REG ..> RV : wirft
+SVE ..> Gegenstandsexemplar : laden / speichern
+SVT ..> Gegenstandstyp : laden / löschen
+
+' --- Infrastruktur ---
+Gegenstandstyp "1" *-- "1..*" Gegenstandsexemplar
+Gegenstandstyp "1" -- "0..*" Ausleihanfrage : PROTECT
+Gegenstandsexemplar ..> DB
+WEITER ..> Gegenstandstyp : leitet weiter
+
+note bottom of REG
+  Kennt weder Datenbank noch HTTP.
+  Bekommt nur Werte (z. B. eine Anzahl)
+  und entscheidet erfüllt / nicht erfüllt.
+  R1: defekt/verloren ⇒ nicht verfügbar
+  R5: letztes Exemplar nicht einzeln löschen
+  R6: Typ mit Ausleihanfragen nicht löschen
+end note
+
+note bottom of SER
+  KEINE fachlichen Regeln.
+end note
+
+note top of VSE
+  Greift nie direkt auf Models
+  oder Datenbank zu.
+end note
+@enduml

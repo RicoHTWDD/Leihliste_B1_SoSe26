@@ -1,0 +1,149 @@
+@startuml current-structure
+' Design-Impact-Analyse #33 (Issue #159) – statische Sicht des IST-Zustands
+' Nur die Bausteine, die für "Gegenstand erfassen, bearbeiten, löschen" relevant sind.
+' Orange = voraussichtlich von der Änderung betroffen
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+hide empty members
+
+package "organisations" {
+  class Organisation {
+    name : CharField
+    organisationstyp : OrganisationsTyp
+  }
+}
+
+package "Backend (Django) - Inventory" {
+  enum Zustand #FFE0B2 {
+    NEU
+    GUT
+    BESCHAEDIGT
+    DEFEKT
+    VERLOREN
+  }
+  enum Verfuegbarkeitsstatus {
+    VERFUEGBAR
+    NICHT_VERFUEGBAR
+  }
+
+  class Kategorie {
+    name : CharField(255)
+    beschreibung : CharField(500) [0..1]
+  }
+  class Standort {
+    name : CharField(255)
+    beschreibung : CharField(500) [0..1]
+  }
+  class Gegenstandstyp #FFE0B2 {
+    name : CharField(255)
+    beschreibung : TextField [0..1]
+    maximale_ausleihzeit : int
+  }
+  class Gegenstandsexemplar #FFE0B2 {
+    inventarnummer : CharField(255) {unique}
+    zustand : Zustand
+    verfuegbarkeitsstatus : Verfuegbarkeitsstatus
+  }
+
+  class GegenstandsexemplarViewSet <<ReadOnlyModelViewSet>> #FFE0B2 {
+    GET /alle-exemplare/
+  }
+  class VerfügbareGegenstandsexemplarViewSet <<ReadOnlyModelViewSet>> {
+    GET /verfuegbare-exemplare/
+  }
+  class GegenstandsexemplarDetailViewSet <<ReadOnlyModelViewSet>> #FFE0B2 {
+    GET /exemplare/{id}/
+  }
+
+  class GegenstandsexemplarUebersichtSerializer #FFE0B2 {
+    read_only_fields = fields
+  }
+  class GegenstandsexemplarDetailSerializer
+  class VerfügbareGegenstandsexemplarSerializer {
+    read_only_fields = fields
+  }
+
+  class GegenstandsexemplarAdmin <<ModelAdmin>>
+  class GegenstandstypAdmin <<ModelAdmin>>
+}
+
+package "frontend (React)" {
+  class App <<Navigation>> #FFE0B2 {
+    currentPage : useState
+  }
+  class GegenstandsUebersicht <<Seite>> {
+    fetch('/api/inventory/alle-exemplare/')
+  }
+  class GegenstandDetail <<Seite>> #FFE0B2 {
+    MOCK = true
+    fetch(API_BASE + id)
+  }
+  class ErrorMessage <<UI-Baustein>>
+  class StatusBadge <<UI-Baustein>>
+}
+
+package "lending" {
+  class Ausleihanfrage #FFE0B2 {
+    startdatum : Date
+    enddatum : Date
+    anfragestatus : Anfragestatus
+  }
+}
+
+Organisation "1" -- "0..*" Standort
+Organisation "1" -- "0..*" Gegenstandstyp
+Kategorie "0..1" -- "0..*" Gegenstandstyp : SET_NULL
+Standort "0..1" -- "0..*" Gegenstandstyp : SET_NULL
+Gegenstandstyp "1" *-- "0..*" Gegenstandsexemplar : CASCADE
+Gegenstandsexemplar ..> Zustand
+Gegenstandsexemplar ..> Verfuegbarkeitsstatus
+Gegenstandstyp "1" -- "0..*" Ausleihanfrage : CASCADE
+
+GegenstandsexemplarViewSet ..> GegenstandsexemplarUebersichtSerializer
+GegenstandsexemplarDetailViewSet ..> GegenstandsexemplarDetailSerializer
+VerfügbareGegenstandsexemplarViewSet ..> VerfügbareGegenstandsexemplarSerializer
+GegenstandsexemplarDetailSerializer --|> GegenstandsexemplarUebersichtSerializer
+GegenstandsexemplarViewSet ..> Gegenstandsexemplar
+GegenstandsexemplarDetailViewSet ..> Gegenstandsexemplar
+VerfügbareGegenstandsexemplarViewSet ..> Gegenstandsexemplar
+GegenstandsexemplarAdmin ..> Gegenstandsexemplar
+GegenstandstypAdmin ..> Gegenstandstyp
+
+App ..> GegenstandsUebersicht
+GegenstandsUebersicht ..> GegenstandsexemplarViewSet : HTTP GET
+GegenstandDetail ..> GegenstandsexemplarDetailViewSet : HTTP GET
+GegenstandsUebersicht ..> ErrorMessage
+GegenstandsUebersicht ..> StatusBadge
+GegenstandDetail ..> ErrorMessage
+
+note bottom of GegenstandDetail
+  Nicht in App.jsx eingebunden, keine Buttons
+  "Bearbeiten"/"Löschen". Jede Seite ruft fetch()
+  selbst auf und deutet HTTP-Antworten selbst.
+end note
+
+note right of Gegenstandsexemplar
+  Zustand und Verfügbarkeit sind unabhängig.
+  Kommentar in models.py: "defekt oder verloren
+  müsste sich auch auf den Verfügbarkeitsstatus
+  auswirken" – wird nirgends geprüft.
+end note
+
+note bottom of Ausleihanfrage
+  on_delete=CASCADE: Löschen eines Gegenstandstyps
+  löscht auch alle zugehörigen Ausleihanfragen
+  (App-übergreifend, Verlust der Historie).
+end note
+
+note bottom of GegenstandsexemplarViewSet
+  Alle drei ViewSets sind nur lesend:
+  POST/PUT/DELETE liefern heute 405.
+end note
+
+note top of GegenstandsexemplarAdmin
+  Einziger heutiger Schreibweg:
+  Django-Admin speichert/löscht ohne
+  fachliche Prüfung.
+end note
+@enduml

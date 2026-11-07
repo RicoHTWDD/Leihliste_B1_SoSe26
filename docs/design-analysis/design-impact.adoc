@@ -1,0 +1,114 @@
+= Design-Impact-Analyse: #33 Gegenstand erfassen, bearbeiten und löschen
+:toc: left
+:sectnums:
+
+Issue: #159 (Sub-Issue von Story #33) · Bearbeiter: Jevan · Sprint 4 · Praktikum SE 2, Teil 1
+
+Diese Analyse beschreibt den heutigen Stand des Systems, also vor der Trennung in Schichten. Sie zeigt, wo die geplante Änderung das System trifft. Der Entwurf folgt in `design-decision.adoc`.
+
+== Gewählte Änderung und Untersuchungsfrage
+
+*Änderung:* Verleiher sollen in der Oberfläche Gegenstandsexemplare und Gegenstandstypen anlegen, bearbeiten und löschen können.
+
+Dabei gelten diese fachlichen Regeln:
+
+* Pflichtfelder müssen ausgefüllt sein.
+* Der Name eines Gegenstandstyps hat höchstens 100 Zeichen.
+* Standort, Kategorie und Zustand werden aus vorgegebenen Werten gewählt.
+* Jedes Exemplar gehört zu genau einem Gegenstandstyp.
+* Gelöscht wird erst nach einer Rückfrage.
+* Ein defektes oder verlorenes Exemplar darf nicht verfügbar sein _(Annahme)_.
+* Das letzte Exemplar eines Typs wird nicht einzeln gelöscht _(Annahme)_.
+* Ein Gegenstandstyp mit Ausleihanfragen darf nicht gelöscht werden _(Annahme)_.
+
+*Untersuchte Abläufe:* Gegenstände anzeigen, Gegenstand anlegen, Gegenstand bearbeiten, Gegenstand löschen, Gegenstandstyp löschen.
+
+*Untersuchungsfrage:* Gibt es heute einen Ort, an dem diese Regeln stehen können? Und wie viele Stellen im System muss die Änderung anfassen?
+
+== Modelle
+
+* `current-structure.puml`: Klassendiagramm des heutigen Stands. Orange markiert, was die Änderung betrifft.
+* `current-flow.puml`: Sequenzdiagramm der fünf Abläufe. Rote Notizen markieren die Befunde.
+
+Alle Befunde wurden am laufenden System geprüft.
+
+== Analyse anhand der Gestaltungsaspekte
+
+[cols="1,3,3",options="header"]
+|===
+| Gestaltungsaspekt | Beobachtung im aktuellen System | Auswirkung der Änderung
+
+| Zustand & Invarianten
+a| * Zustand und Verfügbarkeit sind zwei getrennte Felder. Nichts verbindet sie.
+* Ein defektes Exemplar kann als verfügbar gespeichert werden.
+* Das letzte Exemplar eines Typs kann gelöscht werden.
+* Der Name darf 255 Zeichen lang sein.
+* Geprüft wird nur, dass die Inventarnummer eindeutig ist.
+* Die Zustandswerte im Code (neu, gut, beschädigt, defekt, verloren) weichen von #33 ab (Gebraucht – gut, Gebraucht – beschädigt).
+a| * Alle fachlichen Regeln aus #33 müssen neu geschrieben werden. Heute gibt es keine davon im Code.
+* Nach jedem Anlegen oder Bearbeiten oder Löschen muss es Prüfungen unterzogen werden.
+* Die Namenslänge muss von 255 auf 100 Zeichen sinken. Dafür ist eine Migration nötig.
+
+| Verhalten & Verantwortlichkeit
+a| * `views.py` holt die Daten selbst direkt aus dem Model.
+* Alle Inventar-ViewSets können nur lesen. Anlegen, Bearbeiten und Löschen über die REST-Schnittstelle liefern den Fehler 405 wegen ReadOnly.
+* Schreiben geht nur über den Django-Admin. Er prüft nur, was in den Model-Feldern steht z.B. unique bei Inventarnummer. Fachliche Regeln werden nicht geprüft.
+* Es gibt keine Stelle, an der fachliche Regeln stehen.
+a|* EInführung klarer Schichten: Controller, Service, Domäne und Infrastruktur. Jede Schicht hat eine klar definierte Aufgabe. Trennung der Zuständikeiten. 
+* Die ViewSets müssen zusätzlich Anlegen, Bearbeiten und Löschen anbieten.
+* Es muss eine neue Stelle geben, an der die fachlichen Regeln entschieden werden, dies wird in Domäne geschehen.
+* Controller würde die HTTP-Anfrage annehmen, in Python Objekt umwandeln und an Service weitergeben. Service würde die Regeln prüfen und das Objekt an Domäne weitergeben. Domäne meldet eine Antwort und wenn erlaubt schreibt der Service in die Infrastruktur/Persistenzschicht(Datenbank). DB sendet insert .. oder update oder delete an DB-Server. DB meldet Erfolg oder Fehler. Service meldet Erfolg oder Fehler an Controller. Controller wandelt Antwort in JSON um und sendet sie zurück.
+
+
+| Abhängigkeiten & Kopplung
+a| * Wird ein Gegenstandstyp gelöscht, löscht die Datenbank seine Ausleihanfragen mit (`on_delete=CASCADE` in `lending/models.py`).
+* `views.py` hängt direkt am Model.
+* Jede Frontend-Seite ruft das Backend selbst auf und zeigt jeden Fehler gleich an.
+* Es gibt keine Anmeldung.
+a| * Die Änderung betrifft auch die App `lending`: `CASCADE` muss durch `PROTECT` ersetzt werden. Dafür ist eine Migration nötig.
+* Die Regel „Typ mit Ausleihanfragen nicht löschen“ braucht die Anzahl der Anfragen aus `lending`.
+* kontinuierliche Abhängigkeit von Domäne (regeln.py) und Infrastruktur (Modelle, Datenbank) für die Prüfung der Regeln.
+
+
+| Grenzen & Kohäsion
+a| * Für dasselbe Model gibt es drei ViewSets und zwei fast gleiche Serializer.
+* Ein ViewSet erledigt HTTP und Datenzugriff zugleich.
+a| * die Änderung erstreckt sich über mehrere Schichten und verschiedene Bausteine, um eine saubere Trennung der Verantwortlichkeiten zu erreichen.
+* Die Änderung bleibt nicht in `inventory`, sondern reicht in `lending` und ins Frontend.
+* Es werden neue ViewSets und Serializer für Anlegen, Bearbeiten und Löschen benötigt. Sie müssen die Regeln aus Domäne nutzen.
+
+| Änderung & Variabilität
+a| * Es gibt keinen zentralen Ort für Regeln oder Abläufe im Inventar.
+a| * Betroffen sind: `models.py`, `serializers.py`, `views.py`, `urls.py`, `admin.py`, Migrationen, `lending/models.py`, neue noch nicht existierende Dateien und das Frontend (Formular, Detailseite, Navigation).
+
+
+| Repräsentation & Verarbeitungsform
+a|  * Eine Beschreibung gibt es nur beim Gegenstandstyp, ein Bildfeld gibt es nicht.
+* Die Detailseite im Frontend ist nicht eingebunden und zeigt nur Beispieldaten. Buttons zum Bearbeiten und Löschen fehlen.
+a| * Die Auswahllisten und Verweise passen zu #33 und bleiben.
+* Der PO muss klären, ob mit „Beschreibung“ die Beschreibung des Typs gemeint ist. Sonst braucht das Exemplar ein neues Feld.
+* Bilder brauchen ein neues Feld in Tabelle Gegenstandsexemplar.
+* Die Detailseite muss eingebunden werden, echte Daten zeigen und die Buttons „Bearbeiten“ und „Löschen“ bekommen.
+|===
+
+== Wichtigste Beobachtungen
+
+. *Löschen eines Typs löscht Ausleihanfragen mit.* +
+  `lending/models.py`: `gegenstand = ForeignKey('inventory.Gegenstandstyp', on_delete=models.CASCADE)`. +
+  Geprüft: Beim Löschen eines Typs mit einer Ausleihanfrage verschwanden die Exemplare und die Anfrage. Die Verleihhistorie ist dann weg.
+. *Es gibt keinen Ort für fachliche Regeln.* +
+  `views.py` holt Daten selbst und kann nicht schreiben. Der Admin schreibt ohne fachliche Prüfung.
+. *Fachliche Regeln werden nicht eingehalten.* +
+  Ein defektes Exemplar kann verfügbar sein. Das letzte Exemplar eines Typs kann gelöscht werden. Der Name darf zu lang sein.
+. *Notwendigkeit der Trennung in Schichten.* +
+  Controller, Service, Domäne und Infrastruktur haben unterschiedliche Aufgaben. Heute erledigt `views.py` alles selbst. Die Regeln müssen in Domäne stehen, damit sie überall gelten. 
+
+
+== Bewertung
+
+*Design-Auswirkung:* Die Änderung trifft fast alle Dateien der App `inventory`. Sie reicht in die App `lending` und in die Navigation des Frontends. Sie hängt von Bausteinen ab, die es noch nicht gibt.
+
+*Bewertung:* Für das Lesen reicht die heutige Struktur. Für das Schreiben fehlt eine Stelle, die den Ablauf steuert und über die Regeln entscheidet.
+
+
+Ausschlaggebend sind *Abhängigkeiten & Kopplung*, *Verhalten & Verantwortlichkeit* sowie *Zustand & Invarianten*.

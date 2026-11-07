@@ -1,0 +1,227 @@
+@startuml proposed-flow
+' Praktikum SE 2, Teil 2 – dynamische Sicht des Entwurfs für #33 (Vergleich mit dem Ist-Ablauf: current-flow.puml)
+' Strikte Schichtung: Controller → Service → Domäne / Infrastruktur
+' Der Controller greift nie direkt auf Model oder Datenbank zu.
+' Gelbe Notizen = fachliche Regeln
+
+scale 0.85
+skinparam ParticipantPadding 12
+skinparam BoxPadding 8
+
+actor "Verleiher" as V
+participant "Frontend\nGegenstandsUebersicht /\nGegenstandDetail\n<<Präsentation>>" as FE #FFE0B2
+
+box "Backend (Django) – inventory/" #F2F2F2
+  participant "Controller/views.py\nGegenstandsexemplarViewSet /\nGegenstandstypViewSet" as VS #BBDEFB
+  participant "Controller/serializers.py\nSerializer" as SER #BBDEFB
+  participant "Service/exemplare.py\nanlegen()\nbearbeiten()\nloeschen()" as SVE #C8E6C9
+  participant "Service/typen.py\nanlegen()\nbearbeiten()\nloeschen()" as SVT #C8E6C9
+  participant "Domäne/regeln.py\nfachliche Regeln\nR1, R5, R6" as REG #FFF59D
+  participant "Infrastruktur/models.py\nGegenstandstyp /\nGegenstandsexemplar" as M #E1BEE7
+end box
+
+database "MariaDB\n<<Infrastruktur>>" as DB #E1BEE7
+
+legend bottom
+  | Farbe | Schicht | Aufgabe |
+  |<#BBDEFB>| Controller | HTTP/JSON rein und raus |
+  |<#C8E6C9>| Service | Ablauf koordinieren |
+  |<#FFF59D>| Domäne | fachlich entscheiden |
+  |<#E1BEE7>| Infrastruktur | Daten speichern/lesen |
+endlegend
+
+== 1. Gegenstände anzeigen ==
+autonumber 1
+V -> FE : Menüpunkt "Gegenstände"
+FE -> VS : GET /api/inventory/alle-exemplare/
+VS -> SVE : alle_lesen()
+SVE -> M : objects.select_related(gegenstand, standort, kategorie)
+M -> DB : SELECT ... JOIN
+DB --> M : Datensätze
+M --> SVE : QuerySet
+SVE --> VS : Exemplare
+VS -> SER : serialisieren (Python → JSON)
+SER --> VS : JSON
+VS --> FE : 200 OK {Exemplare in JSON}
+FE --> V : Tabelle mit Status, Kategorie, Standort
+
+== 2. Gegenstand anlegen ==
+autonumber 1
+V -> FE : "Gegenstand erfassen", Formular ausfüllen, "Speichern"
+FE -> VS : POST /api/inventory/exemplare/\n{gegenstand, inventarnummer, zustand, verfuegbarkeitsstatus}
+VS -> SER : is_valid() – nur Format prüfen (JSON → Python)
+note right of SER
+  Nur Format: Datentyp, Pflichtfeld vorhanden.
+  KEINE fachlichen Regeln.
+end note
+SER --> VS : Daten als Python-Objekte
+VS -> SVE : anlegen(daten)
+note right of SVE
+  Einziger Eingang zum Anlegen.
+  Prüft selbst nichts, fragt immer
+  zuerst die Domäne.
+  Auch admin.py legt über anlegen() an –
+  die Regeln gelten für beide Wege.
+end note
+SVE -> REG : pruefe_exemplar_anlegen(daten)
+note right of REG #FFF9C4
+  **Fachliche Regeln beim Anlegen:**
+  - Pflichtfelder gefüllt
+  - Name höchstens 100 Zeichen
+  - R1: defekt/verloren ⇒ nicht "verfügbar"
+end note
+
+alt fachliche Regeln erfüllt
+  REG --> SVE : erfüllt
+  SVE -> M : Gegenstandsexemplar(...).save()
+  M -> DB : INSERT gegenstandsexemplar
+  note right of DB
+    technische Absicherung:
+    max_length=100, Inventarnummer unique
+  end note
+  DB --> M : gespeichert
+  M --> SVE : neues Exemplar
+  SVE --> VS : neues Exemplar
+  VS -> SER : serialisieren (Python → JSON)
+  SER --> VS : JSON
+  VS --> FE : 201 Created {Exemplar in JSON}
+  FE --> V : Erfolgsmeldung, Gegenstand erscheint in der Liste
+else fachliche Regeln nicht erfüllt
+  REG --> SVE : Regelverstoß {feldname: meldung}
+  SVE --> VS : Fehlermeldung {feldname: meldung}
+  VS --> FE : 400 Bad Request {feldname: meldung}
+  FE --> V : Fehlermeldung direkt am Feld
+end
+
+== 3. Gegenstand bearbeiten ==
+autonumber 1
+V -> FE : Detailansicht "Bearbeiten", Felder ändern, "Speichern"
+FE -> VS : PATCH /api/inventory/exemplare/{id}/\n{geänderte Felder}
+VS -> SER : is_valid(partial) – nur Format prüfen
+SER --> VS : geprüfte Änderungen
+VS -> SVE : bearbeiten(id, aenderungen)
+SVE -> M : Exemplar laden (id)
+M -> DB : SELECT gegenstandsexemplar
+DB --> M : Datensatz
+M --> SVE : Exemplar
+SVE -> REG : pruefe_zustand_verfuegbarkeit(zustand, status)
+note right of REG #FFF9C4
+  **Fachliche Regel R1:**
+  defekt/verloren ⇒ nicht verfügbar
+  (alte + neue Werte zusammen geprüft)
+end note
+
+alt fachliche Regel erfüllt
+  REG --> SVE : erfüllt
+  SVE -> M : exemplar.save()
+  M -> DB : UPDATE gegenstandsexemplar
+  DB --> M : gespeichert
+  M --> SVE : geändertes Exemplar
+  SVE --> VS : geändertes Exemplar
+  VS -> SER : serialisieren (Python → JSON)
+  SER --> VS : JSON
+  VS --> FE : 200 OK {Exemplar in JSON}
+  FE --> V : Erfolgsmeldung, aktualisierte Detailansicht
+else fachliche Regel nicht erfüllt
+  REG --> SVE : Regelverstoß {verfuegbarkeitsstatus: meldung}
+  SVE --> VS : Fehlermeldung {verfuegbarkeitsstatus: meldung}
+  VS --> FE : 400 Bad Request {verfuegbarkeitsstatus: meldung}
+  FE --> V : Fehlermeldung direkt am Feld,\nnichts wurde geändert
+end
+
+== 4. Gegenstand löschen ==
+autonumber 1
+V -> FE : Detailansicht "Löschen"
+FE --> V : Rückfrage "Wirklich löschen?"
+note right of FE #FFF9C4
+  **Fachliche Regel:**
+  Löschen erst nach Bestätigung
+end note
+
+alt Löschen bestätigt
+  V -> FE : "Löschen" bestätigen
+  FE -> VS : DELETE /api/inventory/exemplare/{id}/
+  VS -> SVE : loeschen(id)
+  SVE -> M : Exemplar laden, Exemplare des Typs zählen
+  M -> DB : SELECT / COUNT gegenstandsexemplar
+  DB --> M : Exemplar, Anzahl
+  M --> SVE : Exemplar, Anzahl
+  SVE -> REG : pruefe_exemplar_loeschung(anzahl)
+  note right of REG #FFF9C4
+    **Fachliche Regel R5:**
+    Ein Gegenstandstyp hat mindestens ein Exemplar
+    ⇒ das letzte Exemplar wird nicht einzeln gelöscht
+  end note
+
+  alt fachliche Regel erfüllt
+    REG --> SVE : erfüllt
+    SVE -> M : exemplar.delete()
+    M -> DB : DELETE gegenstandsexemplar
+    DB --> M : gelöscht
+    M --> SVE : gelöscht
+    SVE --> VS : gelöscht
+    VS --> FE : 204 No Content
+    FE --> V : Erfolgsmeldung, zurück zur Liste
+  else fachliche Regel nicht erfüllt (letztes Exemplar)
+    REG --> SVE : Regelverstoß {code: LETZTES_EXEMPLAR, meldung}
+    SVE --> VS : Fehlermeldung {code, meldung}
+    VS --> FE : 409 Conflict {code, meldung}
+    FE --> V : Hinweis in der Detailansicht,\nExemplar bleibt erhalten
+  end
+else Löschen abgebrochen
+  V -> FE : "Abbrechen"
+  FE --> V : Dialog schließt, nichts wird gelöscht\n(keine Anfrage ans Backend)
+end
+
+== 5. Gegenstandstyp löschen ==
+autonumber 1
+V -> FE : Gegenstandstyp "Löschen"
+FE --> V : Rückfrage "Wirklich löschen?"
+note right of FE #FFF9C4
+  **Fachliche Regel:**
+  Löschen erst nach Bestätigung
+end note
+
+alt Löschen bestätigt
+  V -> FE : "Löschen" bestätigen
+  FE -> VS : DELETE /api/inventory/typen/{id}/
+  VS -> SVT : loeschen(id)
+  SVT -> M : Typ laden, Ausleihanfragen zählen
+  M -> DB : SELECT gegenstandstyp / COUNT ausleihanfrage
+  DB --> M : Typ, Anzahl
+  M --> SVT : Typ, Anzahl
+  SVT -> REG : pruefe_typ_loeschung(anzahl)
+  note right of REG #FFF9C4
+    **Fachliche Regel R6:**
+    Ein Gegenstandstyp mit Ausleihanfragen
+    darf nicht gelöscht werden
+    (Nachvollziehbarkeit der Verleihhistorie)
+  end note
+
+  alt fachliche Regel erfüllt
+    REG --> SVT : erfüllt
+    SVT -> M : typ.delete()
+    M -> DB : DELETE gegenstandsexemplar (CASCADE)
+    M -> DB : DELETE gegenstandstyp
+    DB --> M : gelöscht
+    note right of DB
+      Geprüft: on_delete=CASCADE in lending/models.py
+      würde Ausleihanfragen mitlöschen ("Mikroskop
+      Leica DM500": 3 Exemplare + 1 Anfrage).
+      Deshalb R6 im Service + PROTECT als Absicherung.
+    end note
+    M --> SVT : gelöscht
+    SVT --> VS : gelöscht
+    VS --> FE : 204 No Content
+    FE --> V : Erfolgsmeldung, zurück zur Liste
+  else fachliche Regel nicht erfüllt (Ausleihanfragen vorhanden)
+    REG --> SVT : Regelverstoß {code: ANFRAGEN_VORHANDEN, meldung}
+    SVT --> VS : Fehlermeldung {code, meldung}
+    VS --> FE : 409 Conflict {code, meldung}
+    FE --> V : Hinweis in der Detailansicht,\nGegenstandstyp und Anfragen bleiben erhalten
+  end
+else Löschen abgebrochen
+  V -> FE : "Abbrechen"
+  FE --> V : Dialog schließt, nichts wird gelöscht\n(keine Anfrage ans Backend)
+end
+@enduml

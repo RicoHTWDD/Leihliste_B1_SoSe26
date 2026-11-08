@@ -327,8 +327,7 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
       {/* Button zum Zurücksetzen aller Filter */}
       <Stack
         direction="row"
-        justifyContent="flex-end"
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, justifyContent: 'flex-end' }}
       >
         <Button
           size="small"

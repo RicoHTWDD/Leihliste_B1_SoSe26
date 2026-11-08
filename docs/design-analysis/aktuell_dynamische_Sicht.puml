@@ -36,10 +36,7 @@ VS -> SER : serialisieren (Python → JSON)
 SER --> VS : JSON
 VS --> FE : 200 OK {Exemplare in JSON}
 FE --> V : Tabelle mit Status, Kategorie, Standort
-note right of FE
-  GegenstandsUebersicht.jsx ruft fetch() selbst auf;
-  jeder Fehler wird pauschal angezeigt (.catch).
-end note
+
 
 == 2. Gegenstand anlegen ==
 autonumber 1
@@ -67,10 +64,7 @@ end note
 == 3. Gegenstand bearbeiten ==
 autonumber 1
 V -> FE : Detailansicht "Bearbeiten"
-note right of FE #FFCDD2
-  Detailseite nicht eingebunden (MOCK = true),
-  kein Button "Bearbeiten"
-end note
+
 FE -> VS : PATCH /api/inventory/exemplare/{id}/
 VS --> FE : 405 Method Not Allowed
 V -> ADM : Exemplar im Admin ändern, "Sichern"

@@ -1,3 +1,6 @@
+from datetime import date
+
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -52,6 +55,54 @@ class Ausleihanfrage(models.Model):
 
     class Meta:
         db_table = 'ausleihanfrage'
+
+    def clean(self):
+        super().clean()
+
+        # Ursprüngliche Datumswerte einer bereits gespeicherten Anfrage laden.
+        ursprungsdaten = None
+
+        if self.pk is not None:
+            ursprungsdaten = (
+                type(self).objects
+                .filter(pk=self.pk)
+                .values('startdatum', 'enddatum')
+                .first()
+            )
+
+        # Prüfen, ob sich das Startdatum verändert hat.
+        startdatum_geaendert = (
+            ursprungsdaten is None
+            or self.startdatum != ursprungsdaten['startdatum']
+        )
+
+        # Prüfen, ob sich das Rückgabedatum verändert hat.
+        enddatum_geaendert = (
+            ursprungsdaten is None
+            or self.enddatum != ursprungsdaten['enddatum']
+        )
+
+        if (
+            startdatum_geaendert
+            and self.startdatum
+            and self.startdatum <= date.today()
+        ):
+            raise ValidationError({
+                'startdatum': 'Das Startdatum muss in der Zukunft liegen.'
+            })
+
+        if (
+            (startdatum_geaendert or enddatum_geaendert)
+            and self.startdatum
+            and self.enddatum
+            and self.enddatum <= self.startdatum
+        ):
+            raise ValidationError({
+                'enddatum': (
+                    'Das Rückgabedatum muss nach dem Startdatum liegen.'
+                )
+            })
+
 
     def __str__(self):
         return f"Anfrage {self.id} von {self.nutzer} ({self.anfragestatus})"

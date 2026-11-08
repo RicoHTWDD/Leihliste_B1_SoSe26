@@ -1,96 +1,141 @@
 @startuml current-structure
 ' Design-Impact-Analyse #33 (Issue #159) – statische Sicht des IST-Zustands
-' Nur die Bausteine, die für "Gegenstand erfassen, bearbeiten, löschen" relevant sind.
+' Äußere Box = App, innere Box = Datei. Jede Klasse steht in der Datei, in der sie definiert ist.
 ' Orange = voraussichtlich von der Änderung betroffen
 
 skinparam classAttributeIconSize 0
 skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam ArrowColor #181818
+skinparam class {
+  BackgroundColor #F1F1F1
+  BorderColor #181818
+}
+skinparam package {
+  BorderColor #181818
+  BorderThickness 1.5
+}
+skinparam note {
+  BackgroundColor #FEFFDD
+  BorderColor #181818
+}
 hide empty members
+scale 0.85
 
-package "organisations" {
-  class Organisation {
-    name : CharField
-    organisationstyp : OrganisationsTyp
+package "Backend (Django)" as backend <<Rectangle>> {
+
+package "organisations/" <<Rectangle>> {
+  package "models.py" as org_models <<Rectangle>> {
+    class Organisation {
+      name : CharField
+      organisationstyp : OrganisationsTyp
+    }
   }
 }
 
-package "Backend (Django) - Inventory" {
-  enum Zustand #FFE0B2 {
-    NEU
-    GUT
-    BESCHAEDIGT
-    DEFEKT
-    VERLOREN
-  }
-  enum Verfuegbarkeitsstatus {
-    VERFUEGBAR
-    NICHT_VERFUEGBAR
+package "inventory/" <<Rectangle>> {
+
+  package "models.py" as inv_models <<Rectangle>> {
+    enum Zustand #FFE0B2 {
+      NEU
+      GUT
+      BESCHAEDIGT
+      DEFEKT
+      VERLOREN
+    }
+    enum Verfuegbarkeitsstatus {
+      VERFUEGBAR
+      NICHT_VERFUEGBAR
+    }
+    class Kategorie {
+      name : CharField(255)
+      beschreibung : CharField(500) [0..1]
+    }
+    class Standort {
+      name : CharField(255)
+      beschreibung : CharField(500) [0..1]
+    }
+    class Gegenstandstyp #FFE0B2 {
+      name : CharField(255)
+      beschreibung : TextField [0..1]
+      maximale_ausleihzeit : int
+    }
+    class Gegenstandsexemplar #FFE0B2 {
+      inventarnummer : CharField(255) {unique}
+      zustand : Zustand
+      verfuegbarkeitsstatus : Verfuegbarkeitsstatus
+    }
   }
 
-  class Kategorie {
-    name : CharField(255)
-    beschreibung : CharField(500) [0..1]
-  }
-  class Standort {
-    name : CharField(255)
-    beschreibung : CharField(500) [0..1]
-  }
-  class Gegenstandstyp #FFE0B2 {
-    name : CharField(255)
-    beschreibung : TextField [0..1]
-    maximale_ausleihzeit : int
-  }
-  class Gegenstandsexemplar #FFE0B2 {
-    inventarnummer : CharField(255) {unique}
-    zustand : Zustand
-    verfuegbarkeitsstatus : Verfuegbarkeitsstatus
+  package "views.py" as inv_views <<Rectangle>> {
+    class GegenstandsexemplarViewSet <<ReadOnlyModelViewSet>> #FFE0B2 {
+      GET /alle-exemplare/
+    }
+    class VerfügbareGegenstandsexemplarViewSet <<ReadOnlyModelViewSet>> {
+      GET /verfuegbare-exemplare/
+    }
+    class GegenstandsexemplarDetailViewSet <<ReadOnlyModelViewSet>> #FFE0B2 {
+      GET /exemplare/{id}/
+    }
   }
 
-  class GegenstandsexemplarViewSet <<ReadOnlyModelViewSet>> #FFE0B2 {
-    GET /alle-exemplare/
-  }
-  class VerfügbareGegenstandsexemplarViewSet <<ReadOnlyModelViewSet>> {
-    GET /verfuegbare-exemplare/
-  }
-  class GegenstandsexemplarDetailViewSet <<ReadOnlyModelViewSet>> #FFE0B2 {
-    GET /exemplare/{id}/
-  }
-
-  class GegenstandsexemplarUebersichtSerializer #FFE0B2 {
-    read_only_fields = fields
-  }
-  class GegenstandsexemplarDetailSerializer
-  class VerfügbareGegenstandsexemplarSerializer {
-    read_only_fields = fields
+  package "serializers.py" as inv_serializers <<Rectangle>> {
+    class GegenstandsexemplarUebersichtSerializer #FFE0B2 {
+      read_only_fields = fields
+    }
+    class GegenstandsexemplarDetailSerializer
+    class VerfügbareGegenstandsexemplarSerializer {
+      read_only_fields = fields
+    }
   }
 
-  class GegenstandsexemplarAdmin <<ModelAdmin>>
-  class GegenstandstypAdmin <<ModelAdmin>>
-}
-
-package "frontend (React)" {
-  class App <<Navigation>> #FFE0B2 {
-    currentPage : useState
-  }
-  class GegenstandsUebersicht <<Seite>> {
-    fetch('/api/inventory/alle-exemplare/')
-  }
-  class GegenstandDetail <<Seite>> #FFE0B2 {
-    MOCK = true
-    fetch(API_BASE + id)
-  }
-  class ErrorMessage <<UI-Baustein>>
-  class StatusBadge <<UI-Baustein>>
-}
-
-package "lending" {
-  class Ausleihanfrage #FFE0B2 {
-    startdatum : Date
-    enddatum : Date
-    anfragestatus : Anfragestatus
+  package "admin.py" as inv_admin <<Rectangle>> {
+    class GegenstandsexemplarAdmin <<ModelAdmin>>
+    class GegenstandstypAdmin <<ModelAdmin>>
+    class KategorieAdmin <<ModelAdmin>>
+    class StandortAdmin <<ModelAdmin>>
   }
 }
 
+package "lending/" <<Rectangle>> {
+  package "models.py" as lend_models <<Rectangle>> {
+    class Ausleihanfrage #FFE0B2 {
+      startdatum : Date
+      enddatum : Date
+      anfragestatus : Anfragestatus
+    }
+  }
+}
+
+}
+
+package "frontend/src/ (React)" <<Rectangle>> {
+  package "App.jsx" as fe_app <<Rectangle>> {
+    class App <<Navigation>> #FFE0B2 {
+      currentPage : useState
+    }
+  }
+  package "pages/GegenstandsUebersicht.jsx" as fe_uebersicht <<Rectangle>> {
+    class GegenstandsUebersicht <<Seite>> {
+      fetch('/api/inventory/alle-exemplare/')
+    }
+  }
+  package "pages/GegenstandDetail.jsx" as fe_detail <<Rectangle>> {
+    class GegenstandDetail <<Seite>> #FFE0B2 {
+      MOCK = true
+      fetch(API_BASE + id)
+    }
+  }
+  package "components/ui/ErrorMessage.jsx" as fe_error <<Rectangle>> {
+    class ErrorMessage <<UI-Baustein>>
+  }
+  package "components/ui/StatusBadge.jsx" as fe_badge <<Rectangle>> {
+    class StatusBadge <<UI-Baustein>>
+  }
+}
+
+' --- Beziehungen zwischen Models ---
 Organisation "1" -- "0..*" Standort
 Organisation "1" -- "0..*" Gegenstandstyp
 Kategorie "0..1" -- "0..*" Gegenstandstyp : SET_NULL
@@ -100,6 +145,7 @@ Gegenstandsexemplar ..> Zustand
 Gegenstandsexemplar ..> Verfuegbarkeitsstatus
 Gegenstandstyp "1" -- "0..*" Ausleihanfrage : CASCADE
 
+' --- views.py → serializers.py / models.py ---
 GegenstandsexemplarViewSet ..> GegenstandsexemplarUebersichtSerializer
 GegenstandsexemplarDetailViewSet ..> GegenstandsexemplarDetailSerializer
 VerfügbareGegenstandsexemplarViewSet ..> VerfügbareGegenstandsexemplarSerializer
@@ -107,9 +153,14 @@ GegenstandsexemplarDetailSerializer --|> GegenstandsexemplarUebersichtSerializer
 GegenstandsexemplarViewSet ..> Gegenstandsexemplar
 GegenstandsexemplarDetailViewSet ..> Gegenstandsexemplar
 VerfügbareGegenstandsexemplarViewSet ..> Gegenstandsexemplar
+
+' --- admin.py → models.py ---
 GegenstandsexemplarAdmin ..> Gegenstandsexemplar
 GegenstandstypAdmin ..> Gegenstandstyp
+KategorieAdmin ..> Kategorie
+StandortAdmin ..> Standort
 
+' --- Frontend ---
 App ..> GegenstandsUebersicht
 GegenstandsUebersicht ..> GegenstandsexemplarViewSet : HTTP GET
 GegenstandDetail ..> GegenstandsexemplarDetailViewSet : HTTP GET

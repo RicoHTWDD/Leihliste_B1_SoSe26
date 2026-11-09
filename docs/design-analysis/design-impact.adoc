@@ -27,8 +27,8 @@ Dabei gelten diese fachlichen Regeln:
 
 == Modelle
 
-* `current-structure.puml`: Klassendiagramm des heutigen Stands. Orange markiert, was die Änderung betrifft.
-* `current-flow.puml`: Sequenzdiagramm der fünf Abläufe. Rote Notizen markieren die Befunde.
+* `current-structure.puml`: Klassendiagramm des heutigen Stands. 
+* `current-flow.puml`: Sequenzdiagramm der fünf Abläufe.
 
 Alle Befunde wurden am laufenden System geprüft.
 

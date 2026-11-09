@@ -17,9 +17,9 @@ Dabei gelten diese fachlichen Regeln:
 * Standort, Kategorie und Zustand werden aus vorgegebenen Werten gewählt.
 * Jedes Exemplar gehört zu genau einem Gegenstandstyp.
 * Gelöscht wird erst nach einer Rückfrage.
-* Ein defektes oder verlorenes Exemplar darf nicht verfügbar sein _(Annahme)_.
-* Das letzte Exemplar eines Typs wird nicht einzeln gelöscht _(Annahme)_.
-* Ein Gegenstandstyp mit Ausleihanfragen darf nicht gelöscht werden _(Annahme)_.
+* Ein defektes oder verlorenes Exemplar darf nicht verfügbar sein.
+* Das letzte Exemplar eines Typs wird nicht einzeln gelöscht.
+* Ein Gegenstandstyp mit Ausleihanfragen darf nicht gelöscht werden.
 
 *Untersuchte Abläufe:* Gegenstände anzeigen, Gegenstand anlegen, Gegenstand bearbeiten, Gegenstand löschen, Gegenstandstyp löschen.
 
@@ -83,12 +83,10 @@ a| * Betroffen sind: `models.py`, `serializers.py`, `views.py`, `urls.py`, `admi
 
 
 | Repräsentation & Verarbeitungsform
-a|  * Eine Beschreibung gibt es nur beim Gegenstandstyp, ein Bildfeld gibt es nicht.
-* Die Detailseite im Frontend ist nicht eingebunden und zeigt nur Beispieldaten. Buttons zum Bearbeiten und Löschen fehlen.
-a| * Die Auswahllisten und Verweise passen zu #33 und bleiben.
-* Der PO muss klären, ob mit „Beschreibung“ die Beschreibung des Typs gemeint ist. Sonst braucht das Exemplar ein neues Feld.
-* Bilder brauchen ein neues Feld in Tabelle Gegenstandsexemplar.
-* Die Detailseite muss eingebunden werden, echte Daten zeigen und die Buttons „Bearbeiten“ und „Löschen“ bekommen.
+a|  * Alle ViewsSets sind jetzt ReadOnlyModelViewset und alle Serializer setzen Felder auf nur lesend.
+
+a| * Schreibende Endpunkte  für Anlegen, Bearbeiten und Löschen kommen neu dazu, ebenso Serializer wird ums Schreiben ergänzt.
+
 |===
 
 == Wichtigste Beobachtungen

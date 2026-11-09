@@ -2,7 +2,7 @@
 :toc: left
 :sectnums:
 
-Issue: #159 (Sub-Issue von Story #33) · Bearbeiter: Jevan · Sprint 4 · Praktikum SE 2, Teil 1
+
 
 Diese Analyse beschreibt den heutigen Stand des Systems, also vor der Trennung in Schichten. Sie zeigt, wo die geplante Änderung das System trifft. Der Entwurf folgt in `design-decision.adoc`.
 
@@ -23,7 +23,7 @@ Dabei gelten diese fachlichen Regeln:
 
 *Untersuchte Abläufe:* Gegenstände anzeigen, Gegenstand anlegen, Gegenstand bearbeiten, Gegenstand löschen, Gegenstandstyp löschen.
 
-*Untersuchungsfrage:* Gibt es heute einen Ort, an dem diese Regeln stehen können? Und wie viele Stellen im System muss die Änderung anfassen?
+*Untersuchungsfrage:* Gibt es heute einen Ort, an dem diese Regeln stehen können? Wird die ganze Implementierung in view.py stattfinden, also der für Django Framework vorgeschlagene und vorgesehene Service Datei? Und wie viele Stellen im System muss die Änderung anfassen?
 
 == Modelle
 

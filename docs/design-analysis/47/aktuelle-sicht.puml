@@ -1,0 +1,140 @@
+@startuml aktuell-sicht
+
+set separator none
+
+title Ist-Struktur: Kategorien und Standorte verwalten\n(aktueller Stand)
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam noteBackgroundColor #FFF8E1
+skinparam noteBorderColor #C9A227
+hide empty members
+
+package "inventory" {
+  class Kategorie <<Model>> #FFE0B2 {
+    name : String(255)
+    beschreibung : String(500) [0..1]
+    is_seed : Boolean
+    --
+    __str__() : String
+  }
+
+  class Standort <<Model>> #FFE0B2 {
+    organisation : ForeignKey
+    name : String(255)
+    beschreibung : String(500) [0..1]
+    is_seed : Boolean
+    --
+    __str__() : String
+  }
+
+  class Gegenstandstyp <<Model>> {
+    organisation : ForeignKey
+    kategorie : ForeignKey [0..1]
+    standort : ForeignKey [0..1]
+    name : String(255)
+    beschreibung : Text [0..1]
+  }
+
+  class Gegenstandsexemplar <<Model>> {
+    gegenstand : ForeignKey
+    inventarnummer : String
+    zustand : Zustand
+    verfuegbarkeitsstatus : Verfuegbarkeitsstatus
+  }
+
+  class GegenstandsexemplarViewSet <<ReadOnlyModelViewSet>> #FFE0B2 {
+    list() : Response
+    retrieve() : Response
+  }
+
+  class GegenstandsexemplarSerializer <<ModelSerializer>> {
+    kategorie : String «read-only»
+    standort : String «read-only»
+  }
+
+  class KategorieAdmin <<ModelAdmin>> #FFE0B2 {
+    list_display : name
+  }
+
+  class StandortAdmin <<ModelAdmin>> #FFE0B2 {
+    list_display : name, organisation
+  }
+
+  note left of Kategorie
+    (1) Kategorie besitzt keine
+    Organisationsbeziehung.
+    Name: maximal 255 Zeichen.
+    Beschreibung: optional.
+    Keine zentrale Fachlogik.
+  end note
+
+  note right of Standort
+    (2) Standort ist einer Organisation
+    zugeordnet.
+    Name: maximal 255 Zeichen.
+    Beschreibung: optional.
+    Keine zentrale Fachlogik.
+  end note
+
+  note bottom of Gegenstandstyp
+    (3) Kategorie und Standort werden
+    über Foreign Keys am
+    Gegenstandstyp gespeichert.
+    Bestehende Zuordnungen werden
+    nicht zentral geprüft.
+  end note
+
+  note bottom of GegenstandsexemplarViewSet
+    (4) Das ViewSet ist schreibgeschützt.
+    Anlegen und Bearbeiten von
+    Kategorien und Standorten über
+    die REST-Schnittstelle sind nicht
+    vorgesehen.
+  end note
+
+  note bottom of KategorieAdmin
+    (5) Der Django-Admin speichert
+    direkt. Fachliche Regeln,
+    Berechtigungen und Organisation
+    werden nicht zentral geprüft.
+  end note
+}
+
+package "frontend" {
+  class Sidebar <<React>> {
+    navigationItems
+    page : categories
+  }
+
+  class GegenstandsUebersicht <<React>> {
+    kategorieFilter
+    standortFilter
+    ladeInventar()
+  }
+}
+
+Kategorie "0..*" <-- "0..1" Gegenstandstyp : kategorie
+Standort "0..*" <-- "0..1" Gegenstandstyp : standort
+Gegenstandstyp "1" <-- "0..*" Gegenstandsexemplar : gegenstand
+
+GegenstandsexemplarViewSet ..> Gegenstandsexemplar : liest
+GegenstandsexemplarViewSet ..> GegenstandsexemplarSerializer : serialisiert
+
+GegenstandsexemplarSerializer ..> Kategorie : Name abgeleitet
+GegenstandsexemplarSerializer ..> Standort : Name abgeleitet
+
+KategorieAdmin ..> Kategorie : speichert direkt
+StandortAdmin ..> Standort : speichert direkt
+
+GegenstandsUebersicht ..> GegenstandsexemplarViewSet : GET
+Sidebar ..> GegenstandsUebersicht : Navigation
+
+legend right
+  |= Markierung |= Bedeutung |
+  |<#FFE0B2> | durch #47 betroffene Stelle |
+  | **(1)** bis **(5)** | Befunde aus der Design-Impact-Analyse |
+endlegend
+
+@enduml

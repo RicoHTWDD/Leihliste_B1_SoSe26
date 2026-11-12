@@ -1,0 +1,131 @@
+@startuml aktueller-fluss
+
+title Ist-Ablauf: Kategorien und Standorte verwalten\n
+
+skinparam sequenceMessageAlign left
+skinparam responseMessageBelowArrow true
+skinparam shadowing false
+skinparam noteBackgroundColor #FFE0B2
+skinparam noteBorderColor #E65100
+
+actor "Berechtigter Nutzer" as V
+participant "Frontend\n(React)" as FE
+participant "KategorieAdmin\n(inventory/admin.py)" as KADM
+participant "StandortAdmin\n(inventory/admin.py)" as SADM
+participant "Kategorie\n(inventory/models.py)" as K
+participant "Standort\n(inventory/models.py)" as S
+participant "queryset: QuerySet\n(Django-ORM)" as QS
+
+== Weg 1: Kategorien anzeigen ==
+
+V -> FE : öffnet Kategorien
+activate FE
+FE -> FE : Verwaltungsansicht laden
+note right #ECEFF1
+  Es gibt einen Navigationseintrag
+  „Kategorien“, aber keine vollständig
+  umgesetzte Verwaltungsseite.
+end note
+FE --> V : keine vollständige CRUD-Ansicht
+deactivate FE
+
+== Weg 2: Standorte anzeigen ==
+
+V -> FE : öffnet Standortverwaltung
+activate FE
+FE -> FE : Seite laden
+note right
+  Für Standorte gibt es aktuell
+  keine eigene Verwaltungsansicht
+  im Frontend.
+end note
+FE --> V : keine vollständige Verwaltung
+deactivate FE
+
+== Weg 3: Kategorie über Admin anlegen oder bearbeiten ==
+
+V -> KADM : Formular ausfüllen und speichern
+activate KADM
+KADM -> K : name, beschreibung setzen
+KADM -> K : save()
+note right
+  **(1)** Der Admin speichert direkt
+  über das Django-Model.
+  Pflichtfelder, Namenslänge,
+  Berechtigung und Organisation
+  werden nicht zentral fachlich geprüft.
+end note
+K --> KADM : gespeichert
+KADM --> V : Weiterleitung zur Admin-Liste
+deactivate KADM
+
+== Weg 4: Standort über Admin anlegen oder bearbeiten ==
+
+V -> SADM : Formular ausfüllen und speichern
+activate SADM
+SADM -> S : organisation, name,\nbeschreibung setzen
+SADM -> S : save()
+note right
+  **(2)** Auch Standorte werden direkt
+  über den Admin gespeichert.
+  Der Name darf aktuell 255 Zeichen
+  lang sein; die Beschreibung ist
+  optional.
+end note
+S --> SADM : gespeichert
+SADM --> V : Weiterleitung zur Admin-Liste
+deactivate SADM
+
+== Weg 5: Ungültige Eingabe ==
+
+V -> KADM : ungültige Daten speichern
+activate KADM
+KADM -> K : save()
+alt technischer Model-Fehler
+  K --> KADM : Validierungsfehler
+  KADM --> V : allgemeine Formularmeldung
+else fachliche Regel
+  note right
+    **(3)** Für Namenslänge,
+    Organisationsbezug und Berechtigung
+    gibt es keine zentrale Regelprüfung.
+  end note
+  K --> KADM : gespeichert
+  KADM --> V : Speicherung trotz Regelverstoß
+end
+deactivate KADM
+
+== Weg 6: Auswirkungen auf Inventar ==
+
+V -> FE : Inventarübersicht öffnen
+activate FE
+FE -> QS : Gegenstandsexemplare mit\nKategorie und Standort laden
+activate QS
+QS -> K : Kategorie über Gegenstandstyp
+QS -> S : Standort über Gegenstandstyp
+QS --> FE : Inventardaten
+deactivate QS
+FE --> V : Liste mit Kategorie- und Standortfiltern
+note right
+  **(4)** Änderungen an Kategorie- oder
+  Standortnamen erscheinen indirekt
+  in der Inventarübersicht.
+  Eine zentrale Aktualisierung der
+  Verwaltungsansicht existiert nicht.
+end note
+deactivate FE
+
+note across #E8F5E9
+  Nicht betroffen: Das Bearbeiten eines Gegenstandstyps
+  ändert Kategorie und Standort nicht automatisch. Die
+  bestehenden Foreign-Key-Zuordnungen bleiben erhalten.
+end note
+
+legend right
+  |= Markierung |= Bedeutung |
+  |<#FFE0B2> | betroffene Stelle; **(n)** wie in design-impact.adoc |
+  |<#E8F5E9> | bereits vorhandene oder geschützte Beziehung |
+  |<#ECEFF1> | Nebenbefund oder fehlende Frontend-Funktion |
+endlegend
+
+@enduml

@@ -1,0 +1,187 @@
+@startuml ziel-sicht
+
+set separator none
+
+title Soll-Struktur: Kategorien und Standorte verwalten\n(Entwurf nach #47)
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam noteBackgroundColor #E8F5E9
+skinparam noteBorderColor #2E7D32
+hide empty members
+
+package "controller" #E3F2FD {
+  class KategorieController <<Controller>> {
+    list(request) : Response
+    create(request) : Response
+    update(request, id) : Response
+  }
+
+  class StandortController <<Controller>> {
+    list(request) : Response
+    create(request) : Response
+    update(request, id) : Response
+  }
+
+  note bottom of KategorieController
+    Nimmt HTTP-Anfragen entgegen,
+    prüft den Zugriff und übersetzt
+    Service-Ergebnisse in JSON
+    und HTTP-Statuscodes.
+  end note
+}
+
+package "service" #FFF3E0 {
+  class KategorieService <<Service>> {
+    list(user) : KategorieDTO[]
+    create(user, daten) : KategorieDTO
+    update(user, id, daten) : KategorieDTO
+  }
+
+  class StandortService <<Service>> {
+    list(user) : StandortDTO[]
+    create(user, daten) : StandortDTO
+    update(user, id, daten) : StandortDTO
+  }
+
+  note bottom of KategorieService
+    Steuert den Ablauf.
+    Lädt organisationsbezogene Daten,
+    ruft die Domäne auf und speichert
+    nur bei erfüllten Regeln.
+  end note
+}
+
+package "domaene" #F3E5F5 {
+  class Regeln <<Domain>> {
+    pruefe_berechtigung(user) : RegelErgebnis
+    pruefe_pflichtfelder(daten) : RegelErgebnis
+    pruefe_namenslaenge(name) : RegelErgebnis
+    pruefe_zuordnung(objekt) : RegelErgebnis
+    pruefe_seed_daten(objekt) : RegelErgebnis
+  }
+
+  class RegelErgebnis <<ValueObject>> {
+    erlaubt : Boolean
+    feld : String [0..1]
+    meldung : String [0..1]
+  }
+
+  note bottom of Regeln
+    Kennt weder HTTP noch Datenbank.
+    Prüft Berechtigung, Pflichtfelder,
+    Namenslänge, Seed-Daten,
+    Organisationsbezug und den
+    Schutz bestehender Zuordnungen.
+  end note
+}
+
+package "infrastruktur" #E0F2F1 {
+  class KategorieRepository <<Repository>> {
+    list_for_organisation(org) : Kategorie[]
+    create(org, daten) : Kategorie
+    update(id, daten) : Kategorie
+  }
+
+  class StandortRepository <<Repository>> {
+    list_for_organisation(org) : Standort[]
+    create(org, daten) : Standort
+    update(id, daten) : Standort
+  }
+
+  class KategorieModel <<Django-Model>> {
+    organisation : ForeignKey
+    name : String(100)
+    beschreibung : String
+    is_seed : Boolean
+  }
+
+  class StandortModel <<Django-Model>> {
+    organisation : ForeignKey
+    name : String(100)
+    beschreibung : String
+    is_seed : Boolean
+  }
+
+  class GegenstandstypModel <<Django-Model>> {
+    kategorie : ForeignKey
+    standort : ForeignKey
+  }
+
+  note bottom of KategorieModel
+    Technische Absicherung:
+    Name maximal 100 Zeichen.
+    Organisation wird persistiert.
+    Foreign-Key-Zuordnungen bleiben
+    beim Bearbeiten erhalten.
+  end note
+}
+
+package "frontend" #FCE4EC {
+  class KategorieSeite <<React>> {
+    liste()
+    formular()
+    bearbeiten()
+  }
+
+  class StandortSeite <<React>> {
+    liste()
+    formular()
+    bearbeiten()
+  }
+
+  class GegenstandsUebersicht <<React>> {
+    kategorieFilter
+    standortFilter
+    aktualisiere_liste()
+  }
+
+  note bottom of KategorieSeite
+    Zeigt Pflichtfelder,
+    feldbezogene Fehler,
+    Erfolgsmeldungen und
+    vorausgefüllte Daten.
+    Abbrechen sendet keine Anfrage.
+  end note
+}
+
+KategorieController --> KategorieService : ruft auf
+StandortController --> StandortService : ruft auf
+
+KategorieService --> Regeln : prüft
+StandortService --> Regeln : prüft
+
+KategorieService --> KategorieRepository : liest / speichert
+StandortService --> StandortRepository : liest / speichert
+
+KategorieRepository --> KategorieModel : persistiert
+StandortRepository --> StandortModel : persistiert
+
+KategorieModel "1" <-- "0..*" GegenstandstypModel : kategorie
+StandortModel "1" <-- "0..*" GegenstandstypModel : standort
+
+KategorieSeite --> KategorieController : GET / POST / PATCH
+StandortSeite --> StandortController : GET / POST / PATCH
+
+GegenstandsUebersicht --> KategorieController : Filterdaten
+GegenstandsUebersicht --> StandortController : Filterdaten
+
+note right of KategorieController
+  201: erfolgreich angelegt
+  200: erfolgreich bearbeitet
+  400: Feldfehler
+  403: nicht berechtigt
+  409: Zuordnungskonflikt
+end note
+
+legend right
+  |= Farbe |= Bedeutung |
+  |<#E3F2FD> | Controller / HTTP |
+  |<#FFF3E0> | Service / Ablauf |
+  |<#F3E5F5> | Domäne / Regeln |
+  |<#E0F2F1> | Infrastruktur / Persistenz |
+  |<#FCE4EC> | Frontend |
+endlegend
+
+@enduml

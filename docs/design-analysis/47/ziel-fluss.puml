@@ -1,0 +1,185 @@
+@startuml ziel-fluss
+
+title Soll-Ablauf: Kategorien und Standorte verwalten\n(Variante B)
+
+skinparam sequenceMessageAlign left
+skinparam responseMessageBelowArrow true
+skinparam shadowing false
+skinparam noteBackgroundColor #FFFDE7
+skinparam noteBorderColor #9E9D24
+
+actor "Berechtigter Nutzer" as V
+participant "KategorieSeite\n(React)" as KFE #FFF59D
+participant "StandortSeite\n(React)" as SFE #FFF59D
+participant "KategorieController" as KC #FFF59D
+participant "StandortController" as SC #FFF59D
+participant "KategorieService" as KS #FFF59D
+participant "StandortService" as SS #FFF59D
+participant "Domäne: Regeln" as D #C8E6C9
+participant "KategorieRepository" as KR
+participant "StandortRepository" as SR
+participant "Kategorie/Standort\n(Django-Model)" as M
+
+== Kategorien anzeigen ==
+
+V -> KFE : Kategorien öffnen
+activate KFE
+KFE -> KC : GET /api/inventory/kategorien/
+activate KC
+KC -> KS : list(user)
+activate KS
+KS -> D : pruefe_berechtigung(user)
+activate D
+alt Nutzer ist berechtigt
+  D --> KS : erlaubt
+  deactivate D
+  KS -> KR : list_for_organisation(organisation)
+  activate KR
+  KR -> M : SELECT Kategorien
+  M --> KR : Kategorien
+  KR --> KS : KategorieDTO[]
+  deactivate KR
+  KS --> KC : KategorieDTO[]
+  deactivate KS
+  KC --> KFE : 200 OK [Kategorien]
+else Nutzer ist nicht berechtigt
+  D --> KS : Regelverstoß
+  deactivate D
+  KS --> KC : Forbidden
+  deactivate KS
+  KC --> KFE : 403 Forbidden
+end
+deactivate KC
+KFE --> V : Übersicht anzeigen
+deactivate KFE
+
+== Standort anlegen ==
+
+V -> SFE : „Neuen Standort anlegen“
+activate SFE
+SFE -> SFE : Formular ausfüllen
+SFE -> SC : POST /api/inventory/standorte/\n{name, beschreibung}
+activate SC
+SC -> SS : create(user, daten)
+activate SS
+SS -> D : pruefe_berechtigung(user)
+SS -> D : pruefe_pflichtfelder(daten)
+SS -> D : pruefe_namenslaenge(name)
+activate D
+alt Regeln erfüllt
+  D --> SS : erlaubt
+  deactivate D
+  SS -> SR : create(organisation, daten)
+  activate SR
+  SR -> M : INSERT Standort
+  M --> SR : Standort gespeichert
+  SR --> SS : StandortDTO
+  deactivate SR
+  SS --> SC : Erfolg
+  deactivate SS
+  SC --> SFE : 201 Created [Standort]
+  SFE --> V : Erfolgsmeldung und aktualisierte Liste
+else Regelverstoß
+  D --> SS : Regelverstoß\n(feld, meldung)
+  deactivate D
+  SS --> SC : Validierungsfehler
+  deactivate SS
+  SC --> SFE : 400 {feld, meldung}
+  SFE --> V : Fehlermeldung am betroffenen Feld
+end
+deactivate SC
+deactivate SFE
+
+== Kategorie bearbeiten ==
+
+V -> KFE : Kategorie bearbeiten
+activate KFE
+KFE -> KC : GET /api/inventory/kategorien/{id}/
+activate KC
+KC -> KS : get(user, id)
+activate KS
+KS -> KR : get_for_organisation(id, organisation)
+KR --> KS : Kategorie
+KS --> KC : KategorieDTO
+KC --> KFE : 200 OK [aktuelle Daten]
+deactivate KS
+deactivate KC
+
+KFE -> KFE : Formular mit aktuellen Daten vorausfüllen
+V -> KFE : Änderungen speichern
+KFE -> KC : PATCH /api/inventory/kategorien/{id}/\n{name, beschreibung}
+activate KC
+KC -> KS : update(user, id, daten)
+activate KS
+KS -> D : pruefe_berechtigung(user)
+KS -> D : pruefe_pflichtfelder(daten)
+KS -> D : pruefe_namenslaenge(name)
+KS -> D : pruefe_zuordnung(kategorie)
+activate D
+alt Regeln erfüllt
+  D --> KS : erlaubt
+  deactivate D
+  KS -> KR : update(id, daten)
+  KR -> M : UPDATE Kategorie
+  M --> KR : gespeichert
+  KR --> KS : KategorieDTO
+  KS --> KC : Erfolg
+  deactivate KS
+  KC --> KFE : 200 OK [Kategorie]
+  KFE --> V : Erfolgsmeldung und aktualisierte Liste
+else Regelverstoß
+  D --> KS : Regelverstoß\n(feld, meldung)
+  deactivate D
+  KS --> KC : Validierungsfehler
+  deactivate KS
+  KC --> KFE : 400 {feld, meldung}
+  KFE --> V : Fehlermeldung am betroffenen Feld
+end
+deactivate KC
+deactivate KFE
+
+== Bearbeitung abbrechen ==
+
+V -> KFE : Bearbeitung abbrechen
+activate KFE
+KFE -> KFE : lokale Eingaben verwerfen
+note right
+  Es wird keine API-Anfrage gesendet.
+  Die gespeicherten Daten bleiben unverändert.
+end note
+KFE --> V : Übersicht anzeigen
+deactivate KFE
+
+== Kategorie oder Standort mit Zuordnungen bearbeiten ==
+
+V -> KFE : Namen einer verwendeten Kategorie ändern
+KFE -> KC : PATCH
+KC -> KS : update()
+KS -> D : pruefe_zuordnung()
+activate D
+D --> KS : erlaubt
+deactivate D
+KS -> KR : update(id, name, beschreibung)
+KR -> M : UPDATE ohne neue Zuordnung
+M --> KR : gespeichert
+KR --> KS : Erfolg
+KS --> KC : Erfolg
+KC --> KFE : 200 OK
+KFE --> V : Zuordnungen bleiben erhalten
+
+note across
+  Die Identität der Kategorie oder des Standorts bleibt erhalten.
+  Deshalb bleiben die Foreign-Key-Beziehungen der Gegenstandstypen
+  bestehen. Ein Löschen mit bestehenden Zuordnungen wird bis zur
+  fachlichen Entscheidung verhindert oder mit 409 abgelehnt.
+end note
+
+legend right
+  |= Markierung |= Bedeutung |
+  |<#FFF59D> | geänderter oder neuer Baustein |
+  |<#C8E6C9> | neue fachliche Entscheidung |
+  | grüne Pfeile | neuer Aufruf zwischen Schichten |
+  |<#ECEFF1> | Voraussetzung außerhalb dieser Änderung |
+endlegend
+
+@enduml

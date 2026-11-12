@@ -1,0 +1,250 @@
+= Entwurfsentscheidung: #47 Kategorien und Standorte verwalten
+:toc: left
+:sectnums:
+
+
+
+Dieses Dokument baut auf `design-impact.adoc` auf. Es beschreibt zwei mögliche Entwürfe, vergleicht sie und begründet die Entscheidung.
+
+== Ausgangslage
+
+=== Betrachtete Änderung
+
+Berechtigte Nutzer sollen Kategorien und Standorte über die Oberfläche anlegen, anzeigen und bearbeiten können.
+
+=== Wichtigste Beobachtungen aus der Analyse
+
+. *Die REST-Schnittstelle ist schreibgeschützt.* Die vorhandenen Inventory-ViewSets verwenden `ReadOnlyModelViewSet`. Kategorien und Standorte können deshalb bisher nicht über die vorgesehene API angelegt oder bearbeitet werden.
+. *Es gibt Abweichungen zwischen Story und Datenmodell.* Die Story fordert eine maximale Namenslänge von 100 Zeichen und Pflichtfelder. Im Modell sind Namen jedoch bis zu 255 Zeichen lang und Beschreibungen optional.
+. *Kategorien und Standorte sind mit dem Inventar gekoppelt.* Gegenstandstypen besitzen Foreign Keys auf Kategorie und Standort. Änderungen an diesen Daten wirken unmittelbar auf Inventarübersichten und Filter.
+. *Der Organisationsbezug ist inkonsistent.* `Standort` gehört zu einer Organisation, `Kategorie` aktuell nicht.
+. *Es gibt keinen zentralen Ort für fachliche Regeln.* Validierung, Berechtigung und Speichern sind nicht in eigenen fachlichen Komponenten gebündelt.
+
+=== Entwurfsfrage
+
+====
+*Wo werden die fachlichen Regeln und Abläufe beim Anlegen und Bearbeiten von Kategorien und Standorten implementiert – und wie gelangen Ablehnungen im Fehlerfall zurück zum Formular im Frontend?*
+====
+
+=== Fachliche Regeln
+
+[cols="3,2",options="header"]
+|===
+| Regel | Quelle
+| Kategorien und Standorte können über das Dashboard verwaltet werden. | Akzeptanzkriterien #47
+| Kategorien und Standorte werden jeweils in einer Übersicht angezeigt. | Akzeptanzkriterien #47
+| Nur berechtigte Nutzer dürfen die Verwaltungsfunktionen verwenden. | Akzeptanzkriterien #47
+| Name und Beschreibung sind Pflichtfelder. | Akzeptanzkriterien #47
+| Der Name darf höchstens 100 Zeichen enthalten. | Akzeptanzkriterien #47
+| Pflichtfelder werden visuell gekennzeichnet. | Akzeptanzkriterien #47
+| Leere und ungültige Eingaben werden feldbezogen gemeldet. | Akzeptanzkriterien #47
+| Neue Einträge erscheinen nach erfolgreichem Speichern unmittelbar in der Übersicht. | Akzeptanzkriterien #47
+| Bearbeitungsformulare werden mit den aktuellen Daten vorausgefüllt. | Akzeptanzkriterien #47
+| Abbrechen übernimmt keine ungespeicherten Änderungen. | Akzeptanzkriterien #47
+| Bestehende Zuordnungen zu Gegenstandstypen bleiben erhalten. | Akzeptanzkriterien #47
+| Kategorien und Standorte werden organisationsbezogen verwaltet. | logisches Modell / Fachkonzept |
+| Bereits verwendete Kategorien und Standorte dürfen nicht unbeabsichtigt Zuordnungen verlieren. | Datenmodell |
+|===
+
+Technisch muss die Datenbank zusätzlich Primärschlüssel und Foreign-Key-Beziehungen sichern.
+
+=== Annahmen, die der PO bestätigen muss
+
+* Dürfen nur Admins Kategorien und Standorte verwalten oder auch Verleiher?
+* Sind Kategorien organisationsbezogen oder global für alle Organisationen?
+* Wird ein Standort am Gegenstandstyp oder am konkreten Gegenstandsexemplar gespeichert?
+* Dürfen bereits verwendete Kategorien und Standorte gelöscht werden?
+* Falls Löschen erlaubt ist: Werden die Einträge deaktiviert, archiviert oder endgültig gelöscht?
+* Was bedeutet das Akzeptanzkriterium „Nach erfolgreichem Upload wird eine Vorschau angezeigt“ für Kategorien und Standorte?
+
+== Zwei Entwurfsvarianten
+
+[cols="1,3,3",options="header"]
+|===
+| Baustein | Variante A: bisheriges Muster erweitern | Variante B: Trennung in Schichten
+
+| Ordner in `inventory/`
+| bleibt wie heute mit `views.py`, `serializers.py`, `admin.py` und `models.py`
+| neue Ordner `controller/`, `service/`, `domaene/`, `infrastruktur/`
+
+| `views.py`
+| nimmt die Anfrage an, liest und speichert direkt über das Model
+| nimmt nur die HTTP-Anfrage an, gibt sie an den Service weiter und wandelt das Ergebnis in eine HTTP-Antwort um
+
+| `serializers.py`
+| prüft Format und fachliche Regeln
+| prüft nur Datentypen, Pflichtfelder und die Grundstruktur der Eingabe
+
+| Service
+| gibt es nicht
+| `service/kategorien.py` und `service/standorte.py` steuern Anlegen, Lesen und Bearbeiten. Der Service ruft vor dem Speichern die Domänenregeln auf.
+
+| Domäne
+| gibt es nicht. Regeln stehen in Serializer und ViewSet
+| `domaene/regeln.py` enthält Regeln für Pflichtfelder, Namenslänge, Berechtigungen und bestehende Zuordnungen. Die Domäne kennt weder HTTP noch Django-Modelle.
+
+| Infrastruktur
+| `models.py` wird direkt aus den ViewSets verwendet
+| `infrastruktur/models.py` enthält die Persistenzmodelle und Datenbankzugriffe. Organisationsfilter und Foreign-Key-Beziehungen werden dort umgesetzt.
+
+| Django-Admin
+| speichert weiterhin direkt und kann Regeln umgehen
+| verwendet denselben Service wie die REST-Schnittstelle oder wird für diese Daten bewusst deaktiviert
+
+| Organisationsbezug
+| wird in einzelnen ViewSets und Formularen geprüft
+| wird zentral im Service beziehungsweise in der Domäne geprüft. Kategorien und Standorte werden immer auf die Organisation des Nutzers eingeschränkt
+
+| Fehlerfall
+| Regelverstoß führt zu 400 mit einer allgemeinen Meldung
+| Regelverstoß führt zu 400 mit Feldname und verständlicher Meldung. Fehlende Berechtigung führt zu 403. Konflikte mit bestehenden Zuordnungen führen zu 409.
+|===
+
+*Variante A* entspricht dem bisherigen Django-Muster und benötigt weniger neue Dateien.
+
+*Variante B* setzt die Schichten aus der Vorlesung um. Der Controller nimmt Anfragen an, der Service steuert den Ablauf, die Domäne entscheidet anhand der fachlichen Regeln und die Infrastruktur speichert die Daten.
+
+== Modelle des Entwurfs
+
+* `ziel_statische_Sicht.puml`: Klassendiagramm der Schichtenarchitektur. Jede Schicht hat eine eigene Farbe.
+* `ziel_dynamische_Sicht.puml`: Sequenzdiagramm für Anzeigen, Anlegen und Bearbeiten.
+* Zusätzlich werden `aktuell_statische_Sicht.puml` und `aktuell_dynamische_Sicht.puml` erstellt, um die heutige Struktur und die heutigen Abläufe darzustellen.
+
+So unterscheiden sich Ist-Zustand und Soll-Zustand:
+
+[cols="1,2,2",options="header"]
+|===
+| Ablauf | Heute | Entwurf
+
+| Kategorien und Standorte anzeigen
+| Frontend lädt Daten direkt über einen vorhandenen oder neu zu ergänzenden Endpunkt. Eine zentrale Verwaltungsabfrage existiert nicht.
+| Controller → Service → Infrastruktur. Die Liste wird organisationsbezogen geladen und an das Frontend zurückgegeben.
+
+| Kategorie anlegen
+| Über die vorhandenen Read-only-ViewSets nicht möglich. Der Admin kann direkt speichern.
+| Controller → Service → Domäne. Bei erfüllten Regeln wird gespeichert und mit 201 beantwortet. Bei einem Regelverstoß erfolgt 400 mit Feldmeldung.
+
+| Standort anlegen
+| Über die vorhandenen Read-only-ViewSets nicht möglich. Der Admin kann direkt speichern.
+| Controller → Service → Domäne. Organisation, Pflichtfelder und Namenslänge werden geprüft. Erfolgreiches Speichern liefert 201.
+
+| Kategorie bearbeiten
+| Über die REST-Schnittstelle nicht möglich. Ein Admin kann die Modelldaten direkt ändern.
+| Controller → Service → Domäne. Die aktuellen Daten werden geladen und nach erfolgreicher Prüfung mit 200 zurückgegeben.
+
+| Standort bearbeiten
+| Über die REST-Schnittstelle nicht möglich. Ein Admin kann die Modelldaten direkt ändern.
+| Controller → Service → Domäne. Die aktuellen Daten werden vorausgefüllt, geprüft und gespeichert.
+
+| Bearbeitung abbrechen
+| Kein eigener Verwaltungsablauf im Frontend vorhanden.
+| Das Frontend verwirft die lokalen Formularänderungen und sendet keine Schreibanfrage.
+
+| Kategorie oder Standort mit Zuordnungen bearbeiten
+| Technisch möglich. Die Auswirkungen werden nicht zentral geprüft.
+| Die Identität des Eintrags bleibt erhalten. Nur Name und Beschreibung werden geändert; bestehende Foreign-Key-Zuordnungen bleiben bestehen.
+
+| Unberechtigter Zugriff
+| Es gibt aktuell keine vollständige Anmeldung und keine zentrale Rollenprüfung.
+| Controller beziehungsweise Service weisen den Zugriff mit 403 zurück. Das Frontend blendet die Verwaltungsfunktionen für nicht berechtigte Nutzer aus.
+
+| Löschen
+| Eine fachliche Löschregel ist nicht definiert.
+| Löschen wird bis zur fachlichen Entscheidung nicht angeboten oder nur mit einer expliziten Referenzdatenregel umgesetzt. Bei bestehenden Zuordnungen erfolgt 409 statt eines unbeabsichtigten Datenverlusts.
+|===
+
+== Vergleich der Varianten
+
+[cols="1,3,3",options="header"]
+|===
+| Gestaltungsaspekt | Variante A | Variante B
+
+| Zustand & Invarianten
+| Pflichtfelder, Namenslänge und Organisationszuordnung werden in Serializer und ViewSet geprüft. Der Django-Admin kann diese Regeln umgehen.
+| Die Regeln gelten für jeden Zugriffsweg, weil REST und Admin denselben Service verwenden. Datenbank und Modelle sichern zusätzlich technische Constraints.
+
+| *Verhalten & Verantwortlichkeit*
+| `views.py` und `serializers.py` übernehmen HTTP, Validierung, fachliche Regeln und Datenzugriff.
+| Jede Schicht hat eine Aufgabe. Controller: HTTP. Service: Ablauf. Domäne: Regeln. Infrastruktur: Persistenz.
+
+| *Abhängigkeiten & Kopplung*
+| `views.py` hängt gleichzeitig an HTTP, Model, Datenbank und Regeln. Frontend-Komponenten enthalten zusätzliche API- und Fehlerlogik.
+| Die Domäne hängt nicht an HTTP oder Datenbank. Der Controller kennt nur den Service. Der Service verwendet Domänenregeln und Infrastrukturzugriffe.
+
+| Grenzen & Kohäsion
+| ViewSets, Serializer und Frontend-Seiten werden mit jeder weiteren Ressource größer. Kategorie und Standort können zu doppelter Logik führen.
+| Regeln für beide Ressourcen stehen gebündelt in der Domänenschicht. Gemeinsame Abläufe können im Service wiederverwendet werden. Jede Komponente hat eine klarere Aufgabe.
+
+| *Änderung & Variabilität*
+| Eine neue Regel muss an mehreren Stellen ergänzt werden. Ein weiterer Zugriffsweg muss die Regeln erneut implementieren.
+| Eine neue oder geänderte Regel wird zentral in `regeln.py` angepasst. REST, Admin und weitere Oberflächen nutzen denselben Service.
+
+| Repräsentation & Verarbeitungsform
+| Die Regeln werden als `if`-Abfragen in Serializer, ViewSet und Frontend umgesetzt. Fehler werden möglicherweise unterschiedlich dargestellt.
+| Domänenfunktionen liefern strukturierte Regelverstöße mit Feldname und Meldung. Der Controller übersetzt diese in ein einheitliches JSON-Fehlerformat für das Frontend.
+|===
+
+Für die Entscheidung sind insbesondere *Zustand & Invarianten*, *Verhalten & Verantwortlichkeit* sowie *Abhängigkeiten & Kopplung* ausschlaggebend.
+
+*Variante A* ist für sehr kleine Anwendungen mit wenigen Regeln zunächst einfacher. Für die Verwaltung von zwei organisationsbezogenen Referenzdaten mit mehreren Abhängigkeiten ist *Variante B* langfristig geeigneter.
+
+Gründe für Variante B:
+
+. *Übersichtlichkeit:* HTTP-Verarbeitung, Ablaufsteuerung, Regeln und Persistierung sind getrennt.
+. *Wartbarkeit:* Eine Änderung an Pflichtfeldern, Namenslänge oder Berechtigungen bleibt möglichst lokal.
+. *Konsistenz:* REST-Schnittstelle, Django-Admin und weitere Zugriffswege verwenden dieselben Regeln.
+. *Testbarkeit:* Die Domänenregeln können ohne Datenbank und HTTP getestet werden.
+. *Sicherheit:* Organisations- und Rollenprüfungen liegen nicht nur im Frontend.
+. *Erweiterbarkeit:* Weitere Referenzdaten oder eine spätere Deaktivierungsfunktion können ergänzt werden, ohne alle ViewSets umzubauen.
+
+== Passt der Entwurf zur Architektur?
+
+[cols="2,3",options="header"]
+|===
+| Frage | Antwort
+
+| Werden Modulgrenzen eingehalten?
+| Ja, sofern die Verwaltung im Modul `inventory` bleibt und Zugriffe auf Nutzer- und Organisationsdaten über definierte Schnittstellen erfolgen. Die Inventarübersicht verwendet weiterhin die bestehenden Beziehungen zu Kategorie und Standort.
+
+| Entstehen neue technische Abhängigkeiten?
+| Es entstehen keine neuen Technologien. Innerhalb von `inventory` kommen zusätzliche Python-Module für Controller, Service, Domäne und Infrastruktur hinzu. Die Abhängigkeiten müssen so ausgerichtet werden, dass die Domäne keine Django- oder HTTP-Klassen importiert.
+
+| Muss die Architektur geändert werden?
+| Die Gesamtarchitektur muss zunächst nicht geändert werden. Innerhalb von `inventory` wird die Struktur erweitert. Die Django-Einstiegspunkte `models.py`, `admin.py` und gegebenenfalls `urls.py` bleiben als Weiterleitungsstellen bestehen. Für die maximale Namenslänge, den Organisationsbezug und mögliche Datenbank-Constraints können Migrationen erforderlich sein.
+
+| Was passiert mit dem Django-Admin?
+| Der Admin darf die fachlichen Regeln nicht umgehen. Entweder ruft er denselben Service wie die REST-Schnittstelle auf oder die direkte Bearbeitung dieser Referenzdaten wird deaktiviert, bis eine gemeinsame Service-Nutzung umgesetzt ist.
+
+| Wie werden bestehende Zuordnungen geschützt?
+| Kategorie und Standort werden beim Bearbeiten nicht ersetzt, sondern in ihrer Identität geändert. Die Foreign-Key-Beziehungen der Gegenstandstypen bleiben dadurch erhalten. Ein Löschen mit bestehenden Zuordnungen muss verhindert oder fachlich ausdrücklich geregelt werden.
+|===
+
+== Entscheidung
+
+*Entscheidung:* Variante B – Trennung in Controller, Service, Domäne und Infrastruktur.
+
+*Begründung:*
+
+. *Verhalten & Verantwortlichkeit:* Jede Schicht hat genau eine Aufgabe. Der Controller greift nicht direkt auf Modelle oder Datenbank zu.
+. *Zustand & Invarianten:* Pflichtfelder, Namenslänge, Organisationsbezug und Schutz bestehender Zuordnungen werden zentral geprüft.
+. *Änderung & Variabilität:* Jede Regel steht möglichst genau einmal im Code. REST, Admin und weitere Funktionalitäten verwenden denselben Service.
+. *Abhängigkeiten & Kopplung:* Die Domäne bleibt unabhängig von Django, HTTP und Datenbank. Technische Abhängigkeiten werden in Service und Infrastruktur gebündelt.
+. *Fehlerbehandlung:* Regelverstöße können mit Feldname und Meldung an den Controller zurückgegeben und im Frontend direkt am betroffenen Feld angezeigt werden.
+
+*Verbleibende Nachteile:*
+
+* Es entstehen mehr Dateien und mehr Struktur als bei einer direkten Erweiterung von `views.py`.
+* Die Schichtenarchitektur ist für Django ungewohnter als das bisherige ViewSet-/Serializer-Muster.
+* Die gemeinsame Nutzung des Services durch REST-Schnittstelle und Django-Admin benötigt zusätzliche Abstimmung.
+* Der Organisationsbezug von Kategorien muss zunächst fachlich und technisch geklärt werden.
+* Die Standortzuordnung am Gegenstandstyp muss mit dem logischen Modell und der gewünschten Fachlichkeit abgeglichen werden.
+
+*Konsequenzen:*
+
+* Für Kategorie und Standort werden schreibende Endpunkte und eigene Schreib-Serializer benötigt.
+* Die Modelle und Migrationen müssen an die Namenslänge von 100 Zeichen und gegebenenfalls an einen Organisations-Foreign-Key für `Kategorie` angepasst werden.
+* Die Controller müssen organisations- und rollenbezogene Zugriffe prüfen.
+* Die Domänenschicht benötigt Regeln für Pflichtfelder, Namenslänge, bestehende Zuordnungen und Seed-Daten.
+* Das Frontend benötigt Verwaltungsseiten, Formulare, Listen, vorausgefüllte Bearbeitungsansichten und feldbezogene Fehlermeldungen.
+* Die Inventarübersicht und ihre Kategorie- und Standortfilter müssen nach Änderungen aktualisiert werden.
+* Die offene Frage zum Löschen verwendeter Kategorien und Standorte muss vor der Implementierung mit dem PO entschieden werden.

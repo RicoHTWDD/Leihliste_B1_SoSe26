@@ -12,10 +12,7 @@ function App() {
   const [selectedGegenstandId, setSelectedGegenstandId] = useState(null)
 
   function navigateTo(page) {
-    if (page !== 'items') {
-      setSelectedGegenstandId(null)
-    }
-
+    setSelectedGegenstandId(null)
     setCurrentPage(page)
   }
 

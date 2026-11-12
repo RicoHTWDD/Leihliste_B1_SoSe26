@@ -199,6 +199,19 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
     });
   }, [gegenstaende, suche, kategorieFilter, standortFilter, sortierung]);
 
+  // Prüft, ob mindestens ein Filter aktiv ist.
+  const filterAktiv =
+    statusFilter !== 'alle' ||
+    kategorieFilter !== 'alle' ||
+    standortFilter !== 'alle';
+
+  // Setzt alle Filter zurück. Die Suche bleibt bestehen.
+  function filterZuruecksetzen() {
+    setStatusFilter('alle');
+    setKategorieFilter('alle');
+    setStandortFilter('alle');
+  }
+
   function sortierenNach(feld) {
     setSortierung((prev) =>
       prev.feld === feld
@@ -309,6 +322,21 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
             Ausleihe hinzufügen
           </Button>
         </Stack>
+      </Stack>
+
+      {/* Button zum Zurücksetzen aller Filter */}
+      <Stack
+        direction="row"
+        sx={{ mb: 2, justifyContent: 'flex-end' }}
+      >
+        <Button
+          size="small"
+          variant="outlined"
+          disabled={!filterAktiv}
+          onClick={filterZuruecksetzen}
+        >
+          Filter zurücksetzen
+        </Button>
       </Stack>
 
       {/* Ladezustand */}

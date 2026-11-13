@@ -19,7 +19,7 @@ class Verfuegbarkeitsstatus(models.TextChoices):
 
 
 class Kategorie(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255) # von 255 auf 100 geändert, Aktzeptanzkriterium #33: Name max. 100 Zeichen
     # Beschreibung ist optional
     beschreibung = models.CharField(max_length=500, null=True, blank=True)
     is_seed = models.BooleanField(default=False)

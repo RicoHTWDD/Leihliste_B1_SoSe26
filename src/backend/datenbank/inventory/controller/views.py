@@ -1,74 +1,79 @@
-from rest_framework import viewsets
-from inventory.infrastruktur.models import Gegenstandsexemplar, Verfuegbarkeitsstatus
-from inventory.controller.serializers import GegenstandsexemplarUebersichtSerializer, VerfügbareGegenstandsexemplarSerializer, GegenstandsexemplarDetailSerializer
+"""
+Controller: nimmt HTTP-Anfragen an und gibt die Antwort zurück.
+
+Kennt keine Models. Daten kommen ausschließlich über den Service.
+"""
+from rest_framework import status, viewsets
+from rest_framework.response import Response
+
+from inventory.controller.serializers import (
+    GegenstandsexemplarAnlegenSerializer,
+    GegenstandsexemplarBearbeitenSerializer,
+    GegenstandsexemplarDetailSerializer,
+    GegenstandsexemplarUebersichtSerializer,
+    VerfügbareGegenstandsexemplarSerializer,
+)
+from inventory.service import exemplare
+
 
 class VerfügbareGegenstandsexemplarViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    ViewSet für verfügbare Gegenstandsexemplare
-    
-    WICHTIG: Standort und Kategorie werden über den Gegenstandstyp aufgelöst!
-    
-    API Endpoints:
-    - GET /api/inventory/exemplare/verfuegbar/ - Alle verfügbaren Exemplare
-    """
-    
+    """GET /api/inventory/verfuegbare-exemplare/ – nur verfügbare Exemplare"""
+
     serializer_class = VerfügbareGegenstandsexemplarSerializer
-   
+
     def get_queryset(self):
-        """
-        Nur verfügbare Gegenstandsexemplare zurückgeben
-        
-        WICHTIG: select_related optimiert die Abfrage durch JOINs:
-        - gegenstand (Gegenstandstyp)
-        - gegenstand__standort (Standort vom Gegenstandstyp)
-        - gegenstand__kategorie (Kategorie vom Gegenstandstyp)
-        
-        Dadurch werden N+1 Query-Probleme vermieden!
-        """
-        return Gegenstandsexemplar.objects.filter(
-            verfuegbarkeitsstatus=Verfuegbarkeitsstatus.VERFUEGBAR
-        ).select_related(
-            'gegenstand',              # ← JOIN mit Gegenstandstyp
-            'gegenstand__standort',    # ← JOIN mit Standort (über Gegenstandstyp)
-            'gegenstand__kategorie'    # ← JOIN mit Kategorie (über Gegenstandstyp)
-        ).order_by(
-            'gegenstand__name',
-            'inventarnummer'
-        )
+        return exemplare.verfuegbare_lesen()
+
 
 class GegenstandsexemplarViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    ViewSet für Gegenstandsexemplare-Übersicht (ALLE Exemplare)
-    
-    WICHTIG: Standort und Kategorie werden über den Gegenstandstyp aufgelöst!
-    
-    API Endpoints:
-    - GET /api/inventory/exemplare/ - Alle Exemplare (unabhängig vom Status)
-    """
-    
-    queryset = Gegenstandsexemplar.objects.select_related(
-        'gegenstand',              # ← JOIN mit Gegenstandstyp
-        'gegenstand__standort',    # ← JOIN mit Standort (über Gegenstandstyp)
-        'gegenstand__kategorie'    # ← JOIN mit Kategorie (über Gegenstandstyp)
-    ).order_by(
-        'gegenstand__name',
-        'inventarnummer'
-    ).all()
-    
+    """GET /api/inventory/alle-exemplare/ – alle Exemplare (Übersicht)"""
+
     serializer_class = GegenstandsexemplarUebersichtSerializer
 
-    # Detail-Endpunkt für ein einzelnes Gegenstandsexemplar
+    def get_queryset(self):
+        return exemplare.alle_lesen()
+
 
 class GegenstandsexemplarDetailViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    ViewSet für Detailansicht eines Gegenstandsexemplars
-    
-    API Endpoints:
-    - GET /api/inventory/exemplare/{id}/ - Detail eines Exemplars
+    GET   /api/inventory/exemplare/{id}/ – Detail eines Exemplars
+    POST  /api/inventory/exemplare/      – Exemplar anlegen
+    PATCH /api/inventory/exemplare/{id}/ – Exemplar bearbeiten
     """
+
     serializer_class = GegenstandsexemplarDetailSerializer
-    queryset = Gegenstandsexemplar.objects.select_related(
-        'gegenstand',
-        'gegenstand__standort',
-        'gegenstand__kategorie'
-    ).all()
+
+    def get_queryset(self):
+        return exemplare.alle_lesen()
+
+    def create(self, request):
+        # 1. Format prüfen (Serializer) – Fehler → 400
+        eingabe = GegenstandsexemplarAnlegenSerializer(data=request.data)
+        eingabe.is_valid(raise_exception=True)
+
+        # 2. Service aufrufen – fachliche Ablehnung → 400 mit Feldname
+        try:
+            exemplar = exemplare.anlegen(eingabe.validated_data)
+        except exemplare.RegelVerstoss as verstoss:
+            return Response(verstoss.feldfehler, status=status.HTTP_400_BAD_REQUEST)
+
+        # 3. Erfolg → 201 mit dem neuen Exemplar
+        return Response(GegenstandsexemplarDetailSerializer(exemplar).data,
+                        status=status.HTTP_201_CREATED)
+
+    def partial_update(self, request, pk=None):
+        # 1. Format prüfen (nur die geschickten Felder) – Fehler → 400
+        eingabe = GegenstandsexemplarBearbeitenSerializer(data=request.data, partial=True)
+        eingabe.is_valid(raise_exception=True)
+
+        # 2. Service aufrufen – fachliche Ablehnung → 400 mit Feldname
+        try:
+            exemplar = exemplare.bearbeiten(pk, eingabe.validated_data)
+        except exemplare.RegelVerstoss as verstoss:
+            return Response(verstoss.feldfehler, status=status.HTTP_400_BAD_REQUEST)
+
+        # 3. Nicht gefunden → 404, sonst 200 mit dem geänderten Exemplar
+        if exemplar is None:
+            return Response({"detail": "Dieses Exemplar gibt es nicht."},
+                            status=status.HTTP_404_NOT_FOUND)
+        return Response(GegenstandsexemplarDetailSerializer(exemplar).data)

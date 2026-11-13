@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from inventory.infrastruktur.models import Gegenstandsexemplar
+from inventory.infrastruktur.models import Gegenstandsexemplar, Verfuegbarkeitsstatus, Zustand
 
 
 class VerfügbareGegenstandsexemplarSerializer(serializers.ModelSerializer):
@@ -173,3 +173,33 @@ class GegenstandsexemplarDetailSerializer(GegenstandsexemplarUebersichtSerialize
         des aktiven Ausleihvorgangs zurückgeben
         """
         return None
+
+class GegenstandsexemplarAnlegenSerializer(serializers.Serializer):
+    """
+    Prüft beim Anlegen NUR das Format: Feld vorhanden, richtiger Datentyp,
+    Wert aus der vorgegebenen Liste. Fachliche Regeln prüft die Domäne.
+    """
+    FEHLT = "Dieses Feld ist ein Pflichtfeld."
+
+    gegenstand = serializers.IntegerField(error_messages={
+        "required": FEHLT, "invalid": "Bitte eine gültige Typ-ID angeben."})
+    inventarnummer = serializers.CharField(max_length=255, error_messages={
+        "required": FEHLT, "blank": "Bitte eine Inventarnummer angeben.",
+        "max_length": "Die Inventarnummer darf höchstens 255 Zeichen haben."})
+    zustand = serializers.ChoiceField(choices=Zustand.choices, error_messages={
+        "required": FEHLT, "invalid_choice": "Bitte einen Zustand aus der Liste wählen."})
+    verfuegbarkeitsstatus = serializers.ChoiceField(
+        choices=Verfuegbarkeitsstatus.choices, error_messages={
+            "required": FEHLT,
+            "invalid_choice": "Bitte einen Verfügbarkeitsstatus aus der Liste wählen."})
+
+
+    
+
+class GegenstandsexemplarBearbeitenSerializer(GegenstandsexemplarAnlegenSerializer):
+    """
+    Prüft beim Bearbeiten NUR das Format. Wie beim Anlegen, aber:
+    - der Gegenstandstyp kann nicht geändert werden (Feld entfernt)
+    - mit partial=True aufgerufen: nur die geschickten Felder werden geprüft
+    """
+    gegenstand = None

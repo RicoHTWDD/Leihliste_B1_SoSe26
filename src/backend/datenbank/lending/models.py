@@ -13,7 +13,7 @@ class Ausleihanfrage(models.Model):
     # Ausleiher der die Anfrage stellt
     nutzer = models.ForeignKey(
         'users.Nutzer',
-        on_delete=models.PROTECT,  # Nutzer darf nicht gelöscht werden, wenn noch Anfragen bestehen
+        on_delete=models.PROTECT,  # Typ mit Ausleihanfragen darf nicht gelöscht werden (#33)
         #on_delete=models.CASCADE,
         related_name='ausleihanfragen'
     )

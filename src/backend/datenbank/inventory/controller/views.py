@@ -39,6 +39,7 @@ class GegenstandsexemplarDetailViewSet(viewsets.ReadOnlyModelViewSet):
     GET   /api/inventory/exemplare/{id}/ – Detail eines Exemplars
     POST  /api/inventory/exemplare/      – Exemplar anlegen
     PATCH /api/inventory/exemplare/{id}/ – Exemplar bearbeiten
+    DELETE /api/inventory/exemplare/{id}/ – Exemplar löschen
     """
 
     serializer_class = GegenstandsexemplarDetailSerializer
@@ -77,3 +78,20 @@ class GegenstandsexemplarDetailViewSet(viewsets.ReadOnlyModelViewSet):
             return Response({"detail": "Dieses Exemplar gibt es nicht."},
                             status=status.HTTP_404_NOT_FOUND)
         return Response(GegenstandsexemplarDetailSerializer(exemplar).data)
+
+
+
+    
+    def destroy(self, request, pk=None):
+        # 1. Service aufrufen – fachlich verboten → 409 mit Code und Meldung
+        try:
+            geloescht = exemplare.loeschen(pk)
+        except exemplare.RegelVerstoss as verstoss:
+            return Response({"code": verstoss.code, "meldung": verstoss.meldung},
+                            status=status.HTTP_409_CONFLICT)
+
+        # 2. Nicht gefunden → 404, sonst 204 (gelöscht, keine Daten zurück)
+        if not geloescht:
+            return Response({"detail": "Dieses Exemplar gibt es nicht."},
+                            status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_204_NO_CONTENT)

@@ -11,7 +11,7 @@ from django.http import HttpResponseRedirect        # Antwort "geh zu einer ande
 from django.urls import reverse                     # baut aus einem Seitennamen die passende URL
 
 from inventory.infrastruktur.models import Kategorie, Standort, Gegenstandstyp, Gegenstandsexemplar
-from inventory.service import exemplare             # Service: einziger Weg zum Speichern/Löschen
+from inventory.service import exemplare, typen      # Service: einziger Weg zum Speichern/Löschen
 
 
 class GegenstandsexemplarAdminForm(forms.ModelForm):
@@ -173,6 +173,78 @@ class GegenstandsexemplarAdmin(admin.ModelAdmin):
         return aktionen
 
 
+class GegenstandstypAdminForm(forms.ModelForm):
+    """Eingabeformular für Gegenstandstypen im Admin (nur Bearbeiten).
+
+    Wie beim Exemplar: Django prüft das Format, clean() fragt zusätzlich
+    den Service, ob die Änderung fachlich erlaubt ist (z. B. Name ≤ 100 Zeichen).
+    Die Organisation ist nicht im Formular – sie kommt vom Standort.
+    """
+
+    class Meta:
+        model = Gegenstandstyp
+        fields = list(typen.FELDER_BEARBEITEN)
+
+    def clean(self):
+        daten = super().clean()
+        if self.errors:
+            return daten
+        try:
+            typen.bearbeiten_pruefen(_geaenderte_typfelder(self))
+        except typen.RegelVerstoss as verstoss:
+            for feld, meldungen in verstoss.feldfehler.items():
+                for meldung in meldungen:
+                    self.add_error(feld, meldung)
+        return daten
+
+
+def _geaenderte_typfelder(formular):
+    """Geänderte Felder mit neuem Wert. Kategorie/Standort als ID, so wie der Service sie erwartet."""
+    aenderungen = {}
+    for feld in formular.changed_data:
+        wert = formular.cleaned_data[feld]
+        if feld in ("kategorie", "standort"):
+            wert = wert.pk if wert is not None else None   # Formular liefert Objekt, Service braucht die ID
+        aenderungen[feld] = wert
+    return aenderungen
+
+
 @admin.register(Gegenstandstyp)
 class GegenstandstypAdmin(admin.ModelAdmin):
+    form = GegenstandstypAdminForm
     list_display = ['name', 'kategorie', 'standort']
+
+    # ------------------------------------------------------------------------
+    # Anlegen im Admin ist abgeschaltet: Ein Typ braucht mindestens ein Exemplar,
+    # und das einfache Admin-Formular kann Typ + Exemplare nicht zusammen anlegen.
+    # Angelegt wird über POST /api/inventory/typen/ (später das Frontend-Formular).
+    # ------------------------------------------------------------------------
+
+    def has_add_permission(self, request):
+        """False → der Button "Gegenstandstyp hinzufügen" verschwindet."""
+        return False
+
+    def save_model(self, request, obj, form, change):
+        """Speichern beim Bearbeiten läuft über den Service."""
+        typen.bearbeiten(obj.pk, _geaenderte_typfelder(form))
+
+    # --- Löschen über den Service (gleiches Muster wie beim Exemplar) ---------
+
+    def delete_model(self, request, obj):
+        """Löscht über den Service – der prüft, ob es Ausleihanfragen gibt."""
+        typen.loeschen(obj.pk)
+
+    def delete_view(self, request, object_id, extra_context=None):
+        """Fängt eine fachliche Ablehnung ab und zeigt sie als rote Meldung an."""
+        try:
+            return super().delete_view(request, object_id, extra_context)
+        except typen.RegelVerstoss as verstoss:
+            self.message_user(request, verstoss.meldung, level=messages.ERROR)
+            return HttpResponseRedirect(reverse(
+                "admin:inventory_gegenstandstyp_change", args=[object_id]))
+
+    def get_actions(self, request):
+        """Mehrfach-Löschen abschalten: Jede Löschung soll einzeln geprüft werden."""
+        aktionen = super().get_actions(request)
+        aktionen.pop("delete_selected", None)
+        return aktionen

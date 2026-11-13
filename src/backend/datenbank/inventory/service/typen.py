@@ -9,6 +9,7 @@ Funktionen:
 - anlegen(daten)               – Typ mit mindestens einem Exemplar anlegen
 - bearbeiten(id, aenderungen)  – Typ bearbeiten (ohne Exemplare)
 - loeschen(id)                 – Typ mit allen Exemplaren löschen
+- bearbeiten_pruefen(aenderungen) – nur prüfen (Admin-Formular)
 
 Unterschied zu exemplare.py:
 - Ein Typ wird immer zusammen mit seinen Exemplaren angelegt (eine Transaktion).
@@ -141,6 +142,13 @@ def bearbeiten(id, aenderungen):
             setattr(typ, feld, aenderungen[feld])
     typ.save()
     return typ
+
+
+# --- Nur prüfen (für das Admin-Formular) --------------------------------------
+
+def bearbeiten_pruefen(aenderungen):
+    """Wirft RegelVerstoss, wenn diese Änderung nicht erlaubt ist."""
+    regeln.pruefe_typ_bearbeiten(aenderungen)
 
 
 # --- Löschen -----------------------------------------------------------------

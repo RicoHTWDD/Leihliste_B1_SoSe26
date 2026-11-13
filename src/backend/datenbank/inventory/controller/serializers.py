@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from inventory.infrastruktur.models import Gegenstandsexemplar, Verfuegbarkeitsstatus, Zustand
+from inventory.infrastruktur.models import Gegenstandsexemplar, Gegenstandstyp, Verfuegbarkeitsstatus, Zustand
 
 
 class VerfügbareGegenstandsexemplarSerializer(serializers.ModelSerializer):
@@ -174,6 +174,7 @@ class GegenstandsexemplarDetailSerializer(GegenstandsexemplarUebersichtSerialize
         """
         return None
 
+
 class GegenstandsexemplarAnlegenSerializer(serializers.Serializer):
     """
     Prüft beim Anlegen NUR das Format: Feld vorhanden, richtiger Datentyp,
@@ -194,8 +195,6 @@ class GegenstandsexemplarAnlegenSerializer(serializers.Serializer):
             "invalid_choice": "Bitte einen Verfügbarkeitsstatus aus der Liste wählen."})
 
 
-    
-
 class GegenstandsexemplarBearbeitenSerializer(GegenstandsexemplarAnlegenSerializer):
     """
     Prüft beim Bearbeiten NUR das Format. Wie beim Anlegen, aber:
@@ -203,3 +202,55 @@ class GegenstandsexemplarBearbeitenSerializer(GegenstandsexemplarAnlegenSerializ
     - mit partial=True aufgerufen: nur die geschickten Felder werden geprüft
     """
     gegenstand = None
+
+
+# --- Gegenstandstyp ----------------------------------------------------------
+
+class GegenstandstypSerializer(serializers.ModelSerializer):
+    """Ausgabe eines Typs (Liste, Detail, Antwort nach Anlegen/Bearbeiten).
+
+    exemplare: Liste der IDs der zugehörigen Exemplare.
+    """
+    exemplare = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    class Meta:
+        model = Gegenstandstyp
+        fields = ["id", "name", "beschreibung", "kategorie", "standort",
+                  "maximale_ausleihzeit", "exemplare"]
+        read_only_fields = fields
+
+
+class ExemplarImTypSerializer(GegenstandsexemplarAnlegenSerializer):
+    """Ein Exemplar innerhalb von POST /typen/. Der Typ entsteht erst – daher ohne `gegenstand`."""
+    gegenstand = None
+
+
+class GegenstandstypAnlegenSerializer(serializers.Serializer):
+    """
+    Prüft beim Anlegen eines Typs NUR das Format.
+    Fachlich (Name ≤ 100 Zeichen, mindestens ein Exemplar, defekt ⇒ nicht verfügbar)
+    entscheidet die Domäne. Beschreibung ist hier optional – ob sie Pflicht ist,
+    legt die Domäne fest.
+    """
+    FEHLT = "Dieses Feld ist ein Pflichtfeld."
+
+    name = serializers.CharField(error_messages={
+        "required": FEHLT, "blank": "Bitte einen Namen angeben."})
+    beschreibung = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    kategorie = serializers.IntegerField(error_messages={
+        "required": FEHLT, "invalid": "Bitte eine gültige Kategorie-ID angeben."})
+    standort = serializers.IntegerField(error_messages={
+        "required": FEHLT, "invalid": "Bitte eine gültige Standort-ID angeben."})
+    maximale_ausleihzeit = serializers.IntegerField(min_value=1, error_messages={
+        "required": FEHLT, "invalid": "Bitte eine ganze Zahl (Tage) angeben.",
+        "min_value": "Die maximale Ausleihzeit muss mindestens 1 Tag sein."})
+    exemplare = ExemplarImTypSerializer(many=True, error_messages={
+        "required": FEHLT, "not_a_list": "Bitte eine Liste von Exemplaren schicken."})
+
+
+class GegenstandstypBearbeitenSerializer(GegenstandstypAnlegenSerializer):
+    """
+    Wie beim Anlegen, aber ohne Exemplare (die werden einzeln bearbeitet).
+    Mit partial=True aufgerufen: nur die geschickten Felder werden geprüft.
+    """
+    exemplare = None

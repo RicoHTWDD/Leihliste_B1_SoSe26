@@ -52,3 +52,29 @@
 * *Sonstiges & Organisatorisches:*
   ** *Terminfindung:* Es müssen zeitnah noch Termine für das kommende *Sprint Review* und die *Retrospektive* gefunden werden.
   ** *Team-Änderung (Rico):* Rico verlässt das Projektteam und klärt das weitere Vorgehen direkt mit Prof. Anke ab. Für technische Rückfragen oder administrative Themen rund um das GitHub-Repository steht er uns aber weiterhin unterstützend zur Verfügung.
+
+  == Meeting 12.11.2026
+:id: meeting12112026
+
+*Datum:* 12.11.2026  
+*Dauer:*  15 min. 
+*Teilnehmende:* Adrian, Lidiia, Til
+
+=== Agenda
+. Nächster Fachaustausch
+. Backend-Umstrukturierung (Vorschlag Prof. Anke)
+. Anpassung des Funktionsumfangs
+
+=== Beschluesse
+
+* *Nächster Fachaustausch:*
+  ** Für den kommenden Fachaustausch sollen zwei andere Teammitglieder die Vorstellung übernehmen.
+
+* *Umstrukturierung des Backend-Codes:*
+  ** Der Vorschlag von Prof. Anke, den Backend-Code umzustrukturieren, wurde besprochen.
+  ** Da dieser Umbau sehr aufwendig ist, sollte er erst nach Sprint 4 oder zu einem anderen geeigneten Zeitpunkt durchgeführt werden.
+  ** Eine finale Entscheidung zum genauen Zeitpunkt konnte in der kleinen Runde zu dritt noch nicht getroffen werden und muss im gesamten Team abgestimmt werden.
+
+* *Reduzierung des Funktionsumfangs:*
+  ** Da wir im Team nun weniger Personen sind, sind wir zu dem Schluss gekommen, insgesamt weniger Features umzusetzen und uns stattdessen auf die grundlegenden Kernfunktionen zu konzentrieren.
+  ** Die konkrete Abstimmung und Priorisierung dazu mit dem Product Owner (Justin) steht noch aus.

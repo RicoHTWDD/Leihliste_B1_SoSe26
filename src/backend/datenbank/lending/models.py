@@ -13,14 +13,13 @@ class Ausleihanfrage(models.Model):
     # Ausleiher der die Anfrage stellt
     nutzer = models.ForeignKey(
         'users.Nutzer',
-        on_delete=models.PROTECT,  # Typ mit Ausleihanfragen darf nicht gelöscht werden (#33)
-        #on_delete=models.CASCADE,
+        on_delete=models.CASCADE, 
         related_name='ausleihanfragen'
     )
     # Gegenstandstyp der angefragt wird
     gegenstand = models.ForeignKey(
         'inventory.Gegenstandstyp',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT, # Typ mit Ausleihanfragen darf nicht gelöscht werden (#33)
         related_name='ausleihanfragen'
     )
     # Organisation zu der die Anfrage gehört

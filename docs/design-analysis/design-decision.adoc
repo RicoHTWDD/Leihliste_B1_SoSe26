@@ -43,7 +43,6 @@ Verleiher sollen in der Oberfläche Gegenstandsexemplare und Gegenstandstypen an
 
 Technisch sichert die Datenbank zusätzlich ab, dass die Inventarnummer eindeutig ist.
 
-=== Annahmen, die der PO bestätigen muss
 
 
 == Zwei Entwurfsvarianten 

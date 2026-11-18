@@ -107,7 +107,7 @@ def anlegen(daten):
 
 # Felder, die beim Bearbeiten geändert werden dürfen.
 # Der Gegenstandstyp bleibt fest: Ein Exemplar wird nicht zu einem anderen Typ verschoben.
-FELDER_BEARBEITEN = ("inventarnummer", "zustand", "verfuegbarkeitsstatus")
+FELDER_BEARBEITEN = ("inventarnummer", "zustand", "verfuegbarkeitsstatus", "standort", "bild")
 
 
 def _bisheriger_stand(exemplar):

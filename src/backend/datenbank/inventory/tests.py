@@ -10,7 +10,14 @@ Aufbau:
 Ausführen:   docker compose exec backend python manage.py test inventory
 """
 import datetime
+import io
+import shutil
+import tempfile
 from unittest import mock   # ersetzt im Test kurz eine Funktion
+
+from PIL import Image
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 
 from django.contrib.auth.models import User
 from django.test import SimpleTestCase, TestCase
@@ -32,7 +39,7 @@ from users.models import Nutzer
 
 def exemplar(**abweichungen):
     """Gültige Exemplar-Daten; einzelne Werte lassen sich überschreiben."""
-    daten = {"gegenstand": 1, "inventarnummer": "INV-1",
+    daten = {"gegenstand": 1, "standort": 1, "inventarnummer": "INV-1",
              "zustand": "gut", "verfuegbarkeitsstatus": "verfuegbar"}
     daten.update(abweichungen)
     return daten
@@ -40,9 +47,9 @@ def exemplar(**abweichungen):
 
 def typ(**abweichungen):
     """Gültige Typ-Daten mit einem Exemplar."""
-    daten = {"name": "Laptop", "beschreibung": "Leihlaptop", "kategorie": 1, "standort": 1,
+    daten = {"name": "Laptop", "beschreibung": "Leihlaptop", "kategorie": 1,
              "maximale_ausleihzeit": 14,
-             "exemplare": [{"inventarnummer": "INV-1", "zustand": "gut",
+             "exemplare": [{"standort": 1, "inventarnummer": "INV-1", "zustand": "gut",
                             "verfuegbarkeitsstatus": "verfuegbar"}]}
     daten.update(abweichungen)
     return daten
@@ -55,7 +62,7 @@ class RegelnTest(SimpleTestCase):
         with self.assertRaises(RegelVerstoss) as fall:
             regeln.pruefe_exemplar_anlegen({})
         self.assertEqual(set(fall.exception.feldfehler),
-                         {"gegenstand", "inventarnummer", "zustand", "verfuegbarkeitsstatus"})
+                         {"gegenstand", "standort", "inventarnummer", "zustand", "verfuegbarkeitsstatus"})
 
     # defekt/verloren ⇒ nicht verfügbar
     def test_defekt_und_verfuegbar_verboten(self):
@@ -93,6 +100,13 @@ class RegelnTest(SimpleTestCase):
             regeln.pruefe_exemplar_loeschung(1)
         self.assertEqual(fall.exception.code, regeln.LETZTES_EXEMPLAR)
 
+    # Bild: JPG/PNG, höchstens 200 kB
+    def test_bild_regeln(self):
+        self.assertEqual(regeln.pruefe_bild(None), {})                       # kein Bild erlaubt
+        self.assertEqual(regeln.pruefe_bild(("foto.JPG", 200 * 1024)), {})   # genau 200 kB erlaubt
+        self.assertIn("bild", regeln.pruefe_bild(("foto.png", 200 * 1024 + 1)))
+        self.assertIn("bild", regeln.pruefe_bild(("foto.gif", 1000)))
+
     # Typ mit Ausleihanfragen nicht löschen
     def test_typ_mit_anfragen_nicht_loeschen(self):
         regeln.pruefe_typ_loeschung(0)
@@ -115,13 +129,13 @@ class MitTestdaten(TestCase):
         self.kategorie = Kategorie.objects.create(name="Technik")
         self.standort = Standort.objects.create(organisation=self.org, name="Raum Z 101")
         self.typ = Gegenstandstyp.objects.create(
-            organisation=self.org, kategorie=self.kategorie, standort=self.standort,
+            organisation=self.org, kategorie=self.kategorie,
             name="Laptop", beschreibung="Leihlaptop", maximale_ausleihzeit=14)
         self.e1 = Gegenstandsexemplar.objects.create(
-            gegenstand=self.typ, inventarnummer="INV-1", zustand="gut",
+            gegenstand=self.typ, standort=self.standort, inventarnummer="INV-1", zustand="gut",
             verfuegbarkeitsstatus="verfuegbar")
         self.e2 = Gegenstandsexemplar.objects.create(
-            gegenstand=self.typ, inventarnummer="INV-2", zustand="gut",
+            gegenstand=self.typ, standort=self.standort, inventarnummer="INV-2", zustand="gut",
             verfuegbarkeitsstatus="verfuegbar")
 
     def anfrage_anlegen(self):
@@ -134,9 +148,9 @@ class MitTestdaten(TestCase):
 
     def typ_daten(self, **abweichungen):
         daten = {"name": "Beamer", "beschreibung": "HD-Beamer", "kategorie": self.kategorie.id,
-                 "standort": self.standort.id, "maximale_ausleihzeit": 7,
-                 "exemplare": [{"inventarnummer": "B-1", "zustand": "gut",
-                                "verfuegbarkeitsstatus": "verfuegbar"}]}
+                 "maximale_ausleihzeit": 7,
+                 "exemplare": [{"standort": self.standort.id, "inventarnummer": "B-1",
+                                "zustand": "gut", "verfuegbarkeitsstatus": "verfuegbar"}]}
         daten.update(abweichungen)
         return daten
 
@@ -164,24 +178,24 @@ class ExemplarApiTest(MitTestdaten):
     URL = "/api/inventory/exemplare/"
 
     def test_anlegen_201(self):
-        r = self.client.post(self.URL, exemplar(gegenstand=self.typ.id, inventarnummer="INV-3"),
+        r = self.client.post(self.URL, exemplar(gegenstand=self.typ.id, standort=self.standort.id, inventarnummer="INV-3"),
                              format="json")
         self.assertEqual(r.status_code, 201)
 
     def test_anlegen_formatfehler_400(self):
-        r = self.client.post(self.URL, exemplar(gegenstand=self.typ.id, zustand="kaputt"),
+        r = self.client.post(self.URL, exemplar(gegenstand=self.typ.id, standort=self.standort.id, zustand="kaputt"),
                              format="json")
         self.assertEqual(r.status_code, 400)
         self.assertIn("zustand", r.json())
 
     def test_anlegen_regelverstoss_400_mit_feldname(self):
-        r = self.client.post(self.URL, exemplar(gegenstand=self.typ.id, inventarnummer="INV-3",
+        r = self.client.post(self.URL, exemplar(gegenstand=self.typ.id, standort=self.standort.id, inventarnummer="INV-3",
                                                 zustand="defekt"), format="json")
         self.assertEqual(r.status_code, 400)
         self.assertIn("verfuegbarkeitsstatus", r.json())
 
     def test_anlegen_doppelte_inventarnummer_400(self):
-        r = self.client.post(self.URL, exemplar(gegenstand=self.typ.id, inventarnummer="INV-1"),
+        r = self.client.post(self.URL, exemplar(gegenstand=self.typ.id, standort=self.standort.id, inventarnummer="INV-1"),
                              format="json")
         self.assertEqual(r.status_code, 400)
         self.assertIn("inventarnummer", r.json())
@@ -228,7 +242,7 @@ class TypApiTest(MitTestdaten):
     def test_bearbeiten_200_400_404(self):
         url = f"{self.URL}{self.typ.id}/"
         self.assertEqual(self.client.patch(url, {"name": "x" * 101}, format="json").status_code, 400)
-        r = self.client.patch(url, {"name": "Laptop Pro", "standort": self.standort.id}, format="json")
+        r = self.client.patch(url, {"name": "Laptop Pro"}, format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json()["name"], "Laptop Pro")
         self.assertEqual(self.client.patch(f"{self.URL}9999/", {"name": "x"},
@@ -246,6 +260,107 @@ class TypApiTest(MitTestdaten):
         self.assertEqual(self.client.delete(f"{self.URL}9999/").status_code, 404)
 
 
+class StandortAmExemplarApiTest(MitTestdaten):
+    """Standort gehört zum Exemplar (PO in #47) und wird aus der Liste gewählt."""
+    URL = "/api/inventory/exemplare/"
+
+    def test_ausgabe_zeigt_standort_des_exemplars(self):
+        r = self.client.get(f"{self.URL}{self.e1.id}/")
+        self.assertEqual(r.json()["standort"], "Raum Z 101")
+
+    def test_anlegen_ohne_standort_400(self):
+        daten = exemplar(gegenstand=self.typ.id, inventarnummer="INV-3")
+        del daten["standort"]
+        r = self.client.post(self.URL, daten, format="json")
+        self.assertEqual(r.status_code, 400)
+        self.assertIn("standort", r.json())
+
+    def test_anlegen_unbekannter_standort_400(self):
+        r = self.client.post(self.URL, exemplar(gegenstand=self.typ.id, standort=9999,
+                                                inventarnummer="INV-3"), format="json")
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(r.json()["standort"], ["Dieser Standort existiert nicht."])
+
+    def test_standort_eines_exemplars_aendern(self):
+        lager = Standort.objects.create(organisation=self.org, name="Lager")
+        r = self.client.patch(f"{self.URL}{self.e1.id}/", {"standort": lager.id}, format="json")
+        self.assertEqual(r.json()["standort"], "Lager")
+        self.e2.refresh_from_db()
+        self.assertEqual(self.e2.standort, self.standort)           # anderes Exemplar unverändert
+
+    def test_typ_anlegen_exemplar_mit_unbekanntem_standort_400(self):
+        daten = self.typ_daten()
+        daten["exemplare"][0]["standort"] = 9999
+        r = self.client.post("/api/inventory/typen/", daten, format="json")
+        self.assertEqual(r.status_code, 400)
+        self.assertIn("standort", r.json()["exemplare"]["0"])
+
+
+def bilddatei(name="foto.png", format="PNG", gross=False):
+    """Erzeugt ein echtes Bild im Speicher – wie ein Upload aus dem Browser.
+    gross=True: 400×400 Pixel Rauschen, als PNG ca. 330 kB (also über 200 kB)."""
+    puffer = io.BytesIO()
+    if gross:
+        bild = Image.effect_noise((400, 400), 100).convert("RGB")
+    else:
+        bild = Image.new("RGB", (10, 10), "red")
+    bild.save(puffer, format=format)
+    return SimpleUploadedFile(name, puffer.getvalue(), content_type=f"image/{format.lower()}")
+
+
+MEDIA_TEST = tempfile.mkdtemp()   # Bilder der Tests landen hier, nicht in media/
+
+
+@override_settings(MEDIA_ROOT=MEDIA_TEST)
+class BildApiTest(MitTestdaten):
+    """Ein Bild pro Exemplar, nur JPG/PNG, höchstens 200 kB. Upload als multipart/form-data."""
+    URL = "/api/inventory/exemplare/"
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(MEDIA_TEST, ignore_errors=True)
+        super().tearDownClass()
+
+    def anlegen(self, bild):
+        daten = exemplar(gegenstand=self.typ.id, standort=self.standort.id, inventarnummer="INV-B")
+        daten["bild"] = bild
+        return self.client.post(self.URL, daten, format="multipart")
+
+    def test_anlegen_mit_png_201_und_bildadresse(self):
+        r = self.anlegen(bilddatei())
+        self.assertEqual(r.status_code, 201)
+        self.assertIn("/media/exemplare/", r.json()["bild"])
+
+    def test_anlegen_ohne_bild_bleibt_moeglich(self):
+        r = self.client.post(self.URL, exemplar(gegenstand=self.typ.id, standort=self.standort.id,
+                                                inventarnummer="INV-B"), format="json")
+        self.assertEqual(r.status_code, 201)
+        self.assertIsNone(r.json()["bild"])
+
+    def test_gif_wird_abgelehnt(self):
+        r = self.anlegen(bilddatei("foto.gif", "GIF"))
+        self.assertEqual(r.status_code, 400)
+        self.assertIn("JPG oder PNG", r.json()["bild"][0])
+
+    def test_zu_grosses_bild_wird_abgelehnt(self):
+        r = self.anlegen(bilddatei("gross.png", gross=True))
+        self.assertEqual(r.status_code, 400)
+        self.assertIn("200 kB", r.json()["bild"][0])
+
+    def test_keine_bilddatei_wird_abgelehnt(self):
+        r = self.anlegen(SimpleUploadedFile("text.png", b"kein Bild", content_type="image/png"))
+        self.assertEqual(r.status_code, 400)
+        self.assertIn("bild", r.json())
+
+    def test_bild_ersetzen_und_entfernen(self):
+        url = f"{self.URL}{self.e1.id}/"
+        r = self.client.patch(url, {"bild": bilddatei("neu.jpg", "JPEG")}, format="multipart")
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(r.json()["bild"].endswith(".jpg"))
+        r = self.client.patch(url, {"bild": None}, format="json")
+        self.assertIsNone(r.json()["bild"])
+
+
 # =============================================================================
 # 3. Service – was über die Schnittstelle nicht sichtbar ist
 # =============================================================================
@@ -256,7 +371,8 @@ class ServiceTest(MitTestdaten):
         """Doppelte Inventarnummer im Exemplar → auch der Typ wird nicht gespeichert."""
         with self.assertRaises(RegelVerstoss):
             typen.anlegen(self.typ_daten(exemplare=[
-                {"inventarnummer": "INV-1", "zustand": "gut", "verfuegbarkeitsstatus": "verfuegbar"}]))
+                {"standort": self.standort.id, "inventarnummer": "INV-1", "zustand": "gut",
+                 "verfuegbarkeitsstatus": "verfuegbar"}]))
         self.assertFalse(Gegenstandstyp.objects.filter(name="Beamer").exists())
 
     def test_typ_organisation_kommt_vom_standort(self):
@@ -285,7 +401,7 @@ class AdminTest(MitTestdaten):
 
     def test_anlegen_defekt_verfuegbar_abgelehnt(self):
         self.client.post("/admin/inventory/gegenstandsexemplar/add/",
-                         exemplar(gegenstand=self.typ.id, inventarnummer="INV-3", zustand="defekt"))
+                         exemplar(gegenstand=self.typ.id, standort=self.standort.id, inventarnummer="INV-3", zustand="defekt"))
         self.assertFalse(Gegenstandsexemplar.objects.filter(inventarnummer="INV-3").exists())
 
     def test_letztes_exemplar_nicht_loeschbar(self):

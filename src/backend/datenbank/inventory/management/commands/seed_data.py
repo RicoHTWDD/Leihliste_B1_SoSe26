@@ -131,7 +131,6 @@ class Command(BaseCommand):
             typ = Gegenstandstyp.objects.create(
                 organisation=organisation,
                 kategorie=kategorien[kategorie],
-                standort=standorte[standort],
                 name=name,
                 beschreibung=beschr,
                 maximale_ausleihzeit=max_tage,
@@ -141,6 +140,7 @@ class Command(BaseCommand):
             for zustand, status in exemplare:
                 Gegenstandsexemplar.objects.create(
                     gegenstand=typ,
+                    standort=standorte[standort],   # Standort hängt jetzt am Exemplar
                     inventarnummer=f"SEED-{nummer:04d}",
                     zustand=zustand,
                     verfuegbarkeitsstatus=status,

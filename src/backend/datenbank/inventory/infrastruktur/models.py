@@ -19,7 +19,7 @@ class Verfuegbarkeitsstatus(models.TextChoices):
 
 
 class Kategorie(models.Model):
-    name = models.CharField(max_length=255) # von 255 auf 100 geändert, Aktzeptanzkriterium #33: Name max. 100 Zeichen
+    name = models.CharField(max_length=255)
     # Beschreibung ist optional
     beschreibung = models.CharField(max_length=500, null=True, blank=True)
     is_seed = models.BooleanField(default=False)
@@ -64,14 +64,8 @@ class Gegenstandstyp(models.Model):
         null=True,
         related_name='gegenstandstypen'
     )
-    # Standort wo der Gegenstandstyp gelagert wird
-    standort = models.ForeignKey(
-        Standort,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='gegenstandstypen'
-    )
-    name = models.CharField(max_length=255)
+ # # Akzeptanzkriterium #33: Name höchstens 100 Zeichen
+    name = models.CharField(max_length=100)
     # Beschreibung ist optional
     beschreibung = models.TextField(null=True, blank=True)
     # Maximale Ausleihzeit in Tagen
@@ -94,6 +88,18 @@ class Gegenstandsexemplar(models.Model):
         on_delete=models.CASCADE,
         related_name='exemplare'
     )
+
+    # Standort, an dem dieses Exemplar liegt 
+    # Wird aus der Liste der Standorte gewählt, angelegt werden Standorte in #47.
+    # PROTECT: Ein Standort, auf den noch ein Exemplar zeigt, kann nicht gelöscht werden.
+    standort = models.ForeignKey(
+        Standort,
+        on_delete=models.PROTECT,
+        null=True,
+        related_name='exemplare'
+    )
+    # Datei liegt in media/exemplare/, in der DB nur der Pfad.
+    bild = models.ImageField(upload_to='exemplare/', null=True, blank=True)
     # Inventarnummer ist eindeutig und wird nie wiederverwendet
     inventarnummer = models.CharField(max_length=255, unique=True)
     zustand = models.CharField(

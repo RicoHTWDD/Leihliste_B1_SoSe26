@@ -20,3 +20,10 @@ db.sqlite3
 
 # IDE
 .vscode/
+
+# Testing 
+.coverage
+htmlcov/
+
+# Media Dateien (Bilder der Exemplare)
+src/backend/datenbank/media/

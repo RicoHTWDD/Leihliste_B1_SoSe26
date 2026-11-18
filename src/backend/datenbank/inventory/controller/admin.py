@@ -25,7 +25,7 @@ class GegenstandsexemplarAdminForm(forms.ModelForm):
 
     class Meta:
         model = Gegenstandsexemplar
-        fields = ["gegenstand", "inventarnummer", "zustand", "verfuegbarkeitsstatus"]
+        fields = ["gegenstand", "standort", "inventarnummer", "zustand", "verfuegbarkeitsstatus", "bild"]
 
     def clean(self):
         daten = super().clean()                     # Djangos Formatprüfung zuerst
@@ -39,6 +39,8 @@ class GegenstandsexemplarAdminForm(forms.ModelForm):
                     "inventarnummer": daten["inventarnummer"],
                     "zustand": daten["zustand"],
                     "verfuegbarkeitsstatus": daten["verfuegbarkeitsstatus"],
+                    "standort": daten["standort"].pk if daten.get("standort") else None,
+                    "bild": daten.get("bild") or None,      # hochgeladene Datei oder kein Bild
                 })
             else:                                   # pk vorhanden → bestehendes Exemplar wird bearbeitet
                 exemplare.bearbeiten_pruefen(self.instance.pk, _geaenderte_felder(self))
@@ -56,11 +58,17 @@ def _geaenderte_felder(formular):
     changed_data ist eine Liste der Feldnamen, die sich gegenüber dem
     gespeicherten Stand geändert haben.
     """
-    return {
-        feld: formular.cleaned_data[feld]
-        for feld in formular.changed_data
-        if feld in exemplare.FELDER_BEARBEITEN
-    }
+    aenderungen = {}
+    for feld in formular.changed_data:
+        if feld not in exemplare.FELDER_BEARBEITEN:
+            continue
+        wert = formular.cleaned_data[feld]
+        if feld == "standort":
+            wert = wert.pk if wert is not None else None   # Formular liefert Objekt, Service braucht die ID
+        if feld == "bild" and not wert:
+            wert = None                                    # Haken "Löschen" im Admin liefert False → kein Bild
+        aenderungen[feld] = wert
+    return aenderungen
 
 
 # @admin.register(Model) meldet eine Admin-Klasse für dieses Model an.
@@ -79,8 +87,8 @@ class StandortAdmin(admin.ModelAdmin):
 @admin.register(Gegenstandsexemplar)
 class GegenstandsexemplarAdmin(admin.ModelAdmin):
     form = GegenstandsexemplarAdminForm             # unser Formular mit der fachlichen Prüfung
-    list_display = ['inventarnummer', 'gegenstand', 'verfuegbarkeitsstatus', 'zustand']
-    list_filter = ['verfuegbarkeitsstatus', 'zustand']   # Filter rechts neben der Liste
+    list_display = ['inventarnummer', 'gegenstand', 'standort', 'verfuegbarkeitsstatus', 'zustand']
+    list_filter = ['verfuegbarkeitsstatus', 'zustand', 'standort']   # Filter rechts neben der Liste
     search_fields = ['inventarnummer']                   # Suchfeld über der Liste
 
     # ------------------------------------------------------------------------
@@ -113,6 +121,8 @@ class GegenstandsexemplarAdmin(admin.ModelAdmin):
                 "inventarnummer": obj.inventarnummer,
                 "zustand": obj.zustand,
                 "verfuegbarkeitsstatus": obj.verfuegbarkeitsstatus,
+                "standort": obj.standort_id,
+                "bild": form.cleaned_data.get("bild") or None,
             })
             # Django braucht danach die ID, um "erfolgreich hinzugefügt"
             # anzuzeigen und zur richtigen Seite zu springen.
@@ -199,11 +209,11 @@ class GegenstandstypAdminForm(forms.ModelForm):
 
 
 def _geaenderte_typfelder(formular):
-    """Geänderte Felder mit neuem Wert. Kategorie/Standort als ID, so wie der Service sie erwartet."""
+    """Geänderte Felder mit neuem Wert. Kategorie als ID, so wie der Service sie erwartet."""
     aenderungen = {}
     for feld in formular.changed_data:
         wert = formular.cleaned_data[feld]
-        if feld in ("kategorie", "standort"):
+        if feld == "kategorie":
             wert = wert.pk if wert is not None else None   # Formular liefert Objekt, Service braucht die ID
         aenderungen[feld] = wert
     return aenderungen
@@ -212,7 +222,7 @@ def _geaenderte_typfelder(formular):
 @admin.register(Gegenstandstyp)
 class GegenstandstypAdmin(admin.ModelAdmin):
     form = GegenstandstypAdminForm
-    list_display = ['name', 'kategorie', 'standort']
+    list_display = ['name', 'kategorie']
 
     # ------------------------------------------------------------------------
     # Anlegen im Admin ist abgeschaltet: Ein Typ braucht mindestens ein Exemplar,

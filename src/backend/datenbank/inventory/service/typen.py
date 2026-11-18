@@ -24,20 +24,21 @@ from inventory.infrastruktur.models import (
     Gegenstandsexemplar,
     Gegenstandstyp,
     Kategorie,
-    Standort,
 )
 
+from inventory.service.exemplare import standort_laden
+
 # Felder des Typs, die beim Bearbeiten geändert werden dürfen
-FELDER_BEARBEITEN = ("name", "beschreibung", "kategorie", "standort", "maximale_ausleihzeit")
+FELDER_BEARBEITEN = ("name", "beschreibung", "kategorie", "maximale_ausleihzeit")
 
 
 # --- Lesen -------------------------------------------------------------------
 
 def alle_lesen():
-    """Alle Typen mit Kategorie und Standort, sortiert nach Name."""
+    """Alle Typen mit Kategorie, sortiert nach Name."""
     return (
         Gegenstandstyp.objects
-        .select_related("kategorie", "standort")
+        .select_related("kategorie")
         .prefetch_related("exemplare")
         .order_by("name")
     )
@@ -45,26 +46,15 @@ def alle_lesen():
 
 # --- Hilfsfunktion -----------------------------------------------------------
 
-def _auswahl_laden(daten):
-    """Lädt Kategorie und Standort zu den geschickten IDs.
-
-    Gibt (kategorie, standort) zurück. Gibt es eine ID nicht,
-    wird ein RegelVerstoss mit dem passenden Feldnamen geworfen.
-    Felder, die nicht in `daten` stehen, bleiben None.
-    """
-    fehler = {}
-    kategorie = standort = None
-    if "kategorie" in daten:
-        kategorie = Kategorie.objects.filter(pk=daten["kategorie"]).first()
-        if kategorie is None:
-            fehler["kategorie"] = ["Diese Kategorie existiert nicht."]
-    if "standort" in daten:
-        standort = Standort.objects.filter(pk=daten["standort"]).first()
-        if standort is None:
-            fehler["standort"] = ["Dieser Standort existiert nicht."]
-    if fehler:
-        raise RegelVerstoss(feldfehler=fehler)
-    return kategorie, standort
+def _kategorie_laden(daten):
+    """Lädt die ausgewählte Kategorie, falls sie in `daten` steht (sonst None).
+    Gibt es die ID nicht → RegelVerstoss am Feld "kategorie"."""
+    if "kategorie" not in daten:
+        return None
+    kategorie = Kategorie.objects.filter(pk=daten["kategorie"]).first()
+    if kategorie is None:
+        raise RegelVerstoss(feldfehler={"kategorie": ["Diese Kategorie existiert nicht."]})
+    return kategorie
 
 
 # --- Anlegen -----------------------------------------------------------------
@@ -80,15 +70,20 @@ def anlegen(daten):
     #    defekt/verloren ⇒ nicht verfügbar – für jedes Exemplar)
     regeln.pruefe_typ_anlegen(daten)
 
-    # 2. Kategorie und Standort laden
-    kategorie, standort = _auswahl_laden(daten)
+    # 2. Kategorie laden und den Standort jedes Exemplars (Fehler mit Position in der Liste)
+    kategorie = _kategorie_laden(daten)
+    standorte = []
+    for nr, exemplar in enumerate(daten["exemplare"]):
+        try:
+            standorte.append(standort_laden(exemplar["standort"]))
+        except RegelVerstoss as verstoss:
+            raise RegelVerstoss(feldfehler={"exemplare": {nr: verstoss.feldfehler}})
 
-    # 3. Typ speichern. Die Organisation kommt vom Standort,
+    # 3. Typ speichern. Die Organisation kommt vom Standort des ersten Exemplars,
     #    solange es noch keine Anmeldung gibt.
     typ = Gegenstandstyp.objects.create(
-        organisation=standort.organisation,
+        organisation=standorte[0].organisation,
         kategorie=kategorie,
-        standort=standort,
         name=daten["name"],
         beschreibung=daten.get("beschreibung"),
         maximale_ausleihzeit=daten["maximale_ausleihzeit"],
@@ -100,6 +95,7 @@ def anlegen(daten):
             with transaction.atomic():
                 Gegenstandsexemplar.objects.create(
                     gegenstand=typ,
+                    standort=standorte[nr],
                     inventarnummer=exemplar["inventarnummer"],
                     zustand=exemplar["zustand"],
                     verfuegbarkeitsstatus=exemplar["verfuegbarkeitsstatus"],
@@ -127,8 +123,8 @@ def bearbeiten(id, aenderungen):
     # 2. Domäne entscheidet (Pflichtfelder nicht leeren, Name ≤ 100)
     regeln.pruefe_typ_bearbeiten(aenderungen)
 
-    # 3. Kategorie/Standort laden, falls geändert
-    kategorie, standort = _auswahl_laden(aenderungen)
+    # 3. Kategorie laden, falls geändert
+    kategorie = _kategorie_laden(aenderungen)
 
     # 4. Speichern
     for feld in FELDER_BEARBEITEN:
@@ -136,8 +132,6 @@ def bearbeiten(id, aenderungen):
             continue
         if feld == "kategorie":
             typ.kategorie = kategorie
-        elif feld == "standort":
-            typ.standort = standort
         else:
             setattr(typ, feld, aenderungen[feld])
     typ.save()

@@ -22,9 +22,10 @@ Regeln (Quelle: docs/design-analysis/design-decision.adoc):
 - Pflichtfelder müssen ausgefüllt sein                         (Akzeptanzkriterien #33)
 - Der Name eines Gegenstandstyps hat höchstens 100 Zeichen     (Akzeptanzkriterien #33)
 - Ein Gegenstandstyp wird mit mindestens einem Exemplar angelegt (Datenmodell)
-- Ein defektes oder verlorenes Exemplar darf nicht verfügbar sein        (Annahme)
-- Das letzte Exemplar eines Typs wird nicht einzeln gelöscht              (Annahme)
-- Ein Gegenstandstyp mit Ausleihanfragen darf nicht gelöscht werden       (Annahme)
+- Ein defektes oder verlorenes Exemplar darf nicht verfügbar sein       
+- Das letzte Exemplar eines Typs wird nicht einzeln gelöscht              
+- Ein Gegenstandstyp mit Ausleihanfragen darf nicht gelöscht werden      
+- Ein Bild ist JPG oder PNG und höchstens 200 kB groß                 
 """
 
 # Werte wie in infrastruktur/models.py (Zustand, Verfuegbarkeitsstatus).
@@ -33,19 +34,22 @@ ZUSTAENDE_NICHT_VERFUEGBAR = ("defekt", "verloren")
 VERFUEGBAR = "verfuegbar"
 
 NAME_MAX_LAENGE = 100
+# Bild am Exemplar (Nur ein Bild, nur JPG/PNG, höchstens 200 kB)
+BILD_ENDUNGEN = (".jpg", ".jpeg", ".png")
+BILD_MAX_BYTES = 200 * 1024
 
 PFLICHTFELDER_EXEMPLAR = {
     "gegenstand": "Bitte einen Gegenstandstyp auswählen.",
     "inventarnummer": "Bitte eine Inventarnummer angeben.",
     "zustand": "Bitte einen Zustand auswählen.",
     "verfuegbarkeitsstatus": "Bitte einen Verfügbarkeitsstatus auswählen.",
+    "standort": "Bitte einen Standort auswählen.",
 }
 
 PFLICHTFELDER_TYP = {
     "name": "Bitte einen Namen angeben.",
     "beschreibung": "Bitte eine Beschreibung angeben.",
     "kategorie": "Bitte eine Kategorie auswählen.",
-    "standort": "Bitte einen Standort auswählen.",
     "maximale_ausleihzeit": "Bitte eine maximale Ausleihzeit angeben.",
 }
 
@@ -99,6 +103,22 @@ def pruefe_zustand_verfuegbarkeit(zustand, verfuegbarkeitsstatus):
         ]}
     return {}
 
+def pruefe_bild(bild):
+    """Ein Bild ist JPG oder PNG und höchstens 200 kB groß.
+
+    `bild` ist (dateiname, groesse_in_byte) oder None (= kein Bild, erlaubt).
+    Die Domäne bekommt nur diese zwei Werte, keine Datei.
+    """
+    if bild is None:
+        return {}
+    dateiname, groesse = bild
+    meldungen = []
+    if not dateiname.lower().endswith(BILD_ENDUNGEN):
+        meldungen.append("Nur Bilder im Format JPG oder PNG sind erlaubt.")
+    if groesse > BILD_MAX_BYTES:
+        meldungen.append("Das Bild darf höchstens 200 kB groß sein.")
+    return {"bild": meldungen} if meldungen else {}
+
 
 def _werfen_wenn_fehler(fehler):
     if fehler:
@@ -107,15 +127,17 @@ def _werfen_wenn_fehler(fehler):
 
 # --- Regeln je Anwendungsfall (werfen RegelVerstoss) -------------------------
 
-def pruefe_exemplar_anlegen(daten):
-    """Regeln beim Anlegen eines Exemplars. Sammelt alle Fehler auf einmal."""
+def pruefe_exemplar_anlegen(daten, bild=None):
+    """Regeln beim Anlegen eines Exemplars. Sammelt alle Fehler auf einmal.
+    bild: (dateiname, groesse) oder None."""
     fehler = pruefe_pflichtfelder(daten, PFLICHTFELDER_EXEMPLAR)
     fehler.update(pruefe_zustand_verfuegbarkeit(
         daten.get("zustand"), daten.get("verfuegbarkeitsstatus")))
+    fehler.update(pruefe_bild(bild))
     _werfen_wenn_fehler(fehler)
 
 
-def pruefe_exemplar_bearbeiten(bisher, aenderungen):
+def pruefe_exemplar_bearbeiten(bisher, aenderungen, bild=None):
     """Regeln beim Bearbeiten eines Exemplars.
 
     `bisher` und `aenderungen` sind Dictionaries. Geprüft wird der Stand
@@ -128,6 +150,7 @@ def pruefe_exemplar_bearbeiten(bisher, aenderungen):
         {k: v for k, v in PFLICHTFELDER_EXEMPLAR.items() if k in aenderungen})
     fehler.update(pruefe_zustand_verfuegbarkeit(
         neu.get("zustand"), neu.get("verfuegbarkeitsstatus")))
+    fehler.update(pruefe_bild(bild))
     _werfen_wenn_fehler(fehler)
 
 

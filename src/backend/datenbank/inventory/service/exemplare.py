@@ -19,6 +19,7 @@ from inventory.domaene.regeln import RegelVerstoss  # noqa: F401 – Controller 
 from inventory.infrastruktur.models import (
     Gegenstandsexemplar,
     Gegenstandstyp,
+    Standort,
     Verfuegbarkeitsstatus,
 )
 
@@ -36,7 +37,7 @@ def alle_lesen():
     """
     return (
         Gegenstandsexemplar.objects
-        .select_related("gegenstand", "gegenstand__standort", "gegenstand__kategorie")
+        .select_related("gegenstand", "gegenstand__kategorie", "standort")
         .order_by("gegenstand__name", "inventarnummer")
     )
 
@@ -44,6 +45,26 @@ def alle_lesen():
 def verfuegbare_lesen():
     """Nur Exemplare, die gerade verfügbar sind (gleiche Sortierung)."""
     return alle_lesen().filter(verfuegbarkeitsstatus=Verfuegbarkeitsstatus.VERFUEGBAR)
+
+# Hilfsfunktionen ---------------------------------------------------------
+
+def _bild_angaben(datei):
+    """Aus einer hochgeladenen Datei nur das holen, was die Domäne braucht:
+    (dateiname, groesse in Byte). Kein Bild → None."""
+    if not datei:
+        return None
+    return (datei.name, datei.size)
+
+
+def standort_laden(standort_id):
+    """Lädt den ausgewählten Standort. Gibt es ihn nicht → RegelVerstoss am Feld "standort".
+
+    Wird auch von typen.py genutzt (Exemplare beim Anlegen eines Typs).
+    """
+    standort = Standort.objects.filter(pk=standort_id).first()
+    if standort is None:
+        raise RegelVerstoss(feldfehler={"standort": ["Dieser Standort existiert nicht."]})
+    return standort
 
 
 # --- Anlegen -----------------------------------------------------------------
@@ -55,20 +76,24 @@ def anlegen(daten):
     Ablauf: Domäne fragen → Typ laden → speichern.
     Wirft RegelVerstoss (mit Feldname), wenn etwas nicht erlaubt ist.
     """
-    # 1. Domäne entscheidet (Pflichtfelder, defekt/verloren ⇒ nicht verfügbar)
-    regeln.pruefe_exemplar_anlegen(daten)
+    # 1. Domäne entscheidet (Pflichtfelder inkl. Standort, defekt/verloren ⇒ nicht verfügbar,
+    #    Bild: JPG/PNG, höchstens 200 kB)
+    regeln.pruefe_exemplar_anlegen(daten, bild=_bild_angaben(daten.get("bild")))
 
-    # 2. Gegenstandstyp laden
+    # 2. Gegenstandstyp und Standort laden
     typ = Gegenstandstyp.objects.filter(pk=daten["gegenstand"]).first()
     if typ is None:
         raise RegelVerstoss(feldfehler={
             "gegenstand": ["Dieser Gegenstandstyp existiert nicht."]})
+    standort = standort_laden(daten["standort"])
 
     # 3. Speichern – die Datenbank sichert die eindeutige Inventarnummer ab
     try:
         with transaction.atomic():
             return Gegenstandsexemplar.objects.create(
                 gegenstand=typ,
+                standort=standort,
+                bild=daten.get("bild"),
                 inventarnummer=daten["inventarnummer"],
                 zustand=daten["zustand"],
                 verfuegbarkeitsstatus=daten["verfuegbarkeitsstatus"],
@@ -87,10 +112,11 @@ FELDER_BEARBEITEN = ("inventarnummer", "zustand", "verfuegbarkeitsstatus")
 
 def _bisheriger_stand(exemplar):
     """Aktuelle Werte eines Exemplars als Dictionary – so, wie die Domäne sie braucht."""
-    bisher = {feld: getattr(exemplar, feld) for feld in FELDER_BEARBEITEN}
+    bisher = {feld: getattr(exemplar, feld) for feld in FELDER_BEARBEITEN
+              if feld not in ("standort", "bild")}
+    bisher["standort"] = exemplar.standort_id          # Domäne braucht nur die ID
     bisher["gegenstand"] = exemplar.gegenstand_id
     return bisher
-
 
 @transaction.atomic
 def bearbeiten(id, aenderungen):
@@ -106,11 +132,19 @@ def bearbeiten(id, aenderungen):
         return None
 
     # 2. Domäne entscheidet über den Stand NACH der Änderung
-    regeln.pruefe_exemplar_bearbeiten(_bisheriger_stand(exemplar), aenderungen)
+    regeln.pruefe_exemplar_bearbeiten(_bisheriger_stand(exemplar), aenderungen,
+                                          bild=_bild_angaben(aenderungen.get("bild")))
+    
 
     # 3. Speichern – die Datenbank sichert die eindeutige Inventarnummer ab
     for feld, wert in aenderungen.items():
-        if feld in FELDER_BEARBEITEN:
+        if feld == "standort":
+            exemplar.standort = standort_laden(wert)   # ID → Standort aus der Liste
+        elif feld == "bild":
+            if exemplar.bild:
+                exemplar.bild.delete(save=False)       # altes Bild löschen (nur 1 Bild erlaubt)
+            exemplar.bild = wert                       # neues Bild oder None (= Bild entfernen)
+        elif feld in FELDER_BEARBEITEN:
             setattr(exemplar, feld, wert)
     try:
         with transaction.atomic():
@@ -127,13 +161,14 @@ def bearbeiten(id, aenderungen):
 
 def anlegen_pruefen(daten):
     """Wirft RegelVerstoss, wenn diese Daten nicht angelegt werden dürfen."""
-    regeln.pruefe_exemplar_anlegen(daten)
+    regeln.pruefe_exemplar_anlegen(daten, bild=_bild_angaben(daten.get("bild")))
 
 
 def bearbeiten_pruefen(id, aenderungen):
     """Wirft RegelVerstoss, wenn diese Änderung nicht erlaubt ist."""
     exemplar = Gegenstandsexemplar.objects.get(pk=id)
-    regeln.pruefe_exemplar_bearbeiten(_bisheriger_stand(exemplar), aenderungen)
+    regeln.pruefe_exemplar_bearbeiten(_bisheriger_stand(exemplar), aenderungen,
+                                      bild=_bild_angaben(aenderungen.get("bild")))
 
 
 # --- Löschen -----------------------------------------------------------------

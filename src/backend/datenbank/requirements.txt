@@ -4,3 +4,4 @@ djangorestframework >=3.14 # Macht Django API-fähig — Frontend kann Daten abr
 django-filter>=23.5 # Drittanbieter‑Paket für Django, das die Erstellung von FilterSets (also wiederverwendbaren Filter‑Klassen) vereinfacht und damit das Filtern von QuerySets über GET‑Parameter in Views/REST‑APIs ermöglicht.  
 django-cors-headers # Erlaubt React Frontend auf Django zuzugreifen — ohne das blockiert der Browser alle Anfragen
 coverage>=7.0 # um zu sehen welche Teile des Codes getestet werden und welche nicht
+Pillow>=10.0 # Bilder verarbeiten – nötig für das Bild am Exemplar (#33)

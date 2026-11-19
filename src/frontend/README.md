@@ -14,3 +14,24 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Eingegangene Ausleihanfragen lokal testen (#24)
+
+Im Verzeichnis `src/frontend` die Abhängigkeiten installieren und die Demo starten:
+
+```bash
+npm ci
+VITE_ANFRAGEN_DEMO=true npm run dev -- --port 5175
+```
+
+Die Demo enthält 21 fiktive Anfragen. Als Verleiher kann man die Liste über
+„Eingegangene Anfragen“ in der Navigation oder über die Kachel „Offene Anfragen“
+auf der Startseite öffnen. Entscheidungen bleiben beim Neuladen im selben Tab erhalten.
+
+Für die Ansicht als Ausleiher den laufenden Server mit Strg+C beenden und neu starten:
+
+```bash
+VITE_ANFRAGEN_DEMO=true VITE_ANFRAGEN_DEMOROLLE=ausleiher npm run dev -- --port 5175
+```
+
+In dieser Rolle sind der Menüeintrag und die Dashboard-Kachel ausgeblendet.

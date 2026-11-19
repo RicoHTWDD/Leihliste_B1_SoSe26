@@ -1,0 +1,119 @@
+@startuml current-structure
+
+set separator none
+
+title Ist-Struktur: wer den Anfragestatus schreibt\n(Stand main, Commit 1c7de95)
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam noteBackgroundColor #FFF8E1
+skinparam noteBorderColor #C9A227
+hide empty members
+
+package "django.db.models" {
+  class QuerySet <<Django-ORM>> {
+    update(**felder) : int
+  }
+  note bottom of QuerySet
+    update() schreibt alle Zeilen der Auswahl
+    mit einer SQL-Anweisung; save() läuft nicht,
+    aktualisiert_am bleibt unverändert (geprüft).
+  end note
+}
+
+package "lending" {
+  enum Anfragestatus {
+    EINGEREICHT
+    GENEHMIGT
+    ABGELEHNT
+    ZURUECKGEZOGEN
+    ABGELAUFEN
+  }
+
+  class Ausleihanfrage <<Model>> #FFE0B2 {
+    startdatum : Date
+    enddatum : Date
+    anfragestatus : Anfragestatus = EINGEREICHT
+    ablehnungsgrund : String [0..1]
+    erstellt_am : DateTime
+    aktualisiert_am : DateTime
+    --
+    ~__str__() : String
+  }
+
+  class AusleihanfrageViewSet <<ModelViewSet>> #FFE0B2 {
+    get_queryset() : QuerySet
+    update_status(request, pk)  « PATCH »
+    genehmigen(request, pk)  « POST »
+    ablehnen(request, pk)  « POST »
+  }
+
+  class AusleihanfrageSerializer <<ModelSerializer>> {
+    anfragestatus, anfragestatus_display, ablehnungsgrund
+    read_only_fields: …, anfragestatus
+  }
+
+  class AusleihanfrageAdmin <<ModelAdmin>> #FFE0B2 {
+    fieldsets: … „Status“: anfragestatus, ablehnungsgrund
+    readonly_fields: erstellt_am, aktualisiert_am
+    actions: genehmige_ausgewaehlte, lehne_ausgewaehlte_ab
+    --
+    genehmige_ausgewaehlte(request, queryset)
+    lehne_ausgewaehlte_ab(request, queryset)
+  }
+
+  note left of Ausleihanfrage
+    **(1)** Nur Felder und ~__str__():
+    keine Regel für Statusübergänge.
+    ablehnungsgrund ist schon optional
+    (models.py Z. 38–39).
+  end note
+
+  note left of AusleihanfrageViewSet
+    **(2)** genehmigen(): setzt GENEHMIGT ohne Prüfung
+    (views.py Z. 163–169).
+    **(3)** ablehnen(): setzt ABGELEHNT ohne Prüfung,
+    verlangt einen Grund (Z. 171–187).
+    **(4)** update_status(): prüft nur, ob der Wert gültig
+    ist, jeder Übergang ist möglich (Z. 127–161).
+  end note
+
+  note bottom of AusleihanfrageViewSet #ECEFF1
+    Nebenbefund N1: get_queryset() filtert mit
+    nutzer=request.user (Z. 38–42); request.user
+    ist ein auth.User, kein Nutzer.
+  end note
+
+  note bottom of AusleihanfrageAdmin
+    **(5)** Aktionen: queryset.update() auf der
+    ganzen Auswahl, ohne save(), ohne Prüfung,
+    Ablehnen ohne Grund (admin.py Z. 41–51).
+    **(6)** Formular: anfragestatus frei
+    änderbar (Z. 23, 32–34).
+  end note
+
+  note bottom of AusleihanfrageSerializer #E8F5E9
+    Nicht betroffen: Das Standard-Update
+    ändert den Status nicht (Z. 34–40).
+  end note
+}
+
+Ausleihanfrage ..> Anfragestatus
+AusleihanfrageViewSet ..> Ausleihanfrage : setzt anfragestatus\nund ablehnungsgrund, save()
+AusleihanfrageViewSet ..> Anfragestatus : prüft Wert,\nsetzt Werte
+AusleihanfrageViewSet ..> AusleihanfrageSerializer : serialisiert
+AusleihanfrageAdmin .left.> QuerySet : Aktionen:\nupdate(anfragestatus=…)
+QuerySet ..> Ausleihanfrage : Zeilen der Auswahl
+AusleihanfrageAdmin ..> Ausleihanfrage : Formular: save()
+AusleihanfrageAdmin ..> Anfragestatus : setzt Werte
+
+legend right
+  |= Markierung |= Bedeutung |
+  |<#FFE0B2>     | müsste für die Änderung voraussichtlich angepasst werden |
+  |<#E8F5E9>     | schützt den Status bereits |
+  |<#ECEFF1>     | Nebenbefund außerhalb der Änderung |
+  | **(n)**      | betroffene Stelle, siehe design-impact.adoc |
+endlegend
+
+@enduml

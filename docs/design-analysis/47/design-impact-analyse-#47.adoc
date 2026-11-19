@@ -1,0 +1,175 @@
+= Design-Impact-Analyse: #47 Kategorien und Standorte verwalten
+:toc: left
+:sectnums:
+
+Issue: #161 (Sub-Issue von Story #47) · Bearbeiter: Yeelius · Sprint 4 · Praktikum SE 2, Teil 1
+
+Diese Analyse beschreibt den heutigen Stand des Systems vor der geplanten Umsetzung der Verwaltung von Kategorien und Standorten. Sie zeigt, wo die geplante Änderung das System trifft. Der Zielentwurf wird in `design-decision.adoc` beschrieben.
+
+== Gewählte Änderung und Untersuchungsfrage
+
+*Änderung:* Berechtigte Nutzer sollen Kategorien und Standorte über die Oberfläche anlegen, anzeigen und bearbeiten können.
+
+Dabei gelten folgende fachliche Regeln:
+
+* Kategorien und Standorte können über das Dashboard angelegt werden.
+* Kategorien und Standorte werden jeweils in einer Übersicht angezeigt.
+* Nur berechtigte Nutzer dürfen die Verwaltungsfunktionen sehen und verwenden.
+* Name und Beschreibung sind Pflichtfelder.
+* Der Name darf höchstens 100 Zeichen enthalten.
+* Pflichtfelder werden visuell gekennzeichnet.
+* Leere oder ungültige Eingaben werden feldbezogen gemeldet.
+* Nach erfolgreichem Anlegen werden die Daten unmittelbar in der Übersicht angezeigt.
+* Bestehende Kategorien und Standorte können bearbeitet werden.
+* Beim Bearbeiten werden die aktuellen Daten vorausgefüllt.
+* Beim Abbrechen werden ungespeicherte Änderungen verworfen.
+* Bestehende Zuordnungen zu Gegenstandstypen beziehungsweise Gegenständen bleiben erhalten.
+* Die fachliche Löschstrategie für bereits verwendete Kategorien und Standorte ist noch zu klären.
+
+*Untersuchte Abläufe:*
+
+* Kategorien anzeigen
+* Standorte anzeigen
+* Kategorie anlegen
+* Standort anlegen
+* Kategorie bearbeiten
+* Standort bearbeiten
+* Eingabe abbrechen
+* Ungültige Eingabe zurückweisen
+
+*Untersuchungsfrage:* Gibt es heute einen Ort, an dem die Regeln für Kategorien und Standorte zentral stehen können? Und wie viele Stellen im System muss die Änderung anfassen?
+
+== Modelle
+
+* `current-structure.puml`: Klassendiagramm des heutigen Stands. Orange markiert die von der Änderung betroffenen Elemente.
+* `current-flow.puml`: Sequenzdiagramm der Abläufe zum Anzeigen, Anlegen und Bearbeiten. Rote Notizen markieren die Befunde.
+
+Die Analyse berücksichtigt insbesondere die Django-Modelle, die Inventory-API, die vorhandene Admin-Oberfläche, die Inventarübersicht und die Navigation im Frontend.
+
+== Analyse anhand der Gestaltungsaspekte
+
+[cols="1,3,3",options="header"]
+|===
+| Gestaltungsaspekt | Beobachtung im aktuellen System | Auswirkung der Änderung
+
+| Zustand & Invarianten
+a|
+* `Kategorie` und `Standort` besitzen bereits die Felder `name`, `beschreibung` und `is_seed`.
+* Der Name ist aktuell mit `max_length=255` definiert.
+* Die Beschreibung ist aktuell optional.
+* `Standort` gehört zu einer `Organisation`.
+* `Kategorie` besitzt im Django-Modell keine Organisationsbeziehung.
+* Kategorien und Standorte können bereits Gegenstandstypen zugeordnet sein.
+* Eine zentrale Prüfung der maximalen Länge und der Pflichtfelder für diese Story existiert nicht.
+a|
+* Die fachlichen Regeln aus #47 müssen in Modell, Serializer und Oberfläche umgesetzt werden.
+* Die maximale Namenslänge muss von 255 auf 100 Zeichen angepasst werden.
+* Es muss entschieden werden, ob die Beschreibung künftig verpflichtend ist.
+* Die Organisationszuordnung von Kategorien muss mit dem fachlichen Modell abgeglichen werden.
+* Änderungen dürfen bestehende Foreign-Key-Zuordnungen nicht entfernen.
+* Eine Lösch- oder Deaktivierungsregel für bereits verwendete Referenzdaten muss festgelegt werden.
+
+| Verhalten & Verantwortlichkeit
+a|
+* `Kategorie` und `Standort` sind im Django-Admin registriert.
+* Die vorhandenen Inventory-ViewSets sind ausschließlich lesend (`ReadOnlyModelViewSet`).
+* Über die REST-Schnittstelle können Kategorien und Standorte derzeit nicht angelegt oder bearbeitet werden.
+* Eine fachliche Benutzeroberfläche für Kategorien und Standorte ist nicht vorhanden.
+* Die Sidebar enthält bereits einen Navigationseintrag „Kategorien“.
+* Eine zentrale Stelle für Validierung und Berechtigungsprüfung existiert nicht.
+a|
+* Es müssen eigene Endpunkte oder ViewSets für das Anlegen, Anzeigen und Bearbeiten geschaffen werden.
+* Die fachlichen Regeln müssen zentral geprüft werden und dürfen nicht nur im Frontend liegen.
+* Controller, Service, Domäne und Infrastruktur müssen klar getrennte Verantwortlichkeiten erhalten.
+* Der Controller nimmt HTTP-Anfragen entgegen und wandelt sie in Anwendungsdaten um.
+* Der Service steuert das Anlegen und Bearbeiten.
+* Die Domäne prüft Pflichtfelder, Namenslänge, Berechtigungen und Zuordnungsregeln.
+* Die Infrastruktur übernimmt die Persistierung.
+* Erfolgsmeldungen und feldbezogene Fehler müssen bis zur Oberfläche weitergegeben werden.
+
+| Abhängigkeiten & Kopplung
+a|
+* `Gegenstandstyp` besitzt Foreign Keys auf `Kategorie` und `Standort`.
+* Die Inventar-Serializer leiten Kategorie und Standort über `Gegenstandsexemplar -> Gegenstandstyp` ab.
+* Die Inventar-ViewSets verwenden `select_related` für Kategorie und Standort.
+* Die Inventarübersicht verwendet Kategorie und Standort für Filter.
+* `Standort` ist an eine Organisation gekoppelt, `Kategorie` derzeit nicht.
+a|
+* Änderungen an Namen und Beschreibungen wirken unmittelbar auf Inventarübersichten und Filter.
+* Die API und das Frontend müssen dieselbe Zuordnungslogik verwenden.
+* Das organisationsbezogene Filtern muss für beide Referenzdaten konsistent umgesetzt werden.
+* Die Änderung betrifft neben der Inventarverwaltung auch Gegenstandstypen und die Inventarübersicht.
+* Bestehende Gegenstandstypen dürfen durch das Bearbeiten einer Kategorie oder eines Standorts nicht ihre Zuordnung verlieren.
+* Die Frage, ob Standorte am Gegenstandstyp oder am konkreten Gegenstandsexemplar gelten, muss mit dem logischen Modell abgeglichen werden.
+
+| Grenzen & Kohäsion
+a|
+* Kategorien und Standorte befinden sich im Inventory-Modul.
+* Die fachliche Verwaltung ist derzeit nur teilweise über den Django-Admin möglich.
+* Die REST-ViewSets behandeln aktuell vor allem Gegenstandsexemplare und lesen Daten direkt aus den Modellen.
+* Im Frontend sind Navigation und Inventarfilter vorhanden, aber keine zentrale Verwaltungsansicht.
+a|
+* Die Änderung bleibt fachlich im Bereich `inventory`, reicht aber in die Frontend-Navigation, Formulare, Listen und Inventarfilter.
+* Für Kategorien und Standorte werden eigene Serializer, Endpunkte und UI-Komponenten benötigt.
+* Gemeinsame Formular- und Listenlogik kann wiederverwendet werden.
+* Fachliche Regeln dürfen nicht in mehreren Frontend-Komponenten dupliziert werden.
+* Die Verantwortlichkeiten für HTTP, Geschäftslogik und Datenbankzugriff müssen getrennt werden.
+
+| Änderung & Variabilität
+a|
+* Es gibt keinen zentralen Ort für die CRUD-Abläufe von Kategorien und Standorten.
+* Die beiden Modelle haben ähnliche Felder, aber unterschiedliche Organisationsbeziehungen.
+* `is_seed` ist bereits als Variationspunkt vorhanden.
+* Kategorien und Standorte werden an mehreren Stellen angezeigt oder indirekt verwendet.
+a|
+* Betroffen sind mindestens `models.py`, `serializers.py`, `views.py`, `urls.py`, `admin.py` und mögliche Migrationen.
+* Zusätzlich betroffen sind die Frontend-Navigation, Verwaltungsseiten, Formulare und Inventarfilter.
+* Die Lösung sollte weitere Referenzdaten und zukünftige Deaktivierungsregeln ermöglichen.
+* Organisations- und Rollenprüfungen dürfen nicht fest in einzelne Seiten eingebaut werden.
+* Seed-Daten müssen beim Bearbeiten berücksichtigt werden.
+* Für größere Datenmengen müssen Listen gegebenenfalls serverseitig gefiltert und paginiert werden.
+
+| Repräsentation & Verarbeitungsform
+a|
+* Kategorien und Standorte werden aktuell hauptsächlich als abgeleitete Namen in der Inventarübersicht dargestellt.
+* Die Sidebar enthält einen Eintrag für Kategorien, aber keinen eigenen Eintrag für Standorte.
+* Es gibt keine Verwaltungsformulare für beide Ressourcen.
+* Die vorhandenen Modelle erlauben 255 Zeichen für Namen.
+* Die Beschreibung ist im Modell optional.
+* Ein Wireframe für die Verwaltungsansicht liegt nicht vor.
+a|
+* Es werden Übersichten, Detailansichten und Formulare für Kategorien und Standorte benötigt.
+* Die aktuellen Werte müssen beim Bearbeiten vorausgefüllt werden.
+* Pflichtfelder und maximale Namenslänge müssen visuell und technisch durchgesetzt werden.
+* Erfolgsmeldungen und feldbezogene Fehlermeldungen müssen einheitlich dargestellt werden.
+* Die Navigation muss auch die Standortverwaltung erreichbar machen.
+* Die Darstellung in Verwaltungsseiten, Inventarübersicht und Filtern muss konsistent bleiben.
+* Das erwartete „Upload“-Kriterium muss fachlich geklärt werden, da Kategorien und Standorte keine Dateiressourcen sind.
+|===
+
+== Wichtigste Beobachtungen
+
+. *Die REST-Schnittstelle unterstützt die geplante Änderung noch nicht.* +
+  Die vorhandenen Inventory-ViewSets sind schreibgeschützt. Kategorien und Standorte können aktuell nicht über die vorgesehene API angelegt oder bearbeitet werden.
+
+. *Es gibt eine Abweichung zwischen Story und Datenmodell.* +
+  Die Story fordert eine maximale Namenslänge von 100 Zeichen und Pflichtfelder. Im Django-Modell sind Namen jedoch bis zu 255 Zeichen lang und Beschreibungen optional.
+
+. *Kategorien und Standorte sind an weitere Inventarstrukturen gekoppelt.* +
+  Gegenstandstypen speichern Foreign Keys auf Kategorie und Standort. Die Werte werden anschließend in Gegenstandsexemplaren, Inventarübersichten und Filtern angezeigt.
+
+. *Die Organisationszuordnung ist inkonsistent.* +
+  `Standort` besitzt eine Organisation, `Kategorie` dagegen nicht. Das logische Modell beschreibt jedoch sowohl Kategorien als auch Standorte als organisationsbezogene Referenzdaten.
+
+. *Es gibt keinen zentralen Ort für fachliche Regeln.* +
+  Die aktuelle Struktur trennt weder Validierung noch Berechtigungsprüfung oder den Ablauf des Anlegens und Bearbeitens in eigene fachliche Komponenten.
+
+== Bewertung
+
+*Design-Auswirkung:* Die Änderung betrifft die Modelle für Kategorien und Standorte, die Inventory-API, mögliche Datenbankmigrationen, die Frontend-Navigation, Verwaltungsseiten, Formulare sowie die Inventarübersicht und deren Filter.
+
+*Bewertung:* Die vorhandene Struktur enthält bereits die grundlegenden Datenmodelle und eine teilweise Navigation. Für eine kontrollierte Verwaltung fehlen jedoch Schreibendpunkte, zentrale fachliche Regeln, Rollenprüfungen und konsistente Formulare.
+
+Vor der Implementierung müssen insbesondere der Organisationsbezug von Kategorien, die Standortebene sowie die Lösch- beziehungsweise Deaktivierungsstrategie festgelegt werden.
+
+Ausschlaggebend sind *Zustand & Invarianten*, *Verhalten & Verantwortlichkeit* sowie *Abhängigkeiten & Kopplung*.

@@ -11,50 +11,37 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { StatusBadge, ErrorMessage } from "../components/ui";
+import {
+  ermittleAnzeigeStatus,
+  ermittleZusatzinfo,
+} from "../utils/anzeigeStatus";
 
-const MOCK = true; // auf false setzen, sobald #132 existiert und gemerged ist
-const MOCK_GEGENSTAND = {
-  id: 1,
-  inventarnummer: "INV-0001",
-  name: "Mikroskop 1b",
-  kategorie: "Elektronik",
-  verfuegbarkeitsstatus: "verfuegbar", // verfuegbar | nicht_verfuegbar
-  // beschreibung: liefert der Serializer aktuell nicht -> Platzhalter
-};
+import { apiRequest } from "../utils/inventarApi.js";
+import { bildAdresse } from "../utils/bildAdresse.js";
 
-// Router-Resource laut inventory/urls.py: "exemplare". Prefix vermutlich /api/inventory/.
 const API_BASE = "/api/inventory/exemplare";
 
-export default function GegenstandDetail({ gegenstandId = 1 }) {
-  const [gegenstand, setGegenstand] = useState(MOCK ? MOCK_GEGENSTAND : null);
-  const [ladevorgang, setLadevorgang] = useState(!MOCK);
+export default function GegenstandDetail({
+  gegenstandId, onBack, onTypAnzeigen, onBearbeiten, onLoeschen, canManageInventory,
+}) {
+  const [gegenstand, setGegenstand] = useState(null);
+  const [ladevorgang, setLadevorgang] = useState(true);
   const [fehler, setFehler] = useState(null);
 
   useEffect(() => {
-    if (MOCK) return;
+    const controller = new AbortController();
 
-    let aktiv = true;
-    setLadevorgang(true);
-    setFehler(null);
-
-    fetch(`${API_BASE}/${gegenstandId}/`, { credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
+    apiRequest(`${API_BASE}/${gegenstandId}/`, { signal: controller.signal })
       .then((daten) => {
-        if (aktiv) setGegenstand(daten);
+        if (!controller.signal.aborted) setGegenstand(daten);
       })
       .catch((e) => {
-        if (aktiv) setFehler(e.message);
+        if (!controller.signal.aborted) setFehler(e.message);
       })
       .finally(() => {
-        if (aktiv) setLadevorgang(false);
+        if (!controller.signal.aborted) setLadevorgang(false);
       });
-
-    return () => {
-      aktiv = false;
-    };
+    return () => controller.abort();
   }, [gegenstandId]);
 
   // --- Ladezustand ---
@@ -70,7 +57,8 @@ export default function GegenstandDetail({ gegenstandId = 1 }) {
   if (fehler) {
     return (
       <Box sx={{ p: 2 }}>
-        <ErrorMessage message="Der Gegenstand konnte nicht geladen werden." />
+        <ErrorMessage message={fehler} />
+        <Button onClick={onBack}>Zurück</Button>
       </Box>
     );
   }
@@ -80,11 +68,15 @@ export default function GegenstandDetail({ gegenstandId = 1 }) {
     return (
       <Box sx={{ p: 2 }}>
         <ErrorMessage message="Gegenstand nicht gefunden." />
+        <Button onClick={onBack}>Zurück</Button>
       </Box>
     );
   }
 
   const name = gegenstand.name ?? gegenstand.inventarnummer;
+  const bildUrl = bildAdresse(gegenstand.bild);
+  const anzeigeStatus = ermittleAnzeigeStatus(gegenstand);
+  const zusatzinfo = ermittleZusatzinfo(gegenstand);
 
   return (
     <Box sx={{ p: 2 }}>
@@ -94,36 +86,20 @@ export default function GegenstandDetail({ gegenstandId = 1 }) {
       </Typography>
 
       <Paper variant="outlined" sx={{ p: 3 }}>
-        {/* Zurück - wird spaeter ans Routing angebunden (eigene Aufgabe) */}
+        {/* Zurück zur Gegenstandsübersicht */}
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => window.history.back()}
+          onClick={onBack}
           sx={{ color: "text.secondary", mb: 2 }}
         >
           Zurück
         </Button>
 
         <Stack direction={{ xs: "column", md: "row" }} spacing={3}>
-          {/* PLATZHALTER (Bild-Issue): Thumbnails */}
-          <Stack spacing={1}>
-            {[0, 1, 2].map((i) => (
-              <Box
-                key={i}
-                sx={{ width: 64, height: 64, bgcolor: "grey.200", borderRadius: 1 }}
-              />
-            ))}
-          </Stack>
-
-          {/* PLATZHALTER (Bild-Issue): Hauptbild */}
-          <Box
-            sx={{
-              width: { xs: "100%", md: 320 },
-              height: 240,
-              bgcolor: "grey.300",
-              borderRadius: 1,
-              flexShrink: 0,
-            }}
-          />
+          {bildUrl && (
+            <Box component="img" src={bildUrl} alt={`Foto von ${name}, ${gegenstand.inventarnummer}`}
+              sx={{ width: { xs: '100%', md: 280 }, maxHeight: 300, objectFit: 'contain', alignSelf: 'flex-start' }} />
+          )}
 
           {/* Rechte Spalte */}
           <Box sx={{ flex: 1 }}>
@@ -131,19 +107,43 @@ export default function GegenstandDetail({ gegenstandId = 1 }) {
               {name}
             </Typography>
 
-            {/* PLATZHALTER (Beschreibung): Serializer liefert das Feld noch nicht */}
-            <Typography variant="body2" color="text.secondary" sx={{ my: 2 }}>
-              {gegenstand.beschreibung ?? "Beschreibung …"}
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              Inventarnummer: {gegenstand.inventarnummer}
             </Typography>
+            <Typography variant="body2">Zustand: {gegenstand.zustand_display ?? gegenstand.zustand}</Typography>
+            {gegenstand.standort && (
+              <Typography variant="body2">Standort: {gegenstand.standort}</Typography>
+            )}
+            {gegenstand.gegenstandstyp != null && onTypAnzeigen && (
+              <Button onClick={() => onTypAnzeigen(gegenstand.gegenstandstyp, gegenstand)}>
+                Gegenstandstyp anzeigen
+              </Button>
+            )}
+            {canManageInventory && (
+              <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                <Button variant="outlined" onClick={() => onBearbeiten(gegenstand)}>Bearbeiten</Button>
+                <Button color="error" onClick={() => onLoeschen(gegenstand)}>Löschen</Button>
+              </Stack>
+            )}
 
             {/* ===== #131: Verfuegbarkeitsstatus ===== */}
             <Box sx={{ my: 2 }}>
-              <StatusBadge status={gegenstand.verfuegbarkeitsstatus} />
+              <StatusBadge status={anzeigeStatus} />
+
+              {zusatzinfo && (
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                >
+                  {zusatzinfo}
+                </Typography>
+              )}
             </Box>
             {/* ===== Ende #131 ===== */}
 
             {/* PLATZHALTER (Story Ausleihprozess): Anzahl + Aktion, bewusst disabled */}
-            <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 2 }}>
+            <Stack direction="row" spacing={2} sx={{ mt: 2, alignItems: "center" }}>
               <Select size="small" defaultValue="" displayEmpty disabled sx={{ minWidth: 100 }}>
                 <MenuItem value="" disabled>Anzahl</MenuItem>
                 <MenuItem value={1}>1</MenuItem>

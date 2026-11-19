@@ -1,0 +1,94 @@
+@startuml proposed-flow
+
+title Soll-Ablauf: Ausleihanfrage bestätigen oder ablehnen (Variante B)
+
+skinparam sequenceMessageAlign left
+skinparam responseMessageBelowArrow true
+skinparam shadowing false
+skinparam noteBackgroundColor #FFFDE7
+skinparam noteBorderColor #9E9D24
+
+actor "Gerhard Großverleiher" as V
+participant "AusleihanfrageViewSet\n(lending/views.py)" as VS #FFF59D
+participant "AusleihanfrageAdmin\n(lending/admin.py)" as ADM #FFF59D
+participant "queryset: QuerySet\n(Django-ORM)" as QS
+participant "anfrage: Ausleihanfrage\n(lending/models.py)" as A #FFF59D
+
+== Bestätigen über die API ==
+
+V -> VS : POST /api/lending/anfragen/{id}/genehmigen/
+activate VS
+VS -> VS : get_object()
+note right #ECEFF1
+  Voraussetzung außerhalb dieser Änderung:
+  Zuordnung request.user → Nutzer (Nebenbefund N1)
+end note
+VS -[#2E7D32]> A : genehmigen()
+activate A
+A -> A : _pruefe_unbearbeitet()\n(über ist_unbearbeitet())
+note right of A #C8E6C9
+  **Entscheidung (neu) in der Entity:**
+  nur aus EINGEREICHT (AK 7, 9)
+end note
+alt Anfrage ist unbearbeitet
+  A -> A : anfragestatus = GENEHMIGT
+  A --> VS
+  VS -> A : save()
+  VS --> V : 200 OK {anfragestatus: "genehmigt", …}
+else Anfrage ist bereits bearbeitet (AK 9, 12)
+  A --> VS : StatusuebergangNichtErlaubt(\n"Anfrage ist bereits genehmigt.")
+  note right of VS
+    Nichts wird gespeichert,
+    der Status bleibt unverändert.
+  end note
+  VS --> V : 409 Conflict {error: "Anfrage ist bereits genehmigt."}
+end
+deactivate A
+deactivate VS
+
+== Ablehnen über die API (gleicher Aufbau) ==
+
+V -> VS : POST /api/lending/anfragen/{id}/ablehnen/\n{ablehnungsgrund: "…"} oder ohne Grund
+activate VS
+VS -[#2E7D32]> A : ablehnen(grund)
+note right of A
+  Gleiche Regel wie beim Bestätigen.
+  Fehlt der Grund, wird None gespeichert (AK 11).
+end note
+A --> VS
+VS -> A : save()
+VS --> V : 200 OK {anfragestatus: "abgelehnt", ablehnungsgrund}\noder 409 wie oben
+deactivate VS
+
+== Aktion im Django-Admin auf einer Auswahl ==
+
+V -> ADM : Aktion „Ausgewählte Anfragen genehmigen“\n(analog: „Ausgewählte Anfragen ablehnen“)
+activate ADM
+loop _entscheiden(): für jede Anfrage der Auswahl
+  ADM -[#2E7D32]> QS : nächste Anfrage
+  QS --> ADM : anfrage
+  ADM -[#2E7D32]> A : genehmigen()
+  alt Anfrage ist unbearbeitet
+    ADM -> A : save()
+    ADM -> ADM : erledigt + 1
+  else StatusuebergangNichtErlaubt
+    ADM -> ADM : übersprungen + 1
+  end
+end
+ADM --> V : „1 Anfrage(n) genehmigt.“\n„2 Anfrage(n) übersprungen, weil bereits bearbeitet.“
+deactivate ADM
+
+note across
+  Entfallen: PATCH /api/lending/anfragen/{id}/update_status/ (antwortet mit 404).
+  Im Admin-Formular sind anfragestatus und ablehnungsgrund nur noch lesbar.
+end note
+
+legend right
+  |= Markierung |= Bedeutung |
+  |<#FFF59D>     | geänderter Baustein |
+  |<#C8E6C9>     | neue Entscheidung |
+  | grüne Pfeile | neue Nachricht |
+  |<#ECEFF1>     | Voraussetzung außerhalb der Änderung |
+endlegend
+
+@enduml

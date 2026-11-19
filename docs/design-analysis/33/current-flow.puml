@@ -1,0 +1,136 @@
+@startuml current-flow
+
+title Ist-Ablauf: Ausleihanfrage bestätigen oder ablehnen\n
+
+skinparam sequenceMessageAlign left
+skinparam responseMessageBelowArrow true
+skinparam shadowing false
+skinparam noteBackgroundColor #FFE0B2
+skinparam noteBorderColor #E65100
+
+actor "Gerhard Großverleiher" as V
+participant "AusleihanfrageViewSet\n(lending/views.py)" as VS
+participant "AusleihanfrageAdmin\n(lending/admin.py)" as ADM
+participant "queryset: QuerySet\n(Django-ORM)" as QS
+participant "anfrage: Ausleihanfrage\n(lending/models.py)" as A
+
+== Weg 1: API-Aktion genehmigen ==
+
+V -> VS : POST /api/lending/anfragen/{id}/genehmigen/
+activate VS
+VS -> VS : get_object()
+note right #ECEFF1
+  Nebenbefund N1: get_queryset() filtert mit
+  nutzer=request.user. Mit einem echten Login
+  endet das mit 500, siehe design-impact.adoc.
+end note
+VS -> A : anfragestatus = GENEHMIGT
+note right
+  **(2)** Der aktuelle Status wird nicht geprüft.
+  Geprüft: genehmigt → genehmigt, HTTP 200.
+end note
+VS -> A : save()
+VS --> V : 200 OK {anfragestatus: "genehmigt", …}
+deactivate VS
+
+== Weg 2: API-Aktion ablehnen ==
+
+V -> VS : POST /api/lending/anfragen/{id}/ablehnen/\n{ablehnungsgrund: "…"}
+activate VS
+VS -> VS : get_object()
+alt ablehnungsgrund fehlt
+  VS --> V : 400 {error: "Ablehnungsgrund ist erforderlich"}
+  note right
+    **(3)** Grund ist Pflicht,
+    laut AK 11 optional.
+  end note
+else Grund vorhanden
+  VS -> A : anfragestatus = ABGELEHNT\nablehnungsgrund = Grund
+  note right
+    **(3)** Ohne Statusprüfung. Geprüft:
+    genehmigt → abgelehnt und
+    abgelehnt → abgelehnt, HTTP 200.
+  end note
+  VS -> A : save()
+  VS --> V : 200 OK {anfragestatus: "abgelehnt", …}
+end
+deactivate VS
+
+== Weg 3: API-Aktion update_status ==
+
+V -> VS : PATCH /api/lending/anfragen/{id}/update_status/\n{anfragestatus: Wert, ablehnungsgrund?}
+activate VS
+VS -> VS : get_object()
+alt Wert nicht in Anfragestatus.values
+  VS --> V : 400 {error: "Ungültiger Status. …"}
+else Wert = abgelehnt, ablehnungsgrund fehlt oder ist leer
+  VS --> V : 400 {error: "Ablehnungsgrund ist bei Ablehnung erforderlich"}
+  note right
+    **(4)** Grund ist Pflicht, laut AK 11 optional.
+    Nichts wird gespeichert.
+  end note
+else Wert = abgelehnt, Grund vorhanden
+  VS -> A : ablehnungsgrund = Grund\nanfragestatus = ABGELEHNT
+  note right
+    **(4)** Ohne Statusprüfung; ein vorhandener
+    Grund wird überschrieben (geprüft).
+  end note
+  VS -> A : save()
+  VS --> V : 200 OK
+else anderer gültiger Wert
+  VS -> A : anfragestatus = Wert
+  note right
+    **(4)** Geprüft wird nur der Wert, nicht der
+    Übergang. Geprüft: genehmigt → eingereicht,
+    abgelaufen → genehmigt, HTTP 200.
+    Ein alter Ablehnungsgrund bleibt stehen.
+  end note
+  VS -> A : save()
+  VS --> V : 200 OK
+end
+deactivate VS
+
+== Weg 4 und 5: Admin-Aktionen „genehmigen“ und „ablehnen“ auf einer Auswahl ==
+
+V -> ADM : Aktion „Ausgewählte Anfragen genehmigen“\n(analog: „Ausgewählte Anfragen ablehnen“)
+activate ADM
+ADM -> QS : update(anfragestatus=GENEHMIGT)
+activate QS
+note right
+  **(5)** Eine SQL-Anweisung für die ganze Auswahl.
+  Einzelne Anfragen werden nicht geladen, save()
+  läuft nicht; deshalb bleibt auch aktualisiert_am
+  unverändert. Ohne Statusprüfung, beim Ablehnen
+  ohne Grund. Geprüft: eingereicht, abgelehnt und
+  zurückgezogen werden alle „genehmigt“.
+end note
+QS --> ADM : Anzahl geänderter Zeilen
+deactivate QS
+ADM --> V : Meldung „3 Anfragen genehmigt.“
+deactivate ADM
+
+== Weg 6: Admin-Änderungsformular ==
+
+V -> ADM : wählt im Feld „Anfragestatus“ einen Wert,\nspeichert
+activate ADM
+ADM -> A : save() mit dem gewählten Wert
+note right
+  **(6)** Das Feld ist frei änderbar.
+  Geprüft: abgelehnt → eingereicht.
+end note
+ADM --> V : zurück zur Liste
+deactivate ADM
+
+note across #E8F5E9
+  Nicht betroffen: Das Standard-Update PATCH /api/lending/anfragen/{id}/ ändert den Status nicht,
+  weil anfragestatus im Serializer read-only ist (geprüft).
+end note
+
+legend right
+  |= Markierung |= Bedeutung |
+  |<#FFE0B2>     | betroffene Stelle; **(n)** wie in current-structure.puml und design-impact.adoc |
+  |<#E8F5E9>     | schützt den Status bereits |
+  |<#ECEFF1>     | Nebenbefund außerhalb der Änderung |
+endlegend
+
+@enduml

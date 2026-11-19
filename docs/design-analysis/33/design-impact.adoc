@@ -1,0 +1,164 @@
+= Design-Impact-Analyse: Entscheiden nur über unbearbeitete Ausleihanfragen
+include::../_includes/default-attributes.inc.adoc[]
+
+[horizontal]
+User Story:: #24 Ausleihanfragen bearbeiten (Persona Gerhard Großverleiher), Akzeptanzkriterien 7 und 9–12
+Codestand:: `main`, Commit `1c7de95` vom 29.10.2026
+Modelle:: `current-flow.puml` (Ablauf), `current-structure.puml` (Klassendiagramm)
+
+== Gewählte Änderung
+
+*Untersuchter Ablauf:* Ein Verleiher bestätigt oder lehnt eine Ausleihanfrage ab.
+Eine Oberfläche für Verleiher gibt es noch nicht.
+Im Code geschieht das heute über drei Aktionen des `AusleihanfrageViewSet` (`genehmigen`, `ablehnen`, `update_status`) und im Django-Admin über zwei Aktionen und das Änderungsformular.
+
+*Änderung:* Eine Ausleihanfrage kann nur bestätigt oder abgelehnt werden, solange sie unbearbeitet ist.
+Danach bleibt die Entscheidung bestehen, und ein weiterer Versuch wird als fachlicher Fehler gemeldet.
+Ein Ablehnungsgrund ist optional.
+
+Grundlage sind diese Akzeptanzkriterien aus #24 (Nummern in der Reihenfolge der Story):
+
+* AK 7: „Given eine unbearbeitete Ausleihanfrage liegt vor, When Gerhard diese akzeptiert, Then wird der Status der Ausleihanfrage entsprechend aktualisiert.“
+* AK 9: „Eine bereits bestätigte Ausleihanfrage kann nicht erneut bestätigt werden.“
+* AK 10: „Given eine unbearbeitete Ausleihanfrage liegt vor, When Gerhard diese ablehnt, Then wird der Status der Ausleihanfrage entsprechend aktualisiert.“
+* AK 11: „Sofern Gerhard einen Ablehnungsgrund angibt, wird dieser an der Ausleihanfrage gespeichert.“
+* AK 12: „Eine bereits abgelehnte Ausleihanfrage kann nicht erneut abgelehnt werden.“
+
+*Lesart:* „Unbearbeitet“ entspricht dem Status `eingereicht`, „bestätigt“ dem Status `genehmigt` (Glossar: „Genehmigt: Anfrage wurde bestätigt“).
+AK 9 und 12 verbieten nur, dieselbe Entscheidung zu wiederholen.
+Dass auch der Wechsel von `genehmigt` zu `abgelehnt` und umgekehrt ausgeschlossen ist, folgt aus „unbearbeitet“ in AK 7 und 10.
+
+*Art der Änderung:* eine zusätzliche fachliche Regel für Statusübergänge mit einem neuen fachlichen Fehlerfall.
+
+*Nicht Teil dieser Änderung:* wer entscheiden darf (Rolle Verleiher), Liste und Detailansicht (AK 1–6), Reservierung (AK 8), Rückfrage in der Oberfläche (AK 13) und Benachrichtigung (AK 14).
+Sie gehören zur Umsetzung von #24 insgesamt und werden dort untersucht.
+
+*Untersuchungsfrage:* Wie lokal bleibt die Regel „Entscheiden nur aus `eingereicht`“ im bestehenden Backend, und an wie vielen Stellen müsste sie ergänzt werden?
+
+== Modelle des aktuellen Systems
+
+Die Nummern (1) bis (6) markieren in beiden Diagrammen die betroffenen Stellen.
+Die Tabelle in <<analyse>> verweist auf diese Nummern.
+
+.Aktueller Ablauf: alle Wege, auf denen sich der Anfragestatus ändert
+[plantuml, current-flow, svg]
+----
+include::current-flow.puml[]
+----
+
+.Aktuelle Struktur: Bausteine, die den Anfragestatus schreiben
+[plantuml, current-structure, svg]
+----
+include::current-structure.puml[]
+----
+
+[[analyse]]
+== Analyse anhand der Gestaltungsaspekte
+
+Grundlage sind die Modelle und der Quellcode.
+Aussagen mit „Geprüft“ wurden lokal nachvollzogen (Django-Testclient, SQLite statt MariaDB).
+Für die API-Aktionen wurde dabei ein `Nutzer` direkt als `request.user` gesetzt, weil die Zuordnung auf `main` fehlt (Nebenbefund N1).
+
+[cols="2,5,5", options="header"]
+|===
+| Gestaltungsaspekt | Beobachtung im aktuellen System | Auswirkung der Änderung
+
+| Zustand & Invarianten
+| `anfragestatus` ist ein `CharField` mit den Werten aus `Anfragestatus` (`lending/models.py` Z. 4–9, 33–37).
+Welche Übergänge erlaubt sind, ist nirgends festgelegt; `update_status` prüft nur, ob der Wert gültig ist (`views.py` Z. 140–146).
+Geprüft: zweimal genehmigen, genehmigt → abgelehnt, abgelehnt → abgelehnt, genehmigt → eingereicht und abgelaufen → genehmigt, jeweils HTTP 200.
+Nach dem Zurücksetzen bleibt ein alter Ablehnungsgrund an der Anfrage stehen.
+| Neue Invariante: Aus `eingereicht` führen nur Bestätigen und Ablehnen heraus; eine Entscheidung ist danach endgültig (AK 7, 9, 10, 12).
+Neue Felder oder Statuswerte braucht die Regel nicht, also auch keine Migration.
+Der Ablehnungsgrund ist im Modell schon optional (`models.py` Z. 38–39), wie AK 11 es verlangt.
+
+| Verhalten & Verantwortlichkeit
+| Die Regeln stehen in der Präsentationsschicht.
+Der ViewSet verlangt den Ablehnungsgrund (`views.py` Z. 148–156, 177–181) und setzt den Status selbst (Z. 158, 167, 183).
+Die Admin-Aktionen haben eigene Logik (`admin.py` Z. 43–51).
+`Ausleihanfrage` hat außer Feldern nur `+__str__()+` (1).
+| Nach der bisherigen Verteilung käme die Prüfung in alle drei Aktionen des ViewSets und in beide Admin-Aktionen, und das Formular müsste das Feld sperren.
+Die Regel stünde dann in fünf Kopien in zwei Dateien.
+Einen Baustein, der für die Regel zuständig ist, gibt es nicht.
+
+| Abhängigkeiten & Kopplung
+| ViewSet und Admin schreiben das Feld `anfragestatus` direkt und kennen dafür die Werte von `Anfragestatus`.
+Die Regel braucht nur den aktuellen Status der Anfrage, keine Daten aus anderen Modulen.
+Im Frontend ruft keine Datei `genehmigen`, `ablehnen` oder `update_status` auf; `MeineAnfragen.jsx` liest nur `meine_anfragen`.
+| Keine neue Abhängigkeit zu anderen Modulen, kein Frontend betroffen.
+Neu in der API ist der Fehlerfall „Anfrage bereits bearbeitet“.
+Die spätere Oberfläche für Verleiher muss ihn anzeigen.
+
+| Grenzen & Kohäsion
+| Alle betroffenen Stellen liegen in der App `lending`: `models.py`, `views.py`, `admin.py`.
+Der Serializer schützt den Status beim Standard-Update bereits (`serializers.py` Z. 34–40).
+Geprüft: `+PATCH /api/lending/anfragen/{id}/+` ändert den Status nicht.
+| Die Änderung bleibt innerhalb von `lending`, verteilt sich dort aber auf zwei bis drei Dateien und die Tests.
+Die Modulgrenze passt; was zu der einen Regel gehört, liegt innerhalb des Moduls aber verstreut.
+
+| Änderung & Variabilität
+| Der Status wird auf sechs Wegen geschrieben: drei Aktionen im ViewSet (2)–(4), zwei Admin-Aktionen (5) und das Admin-Formular (6).
+Die Wege verhalten sich schon heute unterschiedlich: Die API verlangt einen Ablehnungsgrund, die Admin-Aktion lehnt ohne Grund ab.
+`lending/tests.py` enthält keine Tests.
+| Die neue Regel müsste auf allen sechs Wegen ergänzt werden; ein vergessener Weg umgeht sie, und ohne Tests fällt das nicht auf.
+Weitere Übergänge, die Glossar und Code schon kennen (`zurueckgezogen`, `abgelaufen`), träfen wieder dieselben Stellen.
+
+| Repräsentation & Verarbeitungsform
+| Der Status als Text-Enum mit dem Standardwert `eingereicht` und der optionale `ablehnungsgrund` passen zur Regel.
+Die Admin-Aktionen verarbeiten die Auswahl mit einem `queryset.update()`: eine SQL-Anweisung ohne `save()` und ohne Blick auf die einzelne Anfrage (5).
+Geprüft: `aktualisiert_am` bleibt dabei unverändert.
+| Die Datenstrukturen bleiben unverändert.
+Die Massenverarbeitung im Admin passt nicht zu einer Regel je Anfrage.
+Die Aktionen müssen die Auswahl vorher auf `eingereicht` filtern oder jede Anfrage einzeln prüfen und übersprungene Anfragen melden.
+|===
+
+== Wichtigste Beobachtungen
+
+. *Statuswechsel sind ungeschützt und auf sechs Wege verteilt* (Zustand & Invarianten, Änderung & Variabilität).
+Keiner der Wege prüft den aktuellen Status.
+Belege: Markierungen (2) bis (6) in beiden Diagrammen, `lending/views.py` Z. 127–187, `lending/admin.py` Z. 23–51, lokale Prüfung in der Tabelle.
+
+. *Die Regel hat keinen zuständigen Baustein* (Verhalten & Verantwortlichkeit, Grenzen & Kohäsion).
+ViewSet und Admin entscheiden jeder für sich, das Modell hat kein Verhalten.
+Die Folge ist schon heute sichtbar: Für den Ablehnungsgrund gelten auf beiden Wegen unterschiedliche Regeln.
+Belege: Markierung (1), `views.py` Z. 148–156 und 177–181 gegenüber `admin.py` Z. 48–51.
+
+. *Die Admin-Aktionen verarbeiten eine Auswahl pauschal* (Repräsentation & Verarbeitungsform).
+Belege: Markierung (5), `admin.py` Z. 43–51, lokale Prüfung: Auch abgelehnte und zurückgezogene Anfragen werden „genehmigt“.
+
+== Bewertung der Auswirkungen
+
+*Design-Auswirkung:* Angepasst werden müssten in `lending` die Aktionen `genehmigen`, `ablehnen` und `update_status` in `views.py`, die beiden Aktionen und das Formular in `admin.py` sowie, je nach Entwurf, `models.py`.
+Dazu kommen Tests.
+Andere Module, das Frontend und das Datenbankschema sind nicht betroffen.
+Über Modulgrenzen reicht die Änderung nicht hinaus.
+
+*Bewertung:* Zwischen den Modulen bleibt die Änderung lokal, innerhalb von `lending` nicht: Dieselbe Regel müsste auf sechs Wegen ergänzt werden.
+Die vorhandene Struktur unterstützt die Änderung deshalb nur teilweise.
+Ausschlaggebend sind *Zustand & Invarianten*, *Verhalten & Verantwortlichkeit* und *Änderung & Variabilität*.
+
+Nachgewiesen (Code und lokale Prüfung):
+
+* Statusübergänge sind nicht geschützt; bereits entschiedene Anfragen lassen sich erneut entscheiden, umkehren oder zurücksetzen.
+* Für den Ablehnungsgrund gelten in API und Admin unterschiedliche Regeln.
+* Die Admin-Aktionen ändern auch bereits bearbeitete Anfragen.
+
+Wir werten das als Entwurfsschwäche: Eine fachliche Regel hat keinen festen Ort und ist auf die Präsentationsschicht verteilt.
+
+Vermutungen, die noch zu prüfen sind:
+
+* Dass die Verteilung der Regeln das Testen erschwert, ist plausibel, aber nicht belegt, weil es für `lending` noch keine Tests gibt.
+* Ob der Admin ein regulärer Weg für Entscheidungen ist oder ein Werkzeug, mit dem ein Superuser den Status bewusst korrigieren darf, klärt das Team.
+Wir behandeln ihn als regulären Weg, weil seine Aktionen „genehmigen“ und „ablehnen“ heißen.
+
+== Nebenbefunde außerhalb der Änderung
+
+* *N1 Zuordnung `request.user` → `Nutzer`:* `get_queryset()` filtert mit `nutzer=request.user` (`views.py` Z. 38–42).
+`request.user` ist ein User aus `django.contrib.auth`, kein `Nutzer`.
+Geprüft: Mit einem echten Login endet `genehmigen` mit `ValueError` (HTTP 500); mit einem echten Login funktioniert heute nur der Admin.
+Mit simulierter Zuordnung kann die Ausleiherin ihre eigene Anfrage genehmigen.
+Wer entscheiden darf, gehört zur Umsetzung von #24 insgesamt.
+* *N2 Ausstehende Migration:* `makemigrations --check` meldet für `lending` „Alter field anfragestatus“, weil `0001_initial.py` noch den Wert `teilweise_abgelehnt` enthält.
+Diese Änderung braucht keine Migration; die nächste Migration in `lending` nimmt die Abweichung aber mit.
+* *N3 Sprint-3-Bericht:* Der Bericht nennt als Beispiel für ein Fertigstellungskriterium „ungültige Statuswechsel werden serverseitig abgelehnt“ (`Sprint3_Report.adoc` Z. 230).
+Umgesetzt ist die Prüfung des Werts (`views.py` Z. 140–146), nicht die des Übergangs.

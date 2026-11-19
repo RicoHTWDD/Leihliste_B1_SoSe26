@@ -1,0 +1,46 @@
+== Coaching-Meeting zum Start in SE2
+:id: coaching05112026
+
+*Datum:* 05.11.2026
+
+=== Agenda
+. Rückblick & Lessons Learned aus SE1
+. Team-Veränderung (Weggang von Rico)
+. Ziele, Schwerpunkte & Zeitplan für SE2
+. Rolle des Tech Leads & Zusammenarbeit
+. Vorgehen beim Testen
+
+=== Gesprächsinhalte & Ergebnisse
+
+* *1. Rückblick auf SE1 & Kommunikation:*
+  ** Jedes Teammitglied hat berichtet, was in SE1 gut lief und wo es Probleme gab.
+  ** *Wichtiger Hinweis des Coachs:* Probleme dürfen nicht verschwiegen werden. Wenn jemand im Team Schwierigkeiten hat, muss das offen kommuniziert werden, damit alle Bescheid wissen.
+
+* *2. Verkleinerung des Teams (Rico verlässt die Gruppe):*
+  ** Die Änderung wird offiziell an Prof. Anke weitergeleitet.
+  ** Konsequenz für das Projekt: Durch eine Person weniger wird das Produkt entsprechend weniger Funktionalität (geringeren Scope) haben.
+  ** Die Übergabe bzw. Verwaltung des GitHub-Repositories (das unter Ricos Account liegt) ist ein rein organisatorisches, lösbares Problem.
+
+* *3. Kernziele, Schwerpunkte & Zeitplan für SE2:*
+  ** *Erwartetes Resultat:* Ein sinnvolles, im Einsatz befindliches Produkt mit mehr Funktionalität als in SE1. Dabei sollten wir uns klar am Nutzen orientieren („Wozu dient unser Produkt?“).
+  ** *Lernziel vor Produktperfektion:* Es geht nicht darum, das Produkt perfekt zu machen, sondern Methoden, Werkzeuge und Prozesse kennenzulernen (professionelle GitHub-Nutzung, Architekturmuster verstehen, Produkt produktiv im Einsatz haben).
+  ** *Drei große Schwerpunktbereiche für SE2:*
+    1. Qualität des bestehenden Systems steigern
+    2. Automatisierte Tests & Qualitätskontrolle einführen
+    3. Deployment umsetzen
+  ** *Zeitplan (Funktionalität über Zeit):* Die Hauptarbeit an neuen Funktionen findet von *Mitte November bis Weihnachten* statt. *Nach Weihnachten* liegt der Fokus darauf, die bereits existierenden Funktionen qualitativ zu verbessern und abzusichern, statt noch viele neue Features einzubauen.
+
+* *4. Verständnis der Rolle „Tech Lead“:*
+  ** *Definition:* Kombination aus *Technology + Leadership* – jemand, der entweder schon mehr Programmiererfahrung mitbringt oder Lust hat, sich tiefer in technische Themen und den Code einzuarbeiten.
+  ** *Aufgaben:* Der Tech Lead erarbeitet für technische Probleme 2–3 Lösungsansätze und wählt begründet eine Option aus.
+  ** *Qualitätsanspruch:* Auch wenn ein Feature funktional läuft, hat der Tech Lead das Recht und die Aufgabe, unsauberen Code zu hinterfragen („Der Code gefällt mir so nicht“), darüber mit den Entwickler*innen zu sprechen und konkrete Verbesserungsvorschläge zu machen.
+
+* *5. Strategie zum Thema Testen:*
+  ** Das Team muss vorab konzeptionell durchdenken, wie getestet werden soll (Gesamtsystem vs. einzelne Funktionen) und klare Akzeptanzkriterien für Tests definieren.
+  ** *Vorgehen:* Wir sollen zunächst 2–3 verschiedene Wege/Ansätze ausprobieren und uns danach begründet für eine Teststrategie entscheiden.
+  ** *Wissensteilung:* Es muss geklärt werden, wer die Tests aufsetzt – am Ende des Moduls muss jedoch *jedes* Teammitglied in der Lage sein, selbstständig Tests zu schreiben.
+
+* *6. Konkrete Impulse für unsere Teamarbeit:*
+  ** *Wöchentliche Reflexion:* Wir setzen uns jede Woche kurz zusammen und beantworten die Frage: *„Was haben wir letzte Woche gelernt?“*
+  ** *Status-Check:* Den Arbeitsstand aktiv in der Mitte der Woche abfragen.
+  ** *Wissensteilung & Code-Qualität:* Stärker auf Pair Programming und Pair Reviews setzen, um Wissen im Team zu verteilen und bestehenden Code gemeinsam kritisch zu hinterfragen[cite: 11].

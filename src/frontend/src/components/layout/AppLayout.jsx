@@ -3,7 +3,7 @@ import { Box } from '@mui/material'
 import Header from './Header.jsx'
 import Sidebar from './Sidebar.jsx'
 
-function AppLayout({children, currentPage, onNavigate,}) {
+function AppLayout({ children, currentPage, onNavigate, eingangSichtbar }) {
   return (
     <Box
       sx={{
@@ -21,6 +21,7 @@ function AppLayout({children, currentPage, onNavigate,}) {
         <Sidebar
           currentPage={currentPage}
           onNavigate={onNavigate}
+          eingangSichtbar={eingangSichtbar}
         />
 
         <Box

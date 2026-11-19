@@ -10,6 +10,7 @@ import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
 import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined'
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
+import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined'
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
 
 const navigationItems = [
@@ -33,9 +34,15 @@ const navigationItems = [
     page: 'loan-request',
     icon: <AssignmentOutlinedIcon />,
   },
+  {
+    label: 'Eingegangene Anfragen',
+    page: 'eingang',
+    icon: <InboxOutlinedIcon />,
+  },
 ]
 
-function Sidebar({ currentPage, onNavigate }) {
+function Sidebar({ currentPage, onNavigate, eingangSichtbar }) {
+  const sichtbareEintraege = navigationItems.filter(item => item.page !== 'eingang' || eingangSichtbar)
   return (
     <Box
       component="aside"
@@ -60,10 +67,12 @@ function Sidebar({ currentPage, onNavigate }) {
       }}
     >
       <List>
-        {navigationItems.map((item) => (
+        {sichtbareEintraege.map((item) => (
           <ListItemButton
             key={item.label}
             title={item.label}
+            aria-label={item.label}
+            aria-current={currentPage === item.page ? 'page' : undefined}
             selected={currentPage === item.page}
             onClick={() => onNavigate(item.page)}
             sx={{

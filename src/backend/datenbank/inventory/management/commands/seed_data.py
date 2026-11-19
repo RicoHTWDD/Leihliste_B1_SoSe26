@@ -1,28 +1,15 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/feature/33-exemplar-formular
 """
 Management Command: python manage.py seed_data
 
 Befüllt die Datenbank mit Testdaten (Seed-Daten).
-<<<<<<< HEAD
-Ablauf laut Seed-Konzept (Ansatz 3):
-  1. Alte Testdaten löschen:  filter(is_seed=True).delete()
-  2. Echte Daten (is_seed=False) werden nie angefasst
-  3. Neue Testdaten einfügen, alle mit is_seed=True markiert
-=======
 Ablauf:
   1. Vorhandene Projekt-Seed-Daten anhand ihres seed_key wiederfinden
   2. Vorhandene Projekt-Seed-Daten aktualisieren oder fehlende neu anlegen
   3. Andere Daten (auch eigene Datensätze mit is_seed=True) bleiben unangetastet
->>>>>>> origin/feature/33-exemplar-formular
 
 Wird bei jedem `docker compose up` automatisch ausgeführt (siehe docker-compose.yml).
 Hinweis: Die Übersicht im Frontend lädt nur die erste Seite (PAGE_SIZE = 20),
 deshalb bleiben es bewusst unter 20 Exemplare.
-<<<<<<< HEAD
-=======
 
 
 Wichtige Hinweise zu den seed_keys:
@@ -39,7 +26,6 @@ Wichtige Hinweise zu den seed_keys:
     aktualisiert. Dies betrifft auch ihre Passwort-Hashes.
   - Eigene Datensätze ohne den entsprechenden Projekt-seed_key
     werden von diesem Befehl nicht verändert.
->>>>>>> origin/feature/33-exemplar-formular
 """
 from datetime import date, timedelta
 
@@ -113,46 +99,6 @@ STANDORTE = {
 
 
 class Command(BaseCommand):
-<<<<<<< HEAD
-    help = "Löscht alte Testdaten (is_seed=True) und legt neue Testdaten an."
-
-    @transaction.atomic
-    def handle(self, *args, **options):
-        self.alte_testdaten_loeschen()
-
-        organisation = Organisation.objects.create(
-            name="HTW Dresden",
-            organisationstyp=OrganisationsTyp.HOCHSCHULE,
-            is_seed=True,
-        )
-
-        verleiher = Nutzer.objects.create(
-            organisation=organisation,
-            vollstaendiger_name="Vera Verleiher",
-            email="verleiher@seed.leihliste.de",
-            passwort_hash=make_password("Test123!"),
-            benutzerrolle=BenutzerRolle.VERLEIHER,
-            kontostatus=Kontostatus.AKTIV,
-            is_seed=True,
-        )
-        nina = Nutzer.objects.create(
-            organisation=organisation,
-            vollstaendiger_name="Nina Neumann",
-            email="nina@seed.leihliste.de",
-            passwort_hash=make_password("Test123!"),
-            benutzerrolle=BenutzerRolle.AUSLEIHER,
-            kontostatus=Kontostatus.AKTIV,
-            is_seed=True,
-        )
-
-        kategorien = {
-            name: Kategorie.objects.create(name=name, beschreibung=beschr, is_seed=True)
-            for name, beschr in KATEGORIEN.items()
-        }
-        standorte = {
-            name: Standort.objects.create(
-                organisation=organisation, name=name, beschreibung=beschr, is_seed=True
-=======
     help = "Legt projektverwaltete Seed-Daten an oder aktualisiert sie."
 
     @transaction.atomic
@@ -208,7 +154,6 @@ class Command(BaseCommand):
                     "name": name,
                     "beschreibung": beschr,
                 },
->>>>>>> origin/feature/33-exemplar-formular
             )
             for name, beschr in STANDORTE.items()
         }
@@ -216,32 +161,12 @@ class Command(BaseCommand):
         typen = []
         nummer = 1
         for name, kategorie, standort, max_tage, beschr, exemplare in GEGENSTAENDE:
-<<<<<<< HEAD
-            typ = Gegenstandstyp.objects.create(
-                organisation=organisation,
-                kategorie=kategorien[kategorie],
-                name=name,
-                beschreibung=beschr,
-                maximale_ausleihzeit=max_tage,
-                is_seed=True,
-            )
-            typen.append(typ)
-            for zustand, status in exemplare:
-                Gegenstandsexemplar.objects.create(
-                    gegenstand=typ,
-                    standort=standorte[standort],   # Standort hängt jetzt am Exemplar
-                    inventarnummer=f"SEED-{nummer:04d}",
-                    zustand=zustand,
-                    verfuegbarkeitsstatus=status,
-                    is_seed=True,
-=======
             typ = self._seed_obj(
                 Gegenstandstyp,
                 f"demo:gegenstandstyp:{name.lower()}",
                 {
                     "organisation": organisation,
                     "kategorie": kategorien[kategorie],
-                    "standort": standorte[standort],
                     "name": name,
                     "beschreibung": beschr,
                     "maximale_ausleihzeit": max_tage,
@@ -254,11 +179,11 @@ class Command(BaseCommand):
                     f"demo:gegenstandsexemplar:{nummer:04d}",
                     {
                         "gegenstand": typ,
+                        "standort": standorte[standort],  # Standort hängt am Exemplar (#33)
                         "inventarnummer": f"SEED-{nummer:04d}",
                         "zustand": zustand,
                         "verfuegbarkeitsstatus": status,
                     },
->>>>>>> origin/feature/33-exemplar-formular
                 )
                 nummer += 1
 
@@ -268,23 +193,6 @@ class Command(BaseCommand):
             (typen[1], 1, 10, Anfragestatus.GENEHMIGT, None),
             (typen[2], 3, 4, Anfragestatus.ABGELEHNT, "Beamer ist in diesem Zeitraum für eine Prüfung reserviert."),
         ]
-<<<<<<< HEAD
-        for typ, start, ende, status, grund in anfragen:
-            Ausleihanfrage.objects.create(
-                nutzer=nina,
-                gegenstand=typ,
-                organisation=organisation,
-                startdatum=heute + timedelta(days=start),
-                enddatum=heute + timedelta(days=ende),
-                anfragestatus=status,
-                ablehnungsgrund=grund,
-                bedingungen_akzeptiert=True,
-                is_seed=True,
-            )
-
-        self.stdout.write(self.style.SUCCESS(
-            f"Seed-Daten angelegt: 1 Organisation, 2 Nutzer ({verleiher.email}, {nina.email}), "
-=======
         for index, (typ, start, ende, status, grund) in enumerate(anfragen, start=1):
             self._seed_obj(
                 Ausleihanfrage,
@@ -303,25 +211,10 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(
             f"Seed-Daten angelegt bzw. aktualisiert: 1 Organisation, 2 Nutzer ({verleiher.email}, {nina.email}), "
->>>>>>> origin/feature/33-exemplar-formular
             f"{len(kategorien)} Kategorien, {len(standorte)} Standorte, {len(typen)} Gegenstandstypen, "
             f"{nummer - 1} Exemplare, {len(anfragen)} Ausleihanfragen."
         ))
 
-<<<<<<< HEAD
-    def alte_testdaten_loeschen(self):
-        # Reihenfolge: zuerst abhängige Tabellen, dann die, auf die verwiesen wird
-        for modell in (
-            Ausleihanfrage,
-            Gegenstandsexemplar,
-            Gegenstandstyp,
-            Standort,
-            Kategorie,
-            Nutzer,
-            Organisation,
-        ):
-            modell.objects.filter(is_seed=True).delete()
-=======
     def _seed_obj(self, modell, seed_key, defaults):
         # Erstellt den Datensatz, falls er noch nicht existiert,
         # oder aktualisiert ihn anhand seines eindeutigen seed_key.
@@ -334,4 +227,3 @@ class Command(BaseCommand):
             defaults=defaults,
         )
         return objekt
->>>>>>> origin/feature/33-exemplar-formular

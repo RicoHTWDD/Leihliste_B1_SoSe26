@@ -5,7 +5,7 @@ Einziger Eingang für alles, was mit Exemplaren passiert.
 Der Controller ruft nur diese Funktionen auf und kennt die Models nicht.
 
 Funktionen:
-- alle_lesen()                 – Gegenstände anzeigen (alle Exemplare)
+- alle_lesen(verfuegbar=None)  – Gegenstände anzeigen (alle, optional gefiltert)
 - verfuegbare_lesen()          – Gegenstände anzeigen (nur verfügbare)
 - anlegen(daten)               – Gegenstand anlegen
 - bearbeiten(id, aenderungen)  – Gegenstand bearbeiten
@@ -13,6 +13,7 @@ Funktionen:
 - anlegen_pruefen(daten), bearbeiten_pruefen(id, aenderungen) – nur prüfen (Admin-Formular)
 """
 from django.db import IntegrityError, transaction
+from django.db.models import Q
 
 from inventory.domaene import regeln
 from inventory.domaene.regeln import RegelVerstoss  # noqa: F401 – Controller fängt sie über den Service
@@ -21,7 +22,11 @@ from inventory.infrastruktur.models import (
     Gegenstandstyp,
     Standort,
     Verfuegbarkeitsstatus,
+    Zustand,
 )
+
+# Defekte oder verlorene Exemplare zählen nie als verfügbar (Filterlogik aus main, #163).
+NIE_VERFUEGBAR = (Zustand.DEFEKT, Zustand.VERLOREN)
 
 
 # --- Lesen -------------------------------------------------------------------
@@ -29,22 +34,41 @@ from inventory.infrastruktur.models import (
 # So können Seitenaufteilung und Detailsuche (über die id) im Controller
 # weiter funktionieren.
 
-def alle_lesen():
+def alle_lesen(verfuegbar=None):
     """Alle Exemplare, sortiert nach Name des Typs und Inventarnummer.
 
     select_related holt Typ, Standort und Kategorie in derselben Abfrage
     (JOIN) mit, statt für jedes Exemplar einzeln nachzufragen.
+
+    verfuegbar (aus ?verfuegbar=… der Anfrage):
+    - "true"  → nur verfügbare Exemplare
+    - "false" → nur nicht verfügbare (auch defekte oder verlorene)
+    - sonst   → alle
     """
-    return (
+    abfrage = (
         Gegenstandsexemplar.objects
         .select_related("gegenstand", "gegenstand__kategorie", "standort")
         .order_by("gegenstand__name", "inventarnummer")
     )
+    if verfuegbar == "true":
+        return _nur_verfuegbare(abfrage)
+    if verfuegbar == "false":
+        return abfrage.filter(
+            Q(verfuegbarkeitsstatus=Verfuegbarkeitsstatus.NICHT_VERFUEGBAR)
+            | Q(zustand__in=NIE_VERFUEGBAR)
+        )
+    return abfrage
+
+
+def _nur_verfuegbare(abfrage):
+    return abfrage.filter(
+        verfuegbarkeitsstatus=Verfuegbarkeitsstatus.VERFUEGBAR
+    ).exclude(zustand__in=NIE_VERFUEGBAR)
 
 
 def verfuegbare_lesen():
     """Nur Exemplare, die gerade verfügbar sind (gleiche Sortierung)."""
-    return alle_lesen().filter(verfuegbarkeitsstatus=Verfuegbarkeitsstatus.VERFUEGBAR)
+    return _nur_verfuegbare(alle_lesen())
 
 # Hilfsfunktionen ---------------------------------------------------------
 

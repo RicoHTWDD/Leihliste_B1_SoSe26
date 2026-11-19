@@ -30,12 +30,16 @@ class VerfügbareGegenstandsexemplarViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class GegenstandsexemplarViewSet(viewsets.ReadOnlyModelViewSet):
-    """GET /api/inventory/alle-exemplare/ – alle Exemplare (Übersicht)"""
+    """
+    GET /api/inventory/alle-exemplare/                 – alle Exemplare (Übersicht)
+    GET /api/inventory/alle-exemplare/?verfuegbar=true  – nur verfügbare
+    GET /api/inventory/alle-exemplare/?verfuegbar=false – nur nicht verfügbare
+    """
 
     serializer_class = GegenstandsexemplarUebersichtSerializer
 
     def get_queryset(self):
-        return exemplare.alle_lesen()
+        return exemplare.alle_lesen(self.request.query_params.get("verfuegbar"))
 
 
 class GegenstandsexemplarDetailViewSet(viewsets.ReadOnlyModelViewSet):

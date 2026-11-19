@@ -1,0 +1,224 @@
+@startuml proposed-structure
+' statische Sicht des Entwurfs für #33 (Stand: Standort und Bild am Exemplar)
+' Strikte Schichtung: Controller → Service → Domäne / Infrastruktur
+' Farben wie im Sequenzdiagramm und in den Aktivitätsdiagrammen
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam nodesep 40
+skinparam ranksep 50
+hide empty members
+hide circle
+
+legend top left
+  | Farbe | Schicht | Aufgabe |
+  |<#FFE0B2>| Präsentation | Formulare, Rückmeldungen (React) |
+  |<#BBDEFB>| Controller | HTTP/JSON rein und raus, nur Formatprüfung |
+  |<#C8E6C9>| Service | Ablauf koordinieren, einziger Eingang |
+  |<#FFF59D>| Domäne | fachlich entscheiden (ohne DB/HTTP) |
+  |<#E1BEE7>| Infrastruktur | Daten speichern/lesen |
+endlegend
+
+package "Frontend (React)" {
+  class GegenstandFormularSeite <<Präsentation>> #FFE0B2 {
+    Formular anlegen / bearbeiten
+    Standort und Kategorie aus Liste
+    optional ein Bild (JPG/PNG, ≤ 200 kB) mit Vorschau
+    Pflichtfelder markiert, Reset, Abbruch
+    Fehler am Feld (400)
+  }
+  class GegenstandDetail <<Präsentation>> #FFE0B2 {
+    Buttons "Bearbeiten" / "Löschen"
+    Rückfrage vor dem Löschen
+    Hinweis bei 409
+  }
+}
+
+package "Backend (Django) – inventory/" {
+
+  package "controller/" {
+    class "GegenstandsexemplarViewSet\nVerfügbareGegenstandsexemplarViewSet" as VSL <<views.py>> #BBDEFB {
+      GET /api/inventory/alle-exemplare/
+      GET /api/inventory/verfuegbare-exemplare/
+      get_queryset() → Service
+    }
+    class "GegenstandsexemplarDetailViewSet" as VSE <<views.py>> #BBDEFB {
+      GET    /api/inventory/exemplare/{id}/
+      POST   /api/inventory/exemplare/
+      PATCH  /api/inventory/exemplare/{id}/
+      DELETE /api/inventory/exemplare/{id}/
+      create() / partial_update() / destroy()
+    }
+    class "GegenstandstypViewSet" as VST <<views.py>> #BBDEFB {
+      GET    /api/inventory/typen/ und /typen/{id}/
+      POST   /api/inventory/typen/
+      PATCH  /api/inventory/typen/{id}/
+      DELETE /api/inventory/typen/{id}/
+      create() / partial_update() / destroy()
+    }
+    class "Serializer" as SER <<serializers.py>> #BBDEFB {
+      Eingabe (nur Format):
+      GegenstandsexemplarAnlegenSerializer
+      GegenstandsexemplarBearbeitenSerializer
+      GegenstandstypAnlegenSerializer
+      GegenstandstypBearbeitenSerializer
+      --
+      Ausgabe (Python → JSON):
+      …UebersichtSerializer, …DetailSerializer
+      GegenstandstypSerializer
+    }
+    class "Admin" as ADM <<admin.py>> #BBDEFB {
+      GegenstandsexemplarAdmin:
+        Formular prüft über den Service
+        Speichern und Löschen über den Service
+        Typ beim Bearbeiten gesperrt
+      GegenstandstypAdmin:
+        Anlegen abgeschaltet
+        Speichern und Löschen über den Service
+      kein Mehrfach-Löschen
+    }
+  }
+
+  package "service/" {
+    class "exemplare" as SVE <<exemplare.py>> #C8E6C9 {
+      alle_lesen() / verfuegbare_lesen()
+      standort_laden(id)
+      anlegen(daten)
+      bearbeiten(id, aenderungen)
+      loeschen(id)
+      anlegen_pruefen() / bearbeiten_pruefen()
+    }
+    class "typen" as SVT <<typen.py>> #C8E6C9 {
+      alle_lesen()
+      anlegen(daten)  – Typ + Exemplare
+      bearbeiten(id, aenderungen)
+      loeschen(id)
+      bearbeiten_pruefen()
+    }
+  }
+
+  package "domaene/" {
+    class "regeln" as REG <<regeln.py>> #FFF59D {
+      pruefe_exemplar_anlegen(daten, bild)
+      pruefe_exemplar_bearbeiten(bisher, aenderungen, bild)
+      pruefe_typ_anlegen(daten)
+      pruefe_typ_bearbeiten(aenderungen)
+      pruefe_exemplar_loeschung(anzahl)
+      pruefe_typ_loeschung(anzahl)
+      --
+      pruefe_pflichtfelder() / pruefe_name()
+      pruefe_zustand_verfuegbarkeit() / pruefe_bild()
+    }
+    class "RegelVerstoss" as RV <<Fehler>> #FFF59D {
+      feldfehler  → 400
+      code, meldung → 409
+    }
+  }
+
+  package "infrastruktur/" {
+    class Kategorie <<models.py>> #E1BEE7 {
+      name
+      beschreibung
+    }
+    class Standort <<models.py>> #E1BEE7 {
+      name
+      beschreibung
+      organisation
+    }
+    class Gegenstandstyp <<models.py>> #E1BEE7 {
+      name : höchstens 100 Zeichen
+      beschreibung
+      kategorie
+      maximale_ausleihzeit
+      organisation
+    }
+    class Gegenstandsexemplar <<models.py>> #E1BEE7 {
+      inventarnummer : unique
+      zustand : Zustand
+      verfuegbarkeitsstatus
+      standort
+      bild : ImageField [0..1]
+    }
+  }
+
+  class "models.py / admin.py\n(Wurzel von inventory/)" as WEITER #F5F5F5 {
+    nur Weiterleitung, damit Django
+    Models und Admin findet
+  }
+}
+
+package "lending/" {
+  class Ausleihanfrage <<models.py>> #E1BEE7 {
+    gegenstand : FK on_delete=PROTECT
+  }
+}
+
+class "MariaDB\n+ Ordner media/exemplare/" as DB <<Datenbank>> #E1BEE7
+
+' --- Präsentation → Controller (HTTP) ---
+GegenstandFormularSeite ..> VSE : POST / PATCH Exemplar
+GegenstandFormularSeite ..> VST : POST / PATCH Typ
+GegenstandDetail ..> VSE : DELETE Exemplar
+GegenstandDetail ..> VST : DELETE Typ
+
+' --- Controller → Service ---
+VSL ..> SVE : lesen
+VSE ..> SER
+VST ..> SER
+VSE ..> SVE
+VST ..> SVT
+ADM ..> SVE
+ADM ..> SVT
+
+' --- Service → Service / Domäne / Infrastruktur ---
+SVT ..> SVE : standort_laden()
+SVE ..> REG : Regel fragen
+SVT ..> REG : Regel fragen
+REG ..> RV : wirft
+SVE ..> Gegenstandsexemplar : laden / speichern
+SVT ..> Gegenstandstyp : laden / speichern / löschen
+
+' --- Infrastruktur ---
+Kategorie "0..1" -- "0..*" Gegenstandstyp : SET_NULL
+Gegenstandstyp "1" *-- "1..*" Gegenstandsexemplar : CASCADE
+Standort "1" -- "0..*" Gegenstandsexemplar : PROTECT
+Gegenstandstyp "1" -- "0..*" Ausleihanfrage : PROTECT
+Gegenstandsexemplar ..> DB
+WEITER ..> Gegenstandstyp : leitet weiter
+
+note right of REG
+  Kennt weder Datenbank noch HTTP.
+  Bekommt nur Werte (z. B. Anzahl, Dateiname + Größe)
+  und entscheidet erfüllt / nicht erfüllt.
+  - Pflichtfelder (Exemplar inkl. Standort)
+  - Name höchstens 100 Zeichen
+  - Typ mit mindestens einem Exemplar
+  - defekt/verloren ⇒ nicht verfügbar
+  - Bild nur JPG/PNG, höchstens 200 kB
+  - letztes Exemplar nicht einzeln löschen
+  - Typ mit Ausleihanfragen nicht löschen
+end note
+
+note right of SER
+  KEINE fachlichen Regeln.
+  Bild: nur "ist es ein Bild?" –
+  Format und Größe prüft die Domäne.
+end note
+
+note top of VSE
+  Greift nie direkt auf Models
+  oder Datenbank zu.
+end note
+
+note left of Standort
+  (#47): Standort gehört zum Exemplar
+  und wird aus einer Liste gewählt.
+  Anlegen/Pflegen der Standorte: #47
+end note
+
+note left of SVT
+  Organisation des Typs = Organisation
+  des Standorts des ersten Exemplars
+  (bis es eine Anmeldung gibt)
+end note
+@enduml

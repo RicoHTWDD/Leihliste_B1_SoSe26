@@ -28,11 +28,13 @@ import ImageIcon from '@mui/icons-material/Image';
 import StatusBadge from '../components/ui/StatusBadge';
 import ErrorMessage from '../components/ui/ErrorMessage';
 import HintBox from '../components/ui/HintBox';
+import { listAll } from '../utils/inventarApi.js';
+import { bildAdresse } from '../utils/bildAdresse.js';
 import { ermittleAnzeigeStatus, ermittleZusatzinfo } from '../utils/anzeigeStatus';
 
 // ---------------------------------------------------------------------------
 // Datenquelle
-// Backend-Endpoint (App "inventory"): GET /api/inventory/alle-exemplare/
+// Backend-Endpoint (App "inventory"): GET /api/inventory/exemplare/
 // Antwort ist DRF-paginiert: { count, next, previous, results: [...] }.
 // Zentrale Stelle für den Datenzugriff — die UI darunter bleibt davon unberührt.
 //
@@ -43,41 +45,17 @@ import { ermittleAnzeigeStatus, ermittleZusatzinfo } from '../utils/anzeigeStatu
 //   - sonst clientseitiger Fallback (defekt/verloren aus "zustand",
 //     ansonsten der gespeicherte Verfügbarkeitsstatus).
 // ---------------------------------------------------------------------------
-async function fetchGegenstaende(statusFilter = 'alle') {
-  const url = new URL(
-    '/api/inventory/alle-exemplare/',
-    window.location.origin
-  );
-
-  if (statusFilter === 'verfuegbar') {
-    url.searchParams.set('verfuegbar', 'true');
-  }
-
-  if (statusFilter === 'nicht_verfuegbar') {
-    url.searchParams.set('verfuegbar', 'false');
-  }
-
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const daten = await res.json();
-
-
-  // Nur die im Frontend benötigten Felder übernehmen.
-  // Hinweis: Es wird die erste Seite geladen. Bei mehr Exemplaren als die
-  // DRF-Page-Size müsste hier über "next" nachgeladen werden.
-  return daten.results.map((exemplar) => ({
+async function fetchGegenstaende(signal) {
+  const exemplare = await listAll('/api/inventory/exemplare/', { signal });
+  return exemplare.map((exemplar) => ({
     id: exemplar.id,
+    inventarnummer: exemplar.inventarnummer,
     name: exemplar.name,
-    // 'verfuegbar' | 'ausgeliehen' | 'reserviert' | 'defekt' | 'nicht_verfuegbar'
     status: ermittleAnzeigeStatus(exemplar),
-    // Statusabhängige Zusatzinfo laut Story #18: Rückgabe- bzw.
-    // Reservierungsdatum. Der Standort wird hier unterdrückt, weil die
-    // Übersicht dafür eine eigene Spalte hat (AK "Verfügbar -> Standort"
-    // ist damit bereits erfüllt).
     zusatzinfo: ermittleZusatzinfo(exemplar, { standortAnzeigen: false }),
-    kategorie: exemplar.kategorie,          // vom Backend über den Gegenstandstyp aufgelöst
-    standort: exemplar.standort,            // ebenfalls über den Gegenstandstyp aufgelöst
-    bildUrl: null,                          // liefert das Backend (noch) nicht
+    kategorie: exemplar.kategorie ?? '',
+    standort: exemplar.standort ?? '',
+    bildUrl: bildAdresse(exemplar.bild),
   }));
 }
 
@@ -91,16 +69,14 @@ const SPALTEN = [
   { feld: 'standort', label: 'Standort' },
 ];
 
-export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe }) {
-  const [gegenstaende, setGegenstaende] = useState([]);
-  const [alleGegenstaende, setAlleGegenstaende] = useState(null);
-  const [ladestatus, setLadestatus] = useState('laedt'); // 'laedt' | 'fertig' | 'fehler'
+const KEINE_GEGENSTAENDE = [];
+
+export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe, refreshKey = 0 }) {
+  const [inventar, setInventar] = useState(null);
+  const alleGegenstaende = inventar?.daten ?? KEINE_GEGENSTAENDE;
+  const ladestatus = inventar?.version === refreshKey ? inventar.status : 'laedt';
 
   const [suche, setSuche] = useState('');
-
-// Drei Filter, die kombiniert wirken (UND-Verknüpfung).
-// Status wird serverseitig, Kategorie und Standort clientseitig gefiltert.
-// 'alle' = jeweiliger Filter inaktiv.
 
   const [statusFilter, setStatusFilter] = useState('alle');
   const [kategorieFilter, setKategorieFilter] = useState('alle');
@@ -108,53 +84,17 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
   const [sortierung, setSortierung] = useState({ feld: 'name', richtung: 'asc' });
   const [ausgewaehlt, setAusgewaehlt] = useState([]);
 
-  // Ungefilterte Gegenstände einmal laden.
-  // Dienen als Grundlage für die Kategorie- und Standortfilter.
   useEffect(() => {
-    let aktiv = true;
-
-    fetchGegenstaende('alle')
+    const controller = new AbortController();
+    fetchGegenstaende(controller.signal)
       .then((daten) => {
-        if (!aktiv) return;
-        setAlleGegenstaende(daten);
+        if (!controller.signal.aborted) setInventar({ version: refreshKey, daten, status: 'fertig' });
       })
       .catch(() => {
-        if (aktiv) setLadestatus('fehler');
+        if (!controller.signal.aborted) setInventar({ version: refreshKey, daten: [], status: 'fehler' });
       });
-
-    return () => {
-      aktiv = false;
-    };
-  }, []);
-
-  // Angezeigte Gegenstände abhängig vom Statusfilter laden.
-  useEffect(() => {
-    if (alleGegenstaende === null) return;
-
-    // Bei "Alle" die bereits geladenen Daten verwenden.
-    if (statusFilter === 'alle') {
-      setGegenstaende(alleGegenstaende);
-      setLadestatus('fertig');
-      return;
-    }
-
-    let aktiv = true;
-    setLadestatus('laedt');
-
-    fetchGegenstaende(statusFilter)
-      .then((daten) => {
-        if (!aktiv) return;
-        setGegenstaende(daten);
-        setLadestatus('fertig');
-      })
-      .catch(() => {
-        if (aktiv) setLadestatus('fehler');
-      });
-
-    return () => {
-      aktiv = false;
-    };
-  }, [statusFilter, alleGegenstaende]);
+    return () => controller.abort();
+  }, [refreshKey]);
 
   // Kategorien dynamisch aus allen geladenen Daten.
   // Bleiben unabhängig vom aktiven Statusfilter verfügbar.
@@ -173,16 +113,16 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
     [alleGegenstaende]
   );
 
-// Suche, Kategorie und Standort werden clientseitig gefiltert.
-// Der Statusfilter wird bereits beim Laden der Daten im Backend berücksichtigt.
-// Kategorie- und Standort-Filter werden nacheinander angewandt => kombinierbar.
-
+  // Alle Seiten sind geladen. So funktionieren die Filter mit beiden Backend-Versionen.
   const sichtbar = useMemo(() => {
-    let liste = gegenstaende;
-
+    let liste = alleGegenstaende;
+    if (statusFilter === 'verfuegbar') liste = liste.filter((g) => g.status === 'verfuegbar');
+    if (statusFilter === 'nicht_verfuegbar') liste = liste.filter((g) => g.status !== 'verfuegbar');
     if (suche.trim()) {
       const q = suche.trim().toLowerCase();
-      liste = liste.filter((g) => g.name.toLowerCase().includes(q));
+      liste = liste.filter((g) =>
+        g.name.toLowerCase().includes(q) || g.inventarnummer?.toLowerCase().includes(q)
+      );
     }
     if (kategorieFilter !== 'alle') {
       liste = liste.filter((g) => g.kategorie === kategorieFilter);
@@ -197,7 +137,7 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
       const wertB = String(b[sortierung.feld] ?? '');
       return wertA.localeCompare(wertB, 'de') * faktor;
     });
-  }, [gegenstaende, suche, kategorieFilter, standortFilter, sortierung]);
+  }, [alleGegenstaende, suche, statusFilter, kategorieFilter, standortFilter, sortierung]);
 
   // Prüft, ob mindestens ein Filter aktiv ist.
   const filterAktiv =
@@ -241,27 +181,25 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
       <Stack
         direction={{ xs: 'column', md: 'row' }}
         spacing={2}
-        alignItems={{ md: 'center' }}
-        justifyContent="space-between"
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, alignItems: { md: 'center' }, justifyContent: 'space-between' }}
       >
         <Typography variant="h5" component="h1" fontWeight={700}>
           Gegenstände
         </Typography>
 
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems="center">
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ alignItems: 'center' }}>
           <TextField
             size="small"
             placeholder="Suche"
             value={suche}
             onChange={(e) => setSuche(e.target.value)}
-            InputProps={{
+            slotProps={{ input: {
               startAdornment: (
                 <InputAdornment position="start">
                   <SearchIcon fontSize="small" />
                 </InputAdornment>
               ),
-            }}
+            } }}
             sx={{ minWidth: 220 }}
           />
 
@@ -413,11 +351,14 @@ export default function GegenstandUebersicht({ onSelectGegenstand, onAddAusleihe
                         />
                       </TableCell>
                       <TableCell sx={gedimmt}>
-                        <Avatar variant="rounded" src={g.bildUrl || undefined}>
+                        <Avatar variant="rounded" src={g.bildUrl || undefined} alt="">
                           <ImageIcon fontSize="small" />
                         </Avatar>
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 600, ...gedimmt }}>{g.name}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, ...gedimmt }}>
+                        {g.name}
+                        <Typography component="div" variant="caption">{g.inventarnummer}</Typography>
+                      </TableCell>
                       <TableCell>
                         {/* Kern von #121: aktueller Status als Badge (#140) direkt
                             in der Übersicht — sichtbar ohne die Detailansicht. */}

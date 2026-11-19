@@ -1,0 +1,200 @@
+@startuml current-structure
+' Design-Impact-Analyse #33 (Issue #159) – statische Sicht des IST-Zustands
+' Äußere Box = App, innere Box = Datei. Jede Klasse steht in der Datei, in der sie definiert ist.
+' Orange = voraussichtlich von der Änderung betroffen
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam ArrowColor #181818
+skinparam class {
+  BackgroundColor #F1F1F1
+  BorderColor #181818
+}
+skinparam package {
+  BorderColor #181818
+  BorderThickness 1.5
+}
+skinparam note {
+  BackgroundColor #FEFFDD
+  BorderColor #181818
+}
+hide empty members
+scale 0.85
+
+package "Backend (Django)" as backend <<Rectangle>> {
+
+package "organisations/" <<Rectangle>> {
+  package "models.py" as org_models <<Rectangle>> {
+    class Organisation {
+      name : CharField
+      organisationstyp : OrganisationsTyp
+    }
+  }
+}
+
+package "inventory/" <<Rectangle>> {
+
+  package "models.py" as inv_models <<Rectangle>> {
+    enum Zustand #FFE0B2 {
+      NEU
+      GUT
+      BESCHAEDIGT
+      DEFEKT
+      VERLOREN
+    }
+    enum Verfuegbarkeitsstatus {
+      VERFUEGBAR
+      NICHT_VERFUEGBAR
+    }
+    class Kategorie {
+      name : CharField(255)
+      beschreibung : CharField(500) [0..1]
+    }
+    class Standort {
+      name : CharField(255)
+      beschreibung : CharField(500) [0..1]
+    }
+    class Gegenstandstyp #FFE0B2 {
+      name : CharField(255)
+      beschreibung : TextField [0..1]
+      maximale_ausleihzeit : int
+    }
+    class Gegenstandsexemplar #FFE0B2 {
+      inventarnummer : CharField(255) {unique}
+      zustand : Zustand
+      verfuegbarkeitsstatus : Verfuegbarkeitsstatus
+    }
+  }
+
+  package "views.py" as inv_views <<Rectangle>> {
+    class GegenstandsexemplarViewSet <<ReadOnlyModelViewSet>> #FFE0B2 {
+      GET /alle-exemplare/
+    }
+    class VerfügbareGegenstandsexemplarViewSet <<ReadOnlyModelViewSet>> {
+      GET /verfuegbare-exemplare/
+    }
+    class GegenstandsexemplarDetailViewSet <<ReadOnlyModelViewSet>> #FFE0B2 {
+      GET /exemplare/{id}/
+    }
+  }
+
+  package "serializers.py" as inv_serializers <<Rectangle>> {
+    class GegenstandsexemplarUebersichtSerializer #FFE0B2 {
+      read_only_fields = fields
+    }
+    class GegenstandsexemplarDetailSerializer
+    class VerfügbareGegenstandsexemplarSerializer {
+      read_only_fields = fields
+    }
+  }
+
+  package "admin.py" as inv_admin <<Rectangle>> {
+    class GegenstandsexemplarAdmin <<ModelAdmin>>
+    class GegenstandstypAdmin <<ModelAdmin>>
+    class KategorieAdmin <<ModelAdmin>>
+    class StandortAdmin <<ModelAdmin>>
+  }
+}
+
+package "lending/" <<Rectangle>> {
+  package "models.py" as lend_models <<Rectangle>> {
+    class Ausleihanfrage #FFE0B2 {
+      startdatum : Date
+      enddatum : Date
+      anfragestatus : Anfragestatus
+    }
+  }
+}
+
+}
+
+package "frontend/src/ (React)" <<Rectangle>> {
+  package "App.jsx" as fe_app <<Rectangle>> {
+    class App <<Navigation>> #FFE0B2 {
+      currentPage : useState
+    }
+  }
+  package "pages/GegenstandsUebersicht.jsx" as fe_uebersicht <<Rectangle>> {
+    class GegenstandsUebersicht <<Seite>> {
+      fetch('/api/inventory/alle-exemplare/')
+    }
+  }
+  package "pages/GegenstandDetail.jsx" as fe_detail <<Rectangle>> {
+    class GegenstandDetail <<Seite>> #FFE0B2 {
+      MOCK = true
+      fetch(API_BASE + id)
+    }
+  }
+  package "components/ui/ErrorMessage.jsx" as fe_error <<Rectangle>> {
+    class ErrorMessage <<UI-Baustein>>
+  }
+  package "components/ui/StatusBadge.jsx" as fe_badge <<Rectangle>> {
+    class StatusBadge <<UI-Baustein>>
+  }
+}
+
+' --- Beziehungen zwischen Models ---
+Organisation "1" -- "0..*" Standort
+Organisation "1" -- "0..*" Gegenstandstyp
+Kategorie "0..1" -- "0..*" Gegenstandstyp : SET_NULL
+Standort "0..1" -- "0..*" Gegenstandstyp : SET_NULL
+Gegenstandstyp "1" *-- "0..*" Gegenstandsexemplar : CASCADE
+Gegenstandsexemplar ..> Zustand
+Gegenstandsexemplar ..> Verfuegbarkeitsstatus
+Gegenstandstyp "1" -- "0..*" Ausleihanfrage : CASCADE
+
+' --- views.py → serializers.py / models.py ---
+GegenstandsexemplarViewSet ..> GegenstandsexemplarUebersichtSerializer
+GegenstandsexemplarDetailViewSet ..> GegenstandsexemplarDetailSerializer
+VerfügbareGegenstandsexemplarViewSet ..> VerfügbareGegenstandsexemplarSerializer
+GegenstandsexemplarDetailSerializer --|> GegenstandsexemplarUebersichtSerializer
+GegenstandsexemplarViewSet ..> Gegenstandsexemplar
+GegenstandsexemplarDetailViewSet ..> Gegenstandsexemplar
+VerfügbareGegenstandsexemplarViewSet ..> Gegenstandsexemplar
+
+' --- admin.py → models.py ---
+GegenstandsexemplarAdmin ..> Gegenstandsexemplar
+GegenstandstypAdmin ..> Gegenstandstyp
+KategorieAdmin ..> Kategorie
+StandortAdmin ..> Standort
+
+' --- Frontend ---
+App ..> GegenstandsUebersicht
+GegenstandsUebersicht ..> GegenstandsexemplarViewSet : HTTP GET
+GegenstandDetail ..> GegenstandsexemplarDetailViewSet : HTTP GET
+GegenstandsUebersicht ..> ErrorMessage
+GegenstandsUebersicht ..> StatusBadge
+GegenstandDetail ..> ErrorMessage
+
+note bottom of GegenstandDetail
+  Nicht in App.jsx eingebunden, keine Buttons
+  "Bearbeiten"/"Löschen". Jede Seite ruft fetch()
+  selbst auf und deutet HTTP-Antworten selbst.
+end note
+
+note right of Gegenstandsexemplar
+  Zustand und Verfügbarkeit sind unabhängig.
+  Kommentar in models.py: "defekt oder verloren
+  müsste sich auch auf den Verfügbarkeitsstatus
+  auswirken" – wird nirgends geprüft.
+end note
+
+note bottom of Ausleihanfrage
+  on_delete=CASCADE: Löschen eines Gegenstandstyps
+  löscht auch alle zugehörigen Ausleihanfragen
+  (App-übergreifend, Verlust der Historie).
+end note
+
+note bottom of GegenstandsexemplarViewSet
+  Alle drei ViewSets sind nur lesend:
+  POST/PUT/DELETE liefern heute 405.
+end note
+
+note top of GegenstandsexemplarAdmin
+  Einziger heutiger Schreibweg:
+  Django-Admin speichert/löscht ohne
+  fachliche Prüfung.
+end note
+@enduml

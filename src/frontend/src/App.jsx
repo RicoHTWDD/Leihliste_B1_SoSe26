@@ -9,15 +9,21 @@ import GegenstandsUebersicht from './pages/GegenstandsUebersicht.jsx'
 import GegenstandDetail from './pages/GegenstandDetail.jsx'
 import GegenstandstypDetail from './pages/GegenstandstypDetail.jsx'
 import { apiRequest } from './utils/inventarApi.js'
+import { referenzbereiche } from './utils/referenzbereiche.js'
 
 const ExemplarFormular = lazy(() => import('./pages/ExemplarFormular.jsx'))
 const GegenstandstypFormular = lazy(() => import('./pages/GegenstandstypFormular.jsx'))
+
+const ReferenzdatenVerwaltung = lazy(() => import('./pages/ReferenzdatenVerwaltung.jsx'))
 
 const demoFreigabe = import.meta.env.DEV && import.meta.env.VITE_INVENTAR_DEMO === 'true'
 const inventarliste = { page: 'items' }
 const keineZusatzfunktionen = {}
 
-function App({ canManageInventory = demoFreigabe, capabilities = keineZusatzfunktionen }) {
+function App({
+  canManageInventory = demoFreigabe, capabilities = keineZusatzfunktionen,
+  darfReferenzdatenVerwalten = false, onReferenzdatenGespeichert,
+}) {
   const [verlauf, setVerlauf] = useState([{ page: 'home' }])
   const [refreshKey, setRefreshKey] = useState(0)
   const [erfolg, setErfolg] = useState(null)
@@ -68,6 +74,19 @@ function App({ canManageInventory = demoFreigabe, capabilities = keineZusatzfunk
   const ausInventar = verlauf.some((seite) => seite.page === 'items')
   let inhalt = null
   switch (aktuell.page) {
+    case 'categories':
+    case 'locations': {
+      if (!darfReferenzdatenVerwalten) {
+        inhalt = <Alert severity="warning">Für diese Aktion fehlt die Berechtigung.</Alert>
+        break
+      }
+      const bereich = referenzbereiche[aktuell.page]
+      inhalt = (
+        <ReferenzdatenVerwaltung key={aktuell.page} art={bereich.art} url={bereich.url}
+          onGespeichert={liste => onReferenzdatenGespeichert?.(bereich, liste)} />
+      )
+      break
+    }
     case 'items':
       break
     case 'exemplar':
@@ -131,6 +150,9 @@ function App({ canManageInventory = demoFreigabe, capabilities = keineZusatzfunk
       inhalt = (
         <HomePage
           canManageInventory={darfVerwalten}
+          darfReferenzdatenVerwalten={darfReferenzdatenVerwalten}
+          onKategorienAnzeigen={() => navigateTo('categories')}
+          onStandorteAnzeigen={() => navigateTo('locations')}
           onInventarAnzeigen={() => navigateTo('items')}
           onExemplarAnlegen={() => oeffnen('exemplar-formular')}
           onTypAnlegen={() => oeffnen('typ-formular')}
@@ -139,7 +161,7 @@ function App({ canManageInventory = demoFreigabe, capabilities = keineZusatzfunk
   }
 
   return (
-    <AppLayout currentPage={verlauf[0].page} onNavigate={navigateTo}>
+    <AppLayout currentPage={verlauf[0].page} onNavigate={navigateTo} darfReferenzdatenVerwalten={darfReferenzdatenVerwalten}>
       {erfolg && (
         <Alert severity="success" role="status" sx={{ mb: 2 }} onClose={() => setErfolg(null)}>
           {erfolg.text}

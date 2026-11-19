@@ -9,6 +9,7 @@ import {
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
 import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined'
+import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined'
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
 
@@ -27,6 +28,13 @@ const navigationItems = [
     label: 'Kategorien',
     page: 'categories',
     icon: <CategoryOutlinedIcon />,
+    verwaltung: true,
+  },
+  {
+    label: 'Standorte',
+    page: 'locations',
+    icon: <PlaceOutlinedIcon />,
+    verwaltung: true,
   },
   {
     label: 'Anfragen',
@@ -35,7 +43,7 @@ const navigationItems = [
   },
 ]
 
-function Sidebar({ currentPage, onNavigate }) {
+function Sidebar({ currentPage, onNavigate, darfReferenzdatenVerwalten }) {
   return (
     <Box
       component="aside"
@@ -60,10 +68,11 @@ function Sidebar({ currentPage, onNavigate }) {
       }}
     >
       <List>
-        {navigationItems.map((item) => (
+        {navigationItems.filter(item => !item.verwaltung || darfReferenzdatenVerwalten).map((item) => (
           <ListItemButton
             key={item.label}
             title={item.label}
+            aria-label={item.label}
             selected={currentPage === item.page}
             onClick={() => onNavigate(item.page)}
             sx={{

@@ -239,17 +239,19 @@ export default function GegenstandstypFormular({ initialData = null, capabilitie
               return (
                 <Paper component="fieldset" variant="outlined" key={zeile.key} sx={{ p: 2, minWidth: 0 }}>
                   <legend>Exemplar {index + 1}</legend>
-                  <ExemplarFelder value={zeile.daten} disabled={sendet}
-                    onChange={(feld, wert) => zeileAendern(index, feld, wert)}
-                    errors={zeilenfehler} />
-                  <StandortFeld value={zeile.daten.standort} standorte={capabilities.standorte}
-                    onChange={wert => zeileAendern(index, 'standort', wert)}
-                    error={fehlertext(zeilenfehler.standort)} disabled={sendet} />
-                  {zeilen.length > 1 && <Button type="button" disabled={sendet} onClick={() => {
-                    setZeilen(alt => alt.filter(eintrag => eintrag.key !== zeile.key))
-                    setServerfehler(alt => ohneFelder(alt, 'exemplare'))
-                    setMeldung('')
-                  }}>Exemplar entfernen</Button>}
+                  <Stack spacing={2} useFlexGap sx={{ alignItems: 'flex-start' }}>
+                    <ExemplarFelder value={zeile.daten} disabled={sendet}
+                      onChange={(feld, wert) => zeileAendern(index, feld, wert)}
+                      errors={zeilenfehler} />
+                    <StandortFeld value={zeile.daten.standort} standorte={capabilities.standorte}
+                      onChange={wert => zeileAendern(index, 'standort', wert)}
+                      error={fehlertext(zeilenfehler.standort)} disabled={sendet} />
+                    {zeilen.length > 1 && <Button type="button" disabled={sendet} onClick={() => {
+                      setZeilen(alt => alt.filter(eintrag => eintrag.key !== zeile.key))
+                      setServerfehler(alt => ohneFelder(alt, 'exemplare'))
+                      setMeldung('')
+                    }}>Exemplar entfernen</Button>}
+                  </Stack>
                 </Paper>
               )
             })}

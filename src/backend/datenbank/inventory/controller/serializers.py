@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Gegenstandsexemplar
+from inventory.infrastruktur.models import Gegenstandsexemplar, Gegenstandstyp, Verfuegbarkeitsstatus, Zustand
 
 
 class VerfügbareGegenstandsexemplarSerializer(serializers.ModelSerializer):
@@ -20,9 +20,9 @@ class VerfügbareGegenstandsexemplarSerializer(serializers.ModelSerializer):
         read_only=True
     )
     
-    # Standort des Gegenstandstyps
+    # Standort des Exemplars
     standort = serializers.CharField(
-        source='gegenstand.standort.name',  # ← Von Gegenstandstyp.Standort
+        source='standort.name',  # ← Von Gegenstandsexemplar.Standort
         read_only=True,
         default='Nicht zugewiesen'
     )
@@ -54,7 +54,7 @@ class VerfügbareGegenstandsexemplarSerializer(serializers.ModelSerializer):
             'zustand',             # Eigene Felder
             'zustand_display',     # Eigene Felder (Method)
             'gegenstandstyp',      # Von Gegenstandstyp
-            'standort',            # Von Gegenstandstyp.Standort
+            'standort',            # Von Gegenstandsexemplar.Standort
             'kategorie',           # Von Gegenstandstyp.Kategorie
         ]
         read_only_fields = fields
@@ -86,9 +86,9 @@ class GegenstandsexemplarUebersichtSerializer(serializers.ModelSerializer):
         read_only=True
     )
     
-    # Standort des Gegenstandstyps
+    # Standort des Exemplars
     standort = serializers.CharField(
-        source='gegenstand.standort.name',
+        source='standort.name',
         read_only=True,
         default='Nicht zugewiesen'
     )
@@ -164,7 +164,7 @@ class GegenstandsexemplarDetailSerializer(GegenstandsexemplarUebersichtSerialize
     rückgabedatum = serializers.SerializerMethodField(read_only=True)
 
     class Meta(GegenstandsexemplarUebersichtSerializer.Meta):
-        fields = GegenstandsexemplarUebersichtSerializer.Meta.fields + ['rückgabedatum']
+        fields = GegenstandsexemplarUebersichtSerializer.Meta.fields + ['bild', 'rückgabedatum']
         read_only_fields = fields
 
     def get_rückgabedatum(self, obj):
@@ -173,3 +173,92 @@ class GegenstandsexemplarDetailSerializer(GegenstandsexemplarUebersichtSerialize
         des aktiven Ausleihvorgangs zurückgeben
         """
         return None
+
+
+class GegenstandsexemplarAnlegenSerializer(serializers.Serializer):
+    """
+    Prüft beim Anlegen NUR das Format: Feld vorhanden, richtiger Datentyp,
+    Wert aus der vorgegebenen Liste. Fachliche Regeln prüft die Domäne.
+    """
+    FEHLT = "Dieses Feld ist ein Pflichtfeld."
+
+    gegenstand = serializers.IntegerField(error_messages={
+        "required": FEHLT, "invalid": "Bitte eine gültige Typ-ID angeben."})
+    inventarnummer = serializers.CharField(max_length=255, error_messages={
+        "required": FEHLT, "blank": "Bitte eine Inventarnummer angeben.",
+        "max_length": "Die Inventarnummer darf höchstens 255 Zeichen haben."})
+    zustand = serializers.ChoiceField(choices=Zustand.choices, error_messages={
+        "required": FEHLT, "invalid_choice": "Bitte einen Zustand aus der Liste wählen."})
+    verfuegbarkeitsstatus = serializers.ChoiceField(
+        choices=Verfuegbarkeitsstatus.choices, error_messages={
+            "required": FEHLT,
+            "invalid_choice": "Bitte einen Verfügbarkeitsstatus aus der Liste wählen."})
+    standort = serializers.IntegerField(error_messages={
+        "required": FEHLT, "invalid": "Bitte eine gültige Standort-ID angeben."})
+    # Optional genau ein Bild. Hier nur: Ist die Datei überhaupt ein Bild?
+    # Format (JPG/PNG) und Größe (200 kB) prüft die Domäne.
+    bild = serializers.ImageField(required=False, allow_null=True, error_messages={
+        "invalid_image": "Die Datei ist kein gültiges Bild.",
+        "invalid": "Bitte eine Bilddatei hochladen.",
+        "empty": "Die Bilddatei ist leer."})
+
+
+class GegenstandsexemplarBearbeitenSerializer(GegenstandsexemplarAnlegenSerializer):
+    """
+    Prüft beim Bearbeiten NUR das Format. Wie beim Anlegen, aber:
+    - der Gegenstandstyp kann nicht geändert werden (Feld entfernt)
+    - mit partial=True aufgerufen: nur die geschickten Felder werden geprüft
+    """
+    gegenstand = None
+
+
+# --- Gegenstandstyp ----------------------------------------------------------
+
+class GegenstandstypSerializer(serializers.ModelSerializer):
+    """Ausgabe eines Typs (Liste, Detail, Antwort nach Anlegen/Bearbeiten).
+
+    exemplare: Liste der IDs der zugehörigen Exemplare.
+    """
+    exemplare = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    class Meta:
+        model = Gegenstandstyp
+        fields = ["id", "name", "beschreibung", "kategorie",
+                  "maximale_ausleihzeit", "exemplare"]
+        read_only_fields = fields
+
+
+class ExemplarImTypSerializer(GegenstandsexemplarAnlegenSerializer):
+    """Ein Exemplar innerhalb von POST /typen/. Der Typ entsteht erst – daher ohne `gegenstand`.
+    Ohne Bild: Bilder werden danach einzeln per PATCH /exemplare/{id}/ hochgeladen."""
+    gegenstand = None
+    bild = None
+
+
+class GegenstandstypAnlegenSerializer(serializers.Serializer):
+    """
+    Prüft beim Anlegen eines Typs NUR das Format.
+    Fachlich (Name ≤ 100 Zeichen, mindestens ein Exemplar, defekt ⇒ nicht verfügbar)
+    entscheidet die Domäne. Beschreibung ist hier optional – ob sie Pflicht ist,
+    legt die Domäne fest.
+    """
+    FEHLT = "Dieses Feld ist ein Pflichtfeld."
+
+    name = serializers.CharField(error_messages={
+        "required": FEHLT, "blank": "Bitte einen Namen angeben."})
+    beschreibung = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    kategorie = serializers.IntegerField(error_messages={
+        "required": FEHLT, "invalid": "Bitte eine gültige Kategorie-ID angeben."})
+    maximale_ausleihzeit = serializers.IntegerField(min_value=1, error_messages={
+        "required": FEHLT, "invalid": "Bitte eine ganze Zahl (Tage) angeben.",
+        "min_value": "Die maximale Ausleihzeit muss mindestens 1 Tag sein."})
+    exemplare = ExemplarImTypSerializer(many=True, error_messages={
+        "required": FEHLT, "not_a_list": "Bitte eine Liste von Exemplaren schicken."})
+
+
+class GegenstandstypBearbeitenSerializer(GegenstandstypAnlegenSerializer):
+    """
+    Wie beim Anlegen, aber ohne Exemplare (die werden einzeln bearbeitet).
+    Mit partial=True aufgerufen: nur die geschickten Felder werden geprüft.
+    """
+    exemplare = None

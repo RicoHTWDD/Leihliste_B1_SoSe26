@@ -14,8 +14,8 @@ export const verfuegbarkeiten = {
 export function neuesExemplar(quelle = {}) {
   return {
     inventarnummer: quelle?.inventarnummer ?? '',
-    zustand: quelle?.zustand ?? 'gut',
-    verfuegbarkeitsstatus: quelle?.verfuegbarkeitsstatus ?? 'verfuegbar',
+    zustand: quelle?.zustand ?? '',
+    verfuegbarkeitsstatus: quelle?.verfuegbarkeitsstatus ?? '',
   }
 }
 

@@ -375,11 +375,109 @@ class BildApiTest(MitTestdaten):
 
     def test_bild_ersetzen_und_entfernen(self):
         url = f"{self.URL}{self.e1.id}/"
-        r = self.client.patch(url, {"bild": bilddatei("neu.jpg", "JPEG")}, format="multipart")
+
+        # Erstes Bild hochladen
+        r = self.client.patch(
+            url,
+            {"bild": bilddatei("alt.jpg", "JPEG")},
+            format="multipart"
+        )
+        self.assertEqual(r.status_code, 200)
+
+        self.e1.refresh_from_db()
+        storage = self.e1.bild.storage
+        altes_bild = self.e1.bild.name
+        self.assertTrue(storage.exists(altes_bild))
+
+        # Bild ersetzen
+        with self.captureOnCommitCallbacks(execute=True):
+            r = self.client.patch(
+                url,
+                {"bild": bilddatei("neu.jpg", "JPEG")},
+                format="multipart"
+            )
+
         self.assertEqual(r.status_code, 200)
         self.assertTrue(r.json()["bild"].endswith(".jpg"))
-        r = self.client.patch(url, {"bild": None}, format="json")
+
+        self.e1.refresh_from_db()
+        neues_bild = self.e1.bild.name
+
+        self.assertNotEqual(altes_bild, neues_bild)
+        self.assertFalse(storage.exists(altes_bild))
+        self.assertTrue(storage.exists(neues_bild))
+
+        # Bild entfernen
+        with self.captureOnCommitCallbacks(execute=True):
+            r = self.client.patch(url, {"bild": None}, format="json")
+
+        self.assertEqual(r.status_code, 200)
         self.assertIsNone(r.json()["bild"])
+        self.assertFalse(storage.exists(neues_bild))
+
+
+    def test_bild_bleibt_bei_fehlgeschlagenem_speichern_erhalten(self):
+        url = f"{self.URL}{self.e1.id}/"
+
+        # Vorhandenes Bild hochladen
+        r = self.client.patch(
+            url,
+            {"bild": bilddatei("alt.jpg", "JPEG")},
+            format="multipart"
+        )
+        self.assertEqual(r.status_code, 200)
+
+        self.e1.refresh_from_db()
+        storage = self.e1.bild.storage
+        altes_bild = self.e1.bild.name
+
+        dateien_vorher = set(storage.listdir("exemplare")[1])
+
+        # Neue Bilddatei hochladen, aber gleichzeitig eine bereits
+        # vergebene Inventarnummer verwenden.
+        r = self.client.patch(
+            url,
+            {
+                "bild": bilddatei("neu.jpg", "JPEG"),
+                "inventarnummer": self.e2.inventarnummer
+            },
+            format="multipart"
+        )
+
+        self.assertEqual(r.status_code, 400)
+
+        # Altes Bild muss weiterhin vorhanden sein
+        self.e1.refresh_from_db()
+        self.assertEqual(self.e1.bild.name, altes_bild)
+        self.assertTrue(storage.exists(altes_bild))
+
+        # Das fehlgeschlagene neue Bild darf nicht übrig bleiben
+        dateien_nachher = set(storage.listdir("exemplare")[1])
+        self.assertEqual(dateien_vorher, dateien_nachher)
+
+    def test_loeschen_eines_exemplars_entfernt_auch_bilddatei(self):
+        url = f"{self.URL}{self.e1.id}/"
+
+        # Bild hochladen
+        r = self.client.patch(
+            url,
+            {"bild": bilddatei("loeschen.jpg", "JPEG")},
+            format="multipart"
+        )
+        self.assertEqual(r.status_code, 200)
+
+        self.e1.refresh_from_db()
+        storage = self.e1.bild.storage
+        bildname = self.e1.bild.name
+
+        self.assertTrue(storage.exists(bildname))
+
+        # Exemplar löschen und Commit-Callback ausführen
+        with self.captureOnCommitCallbacks(execute=True):
+            r = self.client.delete(url)
+
+        self.assertEqual(r.status_code, 204)
+        self.assertFalse(storage.exists(bildname))
 
 
 # =============================================================================

@@ -85,6 +85,15 @@ def _bild_angaben(datei):
     return (datei.name, datei.size)
 
 
+def _bild_nach_commit_loeschen(storage, dateiname):
+    """Löscht eine Bilddatei erst, wenn die Datenbankänderung abgeschlossen ist."""
+    if dateiname:
+        transaction.on_commit(
+            lambda: storage.delete(dateiname),
+            robust=True,
+        )
+
+
 def standort_laden(standort_id):
     """Lädt den ausgewählten Standort. Gibt es ihn nicht → RegelVerstoss am Feld "standort".
 
@@ -161,26 +170,50 @@ def bearbeiten(id, aenderungen):
         return None
 
     # 2. Domäne entscheidet über den Stand NACH der Änderung
-    regeln.pruefe_exemplar_bearbeiten(_bisheriger_stand(exemplar), aenderungen,
-                                          bild=_bild_angaben(aenderungen.get("bild")))
-    
+    regeln.pruefe_exemplar_bearbeiten(
+        _bisheriger_stand(exemplar),
+        aenderungen,
+        bild=_bild_angaben(aenderungen.get("bild"))
+    )
 
-    # 3. Speichern – die Datenbank sichert die eindeutige Inventarnummer ab
+    # Altes Bild merken, damit es erst nach erfolgreichem Speichern gelöscht wird
+    altes_bild = None
+    if "bild" in aenderungen and exemplar.bild:
+        altes_bild = (exemplar.bild.storage, exemplar.bild.name)
+
+    neues_bild = None
+
+    # 3. Änderungen übernehmen
     for feld, wert in aenderungen.items():
         if feld == "standort":
-            exemplar.standort = standort_laden(wert)   # ID → Standort aus der Liste
+            exemplar.standort = standort_laden(wert)
         elif feld == "bild":
-            if exemplar.bild:
-                exemplar.bild.delete(save=False)       # altes Bild löschen (nur 1 Bild erlaubt)
-            exemplar.bild = wert                       # neues Bild oder None (= Bild entfernen)
+            if wert is None:
+                exemplar.bild = None
+            else:
+                exemplar.bild.save(wert.name, wert, save=False)
+                neues_bild = (exemplar.bild.storage, exemplar.bild.name)
         elif feld in FELDER_BEARBEITEN:
             setattr(exemplar, feld, wert)
+
+    # 4. Speichern
     try:
         with transaction.atomic():
             exemplar.save()
     except IntegrityError:
+        if neues_bild:
+            neues_bild[0].delete(neues_bild[1])
         raise RegelVerstoss(feldfehler={
             "inventarnummer": ["Diese Inventarnummer ist bereits vergeben."]})
+    except Exception:
+        if neues_bild:
+            neues_bild[0].delete(neues_bild[1])
+        raise
+
+    # 5. Altes Bild erst nach erfolgreichem Datenbank-Commit löschen
+    if altes_bild:
+        _bild_nach_commit_loeschen(*altes_bild)
+
     return exemplar
 
 
@@ -215,15 +248,25 @@ def loeschen(id):
     if exemplar is None:
         return False
 
-    # 2. Typ sperren: Löschen zwei Personen gleichzeitig Exemplare desselben Typs,
-    #    wartet die zweite, bis die erste fertig ist. Sonst zählen beide "2"
-    #    und der Typ hätte am Ende kein Exemplar mehr.
+    # 2. Typ sperren
     Gegenstandstyp.objects.select_for_update().get(pk=exemplar.gegenstand_id)
 
     # 3. Domäne entscheidet: letztes Exemplar darf nicht einzeln gelöscht werden
-    anzahl = Gegenstandsexemplar.objects.filter(gegenstand_id=exemplar.gegenstand_id).count()
+    anzahl = Gegenstandsexemplar.objects.filter(
+        gegenstand_id=exemplar.gegenstand_id
+    ).count()
     regeln.pruefe_exemplar_loeschung(anzahl)
 
-    # 4. Löschen
+    # 4. Bilddatei merken
+    bild = None
+    if exemplar.bild:
+        bild = (exemplar.bild.storage, exemplar.bild.name)
+
+    # 5. Exemplar löschen
     exemplar.delete()
+
+    # 6. Bilddatei erst nach erfolgreichem Datenbank-Commit löschen
+    if bild:
+        _bild_nach_commit_loeschen(*bild)
+
     return True

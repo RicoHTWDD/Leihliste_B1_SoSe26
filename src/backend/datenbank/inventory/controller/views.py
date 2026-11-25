@@ -14,12 +14,12 @@ from inventory.controller.serializers import (
     GegenstandsexemplarUebersichtSerializer,
     GegenstandstypAnlegenSerializer,
     GegenstandstypBearbeitenSerializer,
+    GegenstandstypDetailSerializer,
     GegenstandstypSerializer,
     VerfügbareGegenstandsexemplarSerializer,
     StandortSerializer,
 )
 from inventory.service import exemplare, typen
-
 
 
 class StandortViewSet(viewsets.ReadOnlyModelViewSet):
@@ -123,6 +123,11 @@ class GegenstandstypViewSet(viewsets.ReadOnlyModelViewSet):
     """
 
     serializer_class = GegenstandstypSerializer
+
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return GegenstandstypDetailSerializer
+        return GegenstandstypSerializer
 
     def get_queryset(self):
         return typen.alle_lesen()

@@ -223,6 +223,10 @@ class TypApiTest(MitTestdaten):
         self.assertEqual(self.client.get(self.URL).status_code, 200)
         r = self.client.get(f"{self.URL}{self.typ.id}/")
         self.assertEqual(r.json()["exemplare"], [self.e1.id, self.e2.id])
+        self.assertCountEqual(
+            [(eintrag["id"], eintrag["inventarnummer"]) for eintrag in r.json()["exemplare_details"]],
+            [(self.e1.id, "INV-1"), (self.e2.id, "INV-2")]
+        )
 
     def test_anlegen_201(self):
         r = self.client.post(self.URL, self.typ_daten(), format="json")

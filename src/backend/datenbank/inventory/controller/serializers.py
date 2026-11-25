@@ -237,6 +237,21 @@ class GegenstandstypSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class ExemplarInventarnummerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gegenstandsexemplar
+        fields = ["id", "inventarnummer"]
+        read_only_fields = fields
+
+
+class GegenstandstypDetailSerializer(GegenstandstypSerializer):
+    exemplare_details = ExemplarInventarnummerSerializer(source="exemplare", many=True, read_only=True)
+
+    class Meta(GegenstandstypSerializer.Meta):
+        fields = GegenstandstypSerializer.Meta.fields + ["exemplare_details"]
+        read_only_fields = fields
+
+
 class ExemplarImTypSerializer(GegenstandsexemplarAnlegenSerializer):
     """Ein Exemplar innerhalb von POST /typen/. Der Typ entsteht erst – daher ohne `gegenstand`.
     Ohne Bild: Bilder werden danach einzeln per PATCH /exemplare/{id}/ hochgeladen."""

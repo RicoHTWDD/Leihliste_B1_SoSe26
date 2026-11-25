@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Box, Button, CircularProgress, Paper, Stack, Typography } from '@mui/material'
+import { Box, Button, CircularProgress, Pagination, Paper, Stack, Typography } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ErrorMessage from '../components/ui/ErrorMessage.jsx'
 import { apiRequest } from '../utils/inventarApi.js'
@@ -16,6 +16,7 @@ export default function GegenstandstypDetail({
   const [typ, setTyp] = useState(null)
   const [fehler, setFehler] = useState('')
   const [beispiel, setBeispiel] = useState(null)
+  const [exemplarSeite, setExemplarSeite] = useState(1)
 
   const ausgewaehltesExemplarId = exemplar?.id
 
@@ -25,7 +26,7 @@ export default function GegenstandstypDetail({
       .then(async (daten) => {
         if (controller.signal.aborted) return
         setTyp(daten)
-        // Im aktuellen API enthält der Typ nur IDs. Ein Exemplar liefert die Namen.
+        // Die Kategoriebezeichnung kommt aus der Detailansicht eines Exemplars.
         const exemplarId = daten.exemplare.includes(ausgewaehltesExemplarId) ? ausgewaehltesExemplarId : daten.exemplare[0]
         if (!exemplarId) return
         try {
@@ -43,6 +44,10 @@ export default function GegenstandstypDetail({
     return () => controller.abort()
   }, [typId, ausgewaehltesExemplarId])
 
+  const exemplarListe = typ?.exemplare_details ?? typ?.exemplare?.map((id) => ({ id })) ?? []
+  const exemplarSeiten = Math.ceil(exemplarListe.length / 10)
+  const angezeigteExemplare = exemplarListe.slice((exemplarSeite - 1) * 10, exemplarSeite * 10)
+
   return (
     <Paper variant="outlined" sx={{ p: 3 }}>
       <Button startIcon={<ArrowBackIcon />} onClick={onBack} sx={{ mb: 2 }}>Zurück</Button>
@@ -59,14 +64,18 @@ export default function GegenstandstypDetail({
           <Box>
             <Typography variant="h6" component="h2">Exemplare</Typography>
             <Box component="ul" sx={{ m: 0, pl: 3 }}>
-              {typ.exemplare.map((id) => (
+              {angezeigteExemplare.map(({ id, inventarnummer }) => (
                 <li key={id}>
                   <Button onClick={() => onExemplarAnzeigen(id)}>
-                    {beispiel?.id === id ? beispiel.inventarnummer : 'Exemplar #' + id}
+                    {inventarnummer ?? 'Exemplar #' + id}
                   </Button>
                 </li>
               ))}
             </Box>
+            {exemplarSeiten > 1 && (
+              <Pagination count={exemplarSeiten} page={exemplarSeite}
+                onChange={(_, seite) => setExemplarSeite(seite)} size="small" />
+            )}
           </Box>
           {canManageInventory && (
             <Stack direction="row" spacing={1}>

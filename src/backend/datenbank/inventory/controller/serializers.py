@@ -171,9 +171,10 @@ class GegenstandsexemplarDetailSerializer(GegenstandsexemplarUebersichtSerialize
     in lending/models.py implementiert ist
     """
     rückgabedatum = serializers.SerializerMethodField(read_only=True)
+    standort_id = serializers.IntegerField(read_only=True, allow_null=True)
 
     class Meta(GegenstandsexemplarUebersichtSerializer.Meta):
-        fields = GegenstandsexemplarUebersichtSerializer.Meta.fields + ['bild', 'rückgabedatum']
+        fields = GegenstandsexemplarUebersichtSerializer.Meta.fields + ['bild', 'rückgabedatum', 'standort_id']
         read_only_fields = fields
 
     def get_rückgabedatum(self, obj):

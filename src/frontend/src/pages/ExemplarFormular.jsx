@@ -13,7 +13,7 @@ export default function ExemplarFormular({ initialData = null, onAbbrechen, onSa
   const bearbeiten = initialData !== null
   const [werte, setWerte] = useState(() => neuesExemplar(initialData))
   const [bild, setBild] = useState(undefined)
-  const [standort, setStandort] = useState('')
+  const [standort, setStandort] = useState(initialData?.standort_id ?? '')
   const [typId, setTypId] = useState(initialData?.gegenstandstyp ?? '')
   const [typen, setTypen] = useState(null)
   const [ladefehler, setLadefehler] = useState('')
@@ -68,7 +68,7 @@ export default function ExemplarFormular({ initialData = null, onAbbrechen, onSa
   function zuruecksetzen() {
     setWerte(neuesExemplar(initialData))
     setBild(undefined)
-    setStandort('')
+    setStandort(initialData?.standort_id ?? '')
     setTypId(initialData?.gegenstandstyp ?? '')
     setGeprueft(false)
     setServerfehler({})

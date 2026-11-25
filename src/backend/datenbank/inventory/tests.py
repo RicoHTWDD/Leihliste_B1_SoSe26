@@ -286,6 +286,7 @@ class StandortAmExemplarApiTest(MitTestdaten):
     def test_ausgabe_zeigt_standort_des_exemplars(self):
         r = self.client.get(f"{self.URL}{self.e1.id}/")
         self.assertEqual(r.json()["standort"], "Raum Z 101")
+        self.assertEqual(r.json()["standort_id"], self.standort.id)
 
     def test_anlegen_ohne_standort_400(self):
         daten = exemplar(gegenstand=self.typ.id, inventarnummer="INV-3")
@@ -304,6 +305,7 @@ class StandortAmExemplarApiTest(MitTestdaten):
         lager = Standort.objects.create(organisation=self.org, name="Lager")
         r = self.client.patch(f"{self.URL}{self.e1.id}/", {"standort": lager.id}, format="json")
         self.assertEqual(r.json()["standort"], "Lager")
+        self.assertEqual(r.json()["standort_id"], lager.id)
         self.e2.refresh_from_db()
         self.assertEqual(self.e2.standort, self.standort)           # anderes Exemplar unverändert
 

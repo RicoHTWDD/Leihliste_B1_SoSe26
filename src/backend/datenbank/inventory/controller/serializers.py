@@ -1,5 +1,14 @@
 from rest_framework import serializers
-from inventory.infrastruktur.models import Gegenstandsexemplar, Gegenstandstyp, Verfuegbarkeitsstatus, Zustand
+from inventory.infrastruktur.models import Gegenstandsexemplar, Gegenstandstyp, Standort, Verfuegbarkeitsstatus, Zustand
+
+
+
+class StandortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Standort
+        fields = ["id", "name"]
+        read_only_fields = fields
+
 
 
 class VerfügbareGegenstandsexemplarSerializer(serializers.ModelSerializer):
@@ -8,43 +17,43 @@ class VerfügbareGegenstandsexemplarSerializer(serializers.ModelSerializer):
     WICHTIG: Standort und Kategorie werden vom Gegenstandstyp abgeleitet!
     Datenmodell:
     Gegenstandsexemplar → Gegenstandstyp → Standort
-                                      → Kategorie    
+                                      → Kategorie
     Enthält: Name, Zustand, Inventarnummer, Gegenstandstyp, Standort, Kategorie
     """
-    
+
     # === Vom Gegenstandstyp abgeleitete Felder ===
-    
+
     # Name des Gegenstandstyps
     name = serializers.CharField(
         source='gegenstand.name',  # ← Von Gegenstandstyp
         read_only=True
     )
-    
+
     # Standort des Exemplars
     standort = serializers.CharField(
         source='standort.name',  # ← Von Gegenstandsexemplar.Standort
         read_only=True,
         default='Nicht zugewiesen'
     )
-    
+
     # Kategorie des Gegenstandstyps
     kategorie = serializers.CharField(
         source='gegenstand.kategorie.name',  # ← Von Gegenstandstyp.Kategorie
         read_only=True,
         default='Nicht kategorisiert'
     )
-    
+
     # Gegenstandstyp-ID
     gegenstandstyp = serializers.IntegerField(
         source='gegenstand.id',  # ← Gegenstandstyp-ID
         read_only=True
     )
-    
+
     # === Eigene Felder des Gegenstandsexemplars ===
-    
+
     # Zustand (Display-Wert)
     zustand_display = serializers.SerializerMethodField(read_only=True)
-    
+
     class Meta:
         model = Gegenstandsexemplar
         fields = [
@@ -58,7 +67,7 @@ class VerfügbareGegenstandsexemplarSerializer(serializers.ModelSerializer):
             'kategorie',           # Von Gegenstandstyp.Kategorie
         ]
         read_only_fields = fields
-    
+
     def get_zustand_display(self, obj):
         """Gibt den lesbaren Zustands-Namen zurück"""
         return obj.get_zustand_display()
@@ -67,87 +76,87 @@ class VerfügbareGegenstandsexemplarSerializer(serializers.ModelSerializer):
 class GegenstandsexemplarUebersichtSerializer(serializers.ModelSerializer):
     """
     Serializer für Gegenstandsexemplare-Übersicht (ALLE Exemplare)
-    
+
     WICHTIG: Standort und Kategorie werden vom Gegenstandstyp abgeleitet!
-    
+
     Datenmodell:
     Gegenstandsexemplar → Gegenstandstyp → Standort
                                       → Kategorie
-    
-    Enthält: Name, Verfügbarkeitsstatus, Zustand, Inventarnummer, 
+
+    Enthält: Name, Verfügbarkeitsstatus, Zustand, Inventarnummer,
              Gegenstandstyp, Standort, Kategorie
     """
-    
+
     # === Vom Gegenstandstyp abgeleitete Felder ===
-    
+
     # Name des Gegenstandstyps
     name = serializers.CharField(
         source='gegenstand.name',
         read_only=True
     )
-    
+
     # Standort des Exemplars
     standort = serializers.CharField(
         source='standort.name',
         read_only=True,
         default='Nicht zugewiesen'
     )
-    
+
     # Kategorie des Gegenstandstyps
     kategorie = serializers.CharField(
         source='gegenstand.kategorie.name',
         read_only=True,
         default='Nicht kategorisiert'
     )
-    
+
     # Gegenstandstyp-ID
     gegenstandstyp = serializers.IntegerField(
         source='gegenstand.id',
         read_only=True
     )
-    
+
     # === Eigene Felder des Gegenstandsexemplars ===
-    
+
     # Verfügbarkeitsstatus (Display-Wert)
     verfuegbarkeitsstatus_display = serializers.SerializerMethodField(read_only=True)
-    
+
     # Zustand (Display-Wert)
     zustand_display = serializers.SerializerMethodField(read_only=True)
-    
+
  #   # Hilfsfeld für Verfügbarkeit (Boolean)
 #   ist_verfuegbar = serializers.SerializerMethodField(read_only=True)
-    
+
     class Meta:
         model = Gegenstandsexemplar
         fields = [
             # Basis-Informationen
             'id',
             'inventarnummer',
-            
+
             # Vom Gegenstandstyp abgeleitet
             'name',
             'gegenstandstyp',
             'standort',
             'kategorie',
-            
+
             # Status-Informationen
             'verfuegbarkeitsstatus',
             'verfuegbarkeitsstatus_display',
             'zustand',
             'zustand_display',
-            
+
             # Metadaten
             'erstellt_am',
             'aktualisiert_am'
         ]
         read_only_fields = fields
-    
+
     # === Helper Methods ===
-    
+
     def get_verfuegbarkeitsstatus_display(self, obj):
         """Gibt den lesbaren Verfügbarkeitsstatus zurück"""
         return obj.get_verfuegbarkeitsstatus_display()
-    
+
     def get_zustand_display(self, obj):
         """Gibt den lesbaren Zustands-Namen zurück"""
         return obj.get_zustand_display()

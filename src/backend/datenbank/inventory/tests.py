@@ -264,6 +264,21 @@ class StandortAmExemplarApiTest(MitTestdaten):
     """Standort gehört zum Exemplar (PO in #47) und wird aus der Liste gewählt."""
     URL = "/api/inventory/exemplare/"
 
+
+    def test_standort_liste_liefert_id_und_name(self):
+        lager = Standort.objects.create(organisation=self.org, name="Lager")
+
+        response = self.client.get("/api/inventory/standorte/")
+
+        self.assertEqual(response.status_code, 200)
+
+        standorte = response.json()["results"]
+
+        self.assertEqual(
+            [(eintrag["id"], eintrag["name"]) for eintrag in standorte],
+            [(lager.id, "Lager"), (self.standort.id, "Raum Z 101")]
+    )
+
     def test_ausgabe_zeigt_standort_des_exemplars(self):
         r = self.client.get(f"{self.URL}{self.e1.id}/")
         self.assertEqual(r.json()["standort"], "Raum Z 101")

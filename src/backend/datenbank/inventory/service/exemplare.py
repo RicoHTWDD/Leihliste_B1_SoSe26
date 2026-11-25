@@ -70,6 +70,11 @@ def verfuegbare_lesen():
     """Nur Exemplare, die gerade verfügbar sind (gleiche Sortierung)."""
     return _nur_verfuegbare(alle_lesen())
 
+
+def standorte_lesen():
+    """Alle Standorte, alphabetisch nach Namen sortiert."""
+    return Standort.objects.order_by("name")
+
 # Hilfsfunktionen ---------------------------------------------------------
 
 def _bild_angaben(datei):

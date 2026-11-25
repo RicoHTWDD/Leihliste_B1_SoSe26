@@ -16,8 +16,19 @@ from inventory.controller.serializers import (
     GegenstandstypBearbeitenSerializer,
     GegenstandstypSerializer,
     VerfügbareGegenstandsexemplarSerializer,
+    StandortSerializer,
 )
 from inventory.service import exemplare, typen
+
+
+
+class StandortViewSet(viewsets.ReadOnlyModelViewSet):
+    """GET /api/inventory/standorte/ – alle Standorte"""
+
+    serializer_class = StandortSerializer
+
+    def get_queryset(self):
+        return exemplare.standorte_lesen()
 
 
 class VerfügbareGegenstandsexemplarViewSet(viewsets.ReadOnlyModelViewSet):

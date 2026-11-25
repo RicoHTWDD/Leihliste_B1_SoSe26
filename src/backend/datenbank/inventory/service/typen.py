@@ -56,6 +56,16 @@ def _kategorie_laden(daten):
         raise RegelVerstoss(feldfehler={"kategorie": ["Diese Kategorie existiert nicht."]})
     return kategorie
 
+#neu in #47
+
+def _kategorie_organisation_pruefen(kategorie, organisation_id):
+    fehler = regeln.pruefe_kategorie_organisation(
+        kategorie.organisation_id,
+        organisation_id,
+    )
+    if fehler:
+        raise RegelVerstoss(feldfehler=fehler)
+
 
 # --- Anlegen -----------------------------------------------------------------
 
@@ -78,6 +88,22 @@ def anlegen(daten):
             standorte.append(standort_laden(exemplar["standort"]))
         except RegelVerstoss as verstoss:
             raise RegelVerstoss(feldfehler={"exemplare": {nr: verstoss.feldfehler}})
+        
+    # Die Organisation des Typs ergibt sich derzeit aus dem ersten Standort.
+    organisation_id = standorte[0].organisation_id
+
+    # Ein Typ darf keine Exemplare verschiedener Organisationen enthalten.
+    if any(s.organisation_id != organisation_id for s in standorte):
+        raise RegelVerstoss(
+            feldfehler={
+                "exemplare": [
+                    "Alle Standorte müssen zur selben Organisation gehören."
+                ]
+            }
+        )
+
+    # Kategorie und Gegenstandstyp müssen derselben Organisation angehören.
+    _kategorie_organisation_pruefen(kategorie, organisation_id)
 
     # 3. Typ speichern. Die Organisation kommt vom Standort des ersten Exemplars,
     #    solange es noch keine Anmeldung gibt.
@@ -120,11 +146,16 @@ def bearbeiten(id, aenderungen):
     if typ is None:
         return None
 
-    # 2. Domäne entscheidet (Pflichtfelder nicht leeren, Name ≤ 100)
+    # 2. Vorhandene Eingaberegeln prüfen
     regeln.pruefe_typ_bearbeiten(aenderungen)
 
-    # 3. Kategorie laden, falls geändert
+    # 3. Effektive Kategorie bestimmen: neue, falls geändert, sonst bestehende
     kategorie = _kategorie_laden(aenderungen)
+    if kategorie is None:
+        kategorie = typ.kategorie
+
+    # Die Organisation des Typs wird in diesem Service nicht geändert.
+    _kategorie_organisation_pruefen(kategorie, typ.organisation_id)
 
     # 4. Speichern
     for feld in FELDER_BEARBEITEN:
@@ -140,9 +171,13 @@ def bearbeiten(id, aenderungen):
 
 # --- Nur prüfen (für das Admin-Formular) --------------------------------------
 
-def bearbeiten_pruefen(aenderungen):
-    """Wirft RegelVerstoss, wenn diese Änderung nicht erlaubt ist."""
+def bearbeiten_pruefen(aenderungen, *, organisation_id, aktuelle_kategorie_id):
     regeln.pruefe_typ_bearbeiten(aenderungen)
+
+    kategorie = _kategorie_laden({
+        "kategorie": aenderungen.get("kategorie", aktuelle_kategorie_id)
+    })
+    _kategorie_organisation_pruefen(kategorie, organisation_id)
 
 
 # --- Löschen -----------------------------------------------------------------

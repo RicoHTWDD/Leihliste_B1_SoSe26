@@ -161,21 +161,38 @@ def pruefe_typ_anlegen(daten):
 
     exemplare = daten.get("exemplare") or []
     if not exemplare:
-        fehler["exemplare"] = ["Ein Gegenstandstyp braucht mindestens ein Exemplar."]
+        fehler["exemplare"] = [
+            "Ein Gegenstandstyp braucht mindestens ein Exemplar."
+        ]
+
     for nr, exemplar in enumerate(exemplare):
         exemplar_fehler = pruefe_pflichtfelder(
-            exemplar, {k: v for k, v in PFLICHTFELDER_EXEMPLAR.items() if k != "gegenstand"})
+            exemplar,
+            {
+                k: v
+                for k, v in PFLICHTFELDER_EXEMPLAR.items()
+                if k != "gegenstand"
+            },
+        )
         exemplar_fehler.update(pruefe_zustand_verfuegbarkeit(
-            exemplar.get("zustand"), exemplar.get("verfuegbarkeitsstatus")))
+            exemplar.get("zustand"),
+            exemplar.get("verfuegbarkeitsstatus"),
+        ))
         if exemplar_fehler:
             fehler.setdefault("exemplare", {})[nr] = exemplar_fehler
+
     _werfen_wenn_fehler(fehler)
 
-
 def pruefe_typ_bearbeiten(aenderungen):
-    """Regeln beim Bearbeiten eines Gegenstandstyps (ohne Exemplare)."""
+    """Regeln beim Bearbeiten eines Gegenstandstyps."""
     fehler = pruefe_pflichtfelder(
-        aenderungen, {k: v for k, v in PFLICHTFELDER_TYP.items() if k in aenderungen})
+        aenderungen,
+        {
+            k: v
+            for k, v in PFLICHTFELDER_TYP.items()
+            if k in aenderungen
+        },
+    )
     fehler.update(pruefe_name(aenderungen.get("name")))
     _werfen_wenn_fehler(fehler)
 
@@ -198,3 +215,13 @@ def pruefe_typ_loeschung(anzahl_ausleihanfragen):
             meldung=f"Zu diesem Gegenstandstyp gibt es {anzahl_ausleihanfragen} "
                     "Ausleihanfrage(n). Er kann nicht gelöscht werden.",
         )
+
+def pruefe_kategorie_organisation(kategorie_organisation_id, gegenstand_organisation_id):
+    """Prüft, ob die Kategorie zur Organisation des Gegenstandstyps gehört."""
+    if kategorie_organisation_id != gegenstand_organisation_id:
+        return {
+            "kategorie": [
+                "Die Kategorie gehört nicht zu dieser Organisation."
+            ]
+        }
+    return {}

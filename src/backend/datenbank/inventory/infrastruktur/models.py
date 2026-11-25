@@ -19,9 +19,17 @@ class Verfuegbarkeitsstatus(models.TextChoices):
 
 
 class Kategorie(models.Model):
-    name = models.CharField(max_length=255)
-    # Beschreibung ist optional
-    beschreibung = models.CharField(max_length=500, null=True, blank=True)
+    # Jede Kategorie gehört zu einer Organisation
+    organisation = models.ForeignKey(
+        'organisations.Organisation',
+        on_delete=models.CASCADE,
+        related_name='kategorien',
+        null=True,
+        blank=True,
+    )
+    name = models.CharField(max_length=100)
+    # Beschreibung ist nicht optional
+    beschreibung = models.CharField(max_length=500)
     is_seed = models.BooleanField(default=False)
     seed_key = models.CharField(
         max_length=100,
@@ -30,9 +38,24 @@ class Kategorie(models.Model):
         blank=True,
         help_text="Eindeutiger Schlüssel für vom Projekt verwaltete Seed-Daten."
     )
+    is_archiviert = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'kategorie'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['organisation', 'name'],
+                name='uniq_kategorie_org_name',
+            ),
+            models.CheckConstraint(
+                condition=~models.Q(name=''),
+                name='kategorie_name_not_empty',
+            ),
+            models.CheckConstraint(
+                condition=~models.Q(beschreibung=''),
+                name='kategorie_beschreibung_not_empty',
+            ),
+        ]
 
     def __str__(self):
         return self.name
@@ -43,11 +66,11 @@ class Standort(models.Model):
     organisation = models.ForeignKey(
         'organisations.Organisation',
         on_delete=models.CASCADE,
-        related_name='standorte'
+        related_name='standorte',
     )
-    name = models.CharField(max_length=255)
-    # Beschreibung ist optional
-    beschreibung = models.CharField(max_length=500, null=True, blank=True)
+    name = models.CharField(max_length=100)
+    # Beschreibung ist nicht optional
+    beschreibung = models.CharField(max_length=500)
     is_seed = models.BooleanField(default=False)
     seed_key = models.CharField(
         max_length=100,
@@ -56,9 +79,24 @@ class Standort(models.Model):
         blank=True,
         help_text="Eindeutiger Schlüssel für vom Projekt verwaltete Seed-Daten."
     )
+    is_archiviert = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'standort'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['organisation', 'name'],
+                name='uniq_standort_org_name',
+            ),
+            models.CheckConstraint(
+                condition=~models.Q(name=''),
+                name='standort_name_not_empty',
+            ),
+            models.CheckConstraint(
+                condition=~models.Q(beschreibung=''),
+                name='standort_beschreibung_not_empty',
+            ),
+        ]
 
     def __str__(self):
         return self.name
@@ -69,13 +107,12 @@ class Gegenstandstyp(models.Model):
     organisation = models.ForeignKey(
         'organisations.Organisation',
         on_delete=models.CASCADE,
-        related_name='gegenstandstypen'
+        related_name='gegenstandstypen',
     )
     # Kategorie z.B. "Elektronik"
     kategorie = models.ForeignKey(
         Kategorie,
-        on_delete=models.SET_NULL,
-        null=True,
+        on_delete=models.PROTECT,
         related_name='gegenstandstypen'
     )
  # # Akzeptanzkriterium #33: Name höchstens 100 Zeichen
@@ -116,8 +153,9 @@ class Gegenstandsexemplar(models.Model):
     standort = models.ForeignKey(
         Standort,
         on_delete=models.PROTECT,
+        related_name='exemplare',
         null=True,
-        related_name='exemplare'
+        blank=True,
     )
     # Datei liegt in media/exemplare/, in der DB nur der Pfad.
     bild = models.ImageField(upload_to='exemplare/', null=True, blank=True)

@@ -78,3 +78,42 @@
 * *Reduzierung des Funktionsumfangs:*
   ** Da wir im Team nun weniger Personen sind, sind wir zu dem Schluss gekommen, insgesamt weniger Features umzusetzen und uns stattdessen auf die grundlegenden Kernfunktionen zu konzentrieren.
   ** Die konkrete Abstimmung und Priorisierung dazu mit dem Product Owner (Justin) steht noch aus.
+
+  == Meeting 19.11.2026
+:id: meeting19112026
+
+*Datum:* 19.11.2026  
+*Dauer:* 50 min
+*Teilnehmende:* Til, Jevan, Lidia, Justin
+
+=== Agenda
+
+. *Kurzer Rückblick & Reflexion (5–10 min)*
+  ** Gab es in der letzten Woche Probleme oder Blocker?
+
+. *Offene Entscheidungen vom 13.11.2026 (20 min)*
+  ** *Reduzierung des Funktionsumfangs (Scope)*
+  ** *Backend-Umstrukturierung (Vorschlag Prof. Anke):* Gemeinsame Entscheidung im gesamten Team, wann der Umbau stattfindet und ob er stattfindet (z. B. nach Sprint 4).
+  ** *Nächster Fachaustausch:* Festlegen, welche zwei anderen Teammitglieder die nächste Vorstellung übernehmen.
+
+. *Stand Sprint 4 & Aufgaben für nächste Woche (15 min)*
+  ** Aktueller Fortschritt bei den laufenden Issues (#24, #33, #34, #47).
+  ** Aufgabenverteilung für die kommende Woche (inkl. offener Punkte durch Ricos Weggang, falls noch nicht geklärt).
+
+. *Organisatorisches & Sonstiges (10 min)*
+  ** *Optional / Ausblick:* Fachaustausch 2
+
+=== Beschlüsse & Ergebnisse
+
+* *Reduzierung des Funktionsumfangs:*
+  ** Wir sind zu dem Entschluss gekommen, dass wir das Scope verkleinern und uns auf die unterschiedlichen Methodiken konzentrieren.
+
+* *Aufgabenverteilung:*
+  ** *Jevan, Lidia und Julius* implementieren *Issue #47* zu Ende, und wenn noch Kapazitäten übrig sind, wird auch *Issue #24* fertiggestellt. Zudem werden Aufgabe 7 & 8 aus dem Sprint4_Planing bearbeitet.
+
+* *Struktur nächster Sprint:*
+  ** 1. Woche: Design-Impact-Analyse
+  ** 2. Woche: Testing 
+  ** 3. Woche: Implementierung
+  ** 4. Woche: Implementierung
+  ** Offene Fragen: Ist die Design-Impact-Analyse in der 1. Woche sinnvoll? Sollten wir lieber dafür 2 Wochen Zeit haben für das Testing?

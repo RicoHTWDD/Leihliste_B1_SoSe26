@@ -1,0 +1,58 @@
+:toc: left
+
+= Sprint Planning — Sprint 5
+
+:doctype: article
+:toc: left
+
+== 1. Ausgewählte User Stories & Sprint-Fokus
+
+* **Sprint-Ziel:** 
+  Nutzer können einen Nutzeraccount erstellen, bearbeiten und ihre Historie einsehen.
+* **Ausgewählte User Stories (GitHub):**
+  - Issue #14 : 
+  - Issue #15 :          
+  - Issue #16 :         
+  - Issue #17 : 
+  - Issue #41 : 
+  - Issue #44 :                   
+
+---
+
+== 2. Aufgabenstruktur nach Wochen
+
+=== Woche 1: Planung & Testkonzept
+* **Aufgabe 1: User Stories & Sprint-Board einrichten**
+  - Auswählen der Stories und Erfassen im GitHub Project Board[cite: 7].
+  - *Verantwortlich:* [PO]
+* **Aufgabe 2: Testkonzepte erstellen**
+  - Untersuchen der geplanten Änderungen anhand der 6 Gestaltungsaspekte (Zustand, Verhalten, Kopplung, Kohäsion, Variabilität, Repräsentation)[cite: 7, 8].
+  - *Verantwortlich:* [Devs]
+* **Aufgabe 3: Strukturen & Modelle prüfen**
+  - Statische/dynamische Modelle sichten oder skizzieren[cite: 7].
+  - *Verantwortlich:* [Devs]
+
+=== Woche 2: Tests
+* **Aufgabe 4: Erstellen von Tests**
+  - Erstellung von Modul- und Integrationstest mittels UnitTest[cite: 9].
+  - Bei größeren Strukturänderungen: Mindestens zwei Alternativen vergleichen[cite: 9].
+  - *Verantwortlich:* [Devs]
+
+=== Woche 3 & 4: Integration, Dokumentation & Abschluss
+* **Aufgabe 5: Produktinkrement in kleinen Schritten umsetzen**
+  - Implementierung in Feature-Branches, Einhaltung von Akzeptanzkriterien und Definition of Done[cite: 9].
+  - Nutzung von Pull Requests und Code Reviews (2er-Review-Regel beachten)[cite: 9].
+  - Durchführung begründeter Refactorings (Patterns nur bei echtem Problem einsetzen)[cite: 9].
+  - *Verantwortlich:* [Devs]
+* **Aufgabe 6: Technische Schulden festhalten**
+  - Offene technische Probleme dokumentieren und begründen, welche bewusst als technische Schuld aufgeschoben werden[cite: 9].
+  - *Verantwortlich:* [Devs & Techlead]
+* **Aufgabe 7: Sprint Review vorbereiten**
+  - Ergebnisse (Produktinkrement, Design-Impact, Refactorings, offene Schulden) für die Präsentation zusammenstellen[cite: 10].
+  - *Verantwortlich:* [PO]
+
+---
+
+== 3. Offene Entscheidungen & Team-Notizen
+[Hier Platz für spontane Notizen, offene Fragen oder teaminterne Absprachen während des Plannings]
+

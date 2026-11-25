@@ -1,26 +1,8 @@
-from django.contrib import admin
-from .models import Kategorie, Standort, Gegenstandstyp, Gegenstandsexemplar
+"""
+Weiterleitung – bitte hier KEINE Admin-Klassen schreiben.
 
-# admin.site.register(Kategorie)
-@admin.register(Kategorie)
-class KategorieAdmin(admin.ModelAdmin):
-    list_display = ['name']
-
-# admin.site.register(Standort)
-@admin.register(Standort)
-class StandortAdmin(admin.ModelAdmin):
-    list_display = ['name', 'organisation']
-
-# admin.site.register(Gegenstandstyp)
-@admin.register(Gegenstandsexemplar)
-class GegenstandsexemplarAdmin(admin.ModelAdmin):
-    list_display = ['inventarnummer', 'gegenstand', 'verfuegbarkeitsstatus', 'zustand']
-    list_filter = ['verfuegbarkeitsstatus', 'zustand']
-    search_fields = ['inventarnummer']
-
-# admin.site.register(Gegenstandsexemplar)
-@admin.register(Gegenstandstyp)
-class GegenstandstypAdmin(admin.ModelAdmin):
-    list_display = ['name', 'kategorie', 'standort']
-
-
+Django lädt die Admin-Registrierung immer aus `inventory/admin.py`.
+Die echten Admin-Klassen liegen in der Schicht Controller: `controller/admin.py`.
+Ohne diese Weiterleitung wären die Inventar-Seiten im Django-Admin verschwunden.
+"""
+from .controller import admin  # noqa: F401

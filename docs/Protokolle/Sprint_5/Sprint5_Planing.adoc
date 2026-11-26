@@ -10,12 +10,12 @@
 * **Sprint-Ziel:** 
   Nutzer können einen Nutzeraccount erstellen, bearbeiten und ihre Historie einsehen.
 * **Ausgewählte User Stories (GitHub):**
-  - Issue #14 : 
-  - Issue #15 :          
-  - Issue #16 :         
-  - Issue #17 : 
-  - Issue #41 : 
-  - Issue #44 :                   
+  - Issue #14 : Registrierung eines Nutzers
+  - Issue #15 : Verifizierung eines Nutzers
+  - Issue #16 : Login eines Nutzers
+  - Issue #17 : Passwort zurücksetzen
+  - Issue #41 : Persönliche Ausleihhistorie anzeigen
+  - Issue #44 : Profilinformationen bearbeiten
 
 ---
 
@@ -26,17 +26,16 @@
   - Auswählen der Stories und Erfassen im GitHub Project Board[cite: 7].
   - *Verantwortlich:* [PO]
 * **Aufgabe 2: Testkonzepte erstellen**
-  - Untersuchen der geplanten Änderungen anhand der 6 Gestaltungsaspekte (Zustand, Verhalten, Kopplung, Kohäsion, Variabilität, Repräsentation)[cite: 7, 8].
-  - *Verantwortlich:* [Devs]
+  - Erstellung eines Testkonzepts nach Vorlage aus dem Praktikum zu eigen gewählten Risiken[cite: 7, 8].
+  - *Verantwortlich:* [Alle]
 * **Aufgabe 3: Strukturen & Modelle prüfen**
-  - Statische/dynamische Modelle sichten oder skizzieren[cite: 7].
-  - *Verantwortlich:* [Devs]
+  - Statische/dynamische Modelle skizzieren[cite: 7].
+  - *Verantwortlich:* [Alle]
 
 === Woche 2: Tests
 * **Aufgabe 4: Erstellen von Tests**
   - Erstellung von Modul- und Integrationstest mittels UnitTest[cite: 9].
-  - Bei größeren Strukturänderungen: Mindestens zwei Alternativen vergleichen[cite: 9].
-  - *Verantwortlich:* [Devs]
+  - *Verantwortlich:* [Alle]
 
 === Woche 3 & 4: Integration, Dokumentation & Abschluss
 * **Aufgabe 5: Produktinkrement in kleinen Schritten umsetzen**
@@ -60,5 +59,10 @@
   - *Variante 2:* User wählen in der Registrierung ihre Rolle aus und melden sich für diese an.
       - Frage: Wie und wo findet die Zuteilung zu einer Organisation statt?
   - *Variante 3:* User registrieren sich standardmäßig als Ausleiher und melden sich dann bei einer Organisation als Verleiher an.
+  - *Entscheidung:* Gewählt wurde Variante 2 mit der Zuteilung zu einer Organisation über eine Art Einladungslink, bei dem sich der Verleiher nur bei dieser Organisation registriert.
 * **Für was sollen Testkonzepte erstellt werden?**
   - *Problem:* Es ist nicht sinnvoll für jede User Story ein Konzept zuerstellen, da sie alle sehr nah miteinander verbunden sind.
+  - *Entscheidung:* Jeder entscheidet selbst, zu was er/sie ein Testkonzept erstellt. Das "Thema" soll zudem über Discord den anderen mitgeteilt werden, sodass keine Überschneidungen entstehen.
+* **Weitere Entscheidungen:**
+  - *Erstellung von Organisationen:* Wir haben uns dazu entschieden, die Erstellung von Organisation und die Verteilung von Zugriffsrechten in diesem Sprint noch nicht zu beachten, da wir uns mehr auf Testing konzentrieren wollen.
+

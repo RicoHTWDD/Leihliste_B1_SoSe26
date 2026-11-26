@@ -48,11 +48,17 @@
   - Offene technische Probleme dokumentieren und begründen, welche bewusst als technische Schuld aufgeschoben werden[cite: 9].
   - *Verantwortlich:* [Devs & Techlead]
 * **Aufgabe 7: Sprint Review vorbereiten**
-  - Ergebnisse (Produktinkrement, Design-Impact, Refactorings, offene Schulden) für die Präsentation zusammenstellen[cite: 10].
+  - Ergebnisse (Produktinkrement, Refactorings, offene Schulden) für die Präsentation zusammenstellen[cite: 10].
   - *Verantwortlich:* [PO]
 
 ---
 
 == 3. Offene Entscheidungen & Team-Notizen
 [Hier Platz für spontane Notizen, offene Fragen oder teaminterne Absprachen während des Plannings]
-
+* **Wie werden Rollen zugewiesen?**
+  - *Variante 1:* Ein Admin teilt sie zu.
+  - *Variante 2:* User wählen in der Registrierung ihre Rolle aus und melden sich für diese an.
+      - Frage: Wie und wo findet die Zuteilung zu einer Organisation statt?
+  - *Variante 3:* User registrieren sich standardmäßig als Ausleiher und melden sich dann bei einer Organisation als Verleiher an.
+* **Für was sollen Testkonzepte erstellt werden?**
+  - *Problem:* Es ist nicht sinnvoll für jede User Story ein Konzept zuerstellen, da sie alle sehr nah miteinander verbunden sind.

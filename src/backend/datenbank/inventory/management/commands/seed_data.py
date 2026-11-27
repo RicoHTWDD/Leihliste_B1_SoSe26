@@ -1,4 +1,3 @@
-
 """
 Management Command: python manage.py seed_data
 
@@ -168,7 +167,6 @@ class Command(BaseCommand):
                 {
                     "organisation": organisation,
                     "kategorie": kategorien[kategorie],
-                    "standort": standorte[standort],
                     "name": name,
                     "beschreibung": beschr,
                     "maximale_ausleihzeit": max_tage,
@@ -181,6 +179,7 @@ class Command(BaseCommand):
                     f"demo:gegenstandsexemplar:{nummer:04d}",
                     {
                         "gegenstand": typ,
+                        "standort": standorte[standort],  # Standort hängt am Exemplar (#33)
                         "inventarnummer": f"SEED-{nummer:04d}",
                         "zustand": zustand,
                         "verfuegbarkeitsstatus": status,

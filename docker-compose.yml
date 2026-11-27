@@ -63,6 +63,7 @@ services:
       - backend
     environment:
       API_PROXY_TARGET: http://backend:8000
+      VITE_INVENTAR_STANDORTE_URL: /api/inventory/standorte/
     volumes:
       - ./src/frontend:/app
       # node_modules bleiben im Container (sonst Konflikte mit Windows-node_modules)

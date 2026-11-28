@@ -28,6 +28,7 @@ from inventory.domaene.regeln import RegelVerstoss
 from inventory.infrastruktur.models import (
     Gegenstandsexemplar, Gegenstandstyp, Kategorie, Standort)
 from inventory.service import typen
+from inventory.infrastruktur import (location_repository, category_repository,)
 from lending.models import Ausleihanfrage
 from organisations.models import Organisation
 from users.models import Nutzer
@@ -125,9 +126,31 @@ class MitTestdaten(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.org = Organisation.objects.create(name="HTW", organisationstyp="hochschule")
-        self.kategorie = Kategorie.objects.create(name="Technik")
-        self.standort = Standort.objects.create(organisation=self.org, name="Raum Z 101")
+        self.org = Organisation.objects.create(
+            name="HTW",
+            organisationstyp="hochschule",
+        )
+        self.org2 = Organisation.objects.create(
+            name="Andere HTW",
+            organisationstyp="hochschule",
+        )
+
+        self.kategorie = Kategorie.objects.create(
+            organisation=self.org,
+            name="Technik",
+            beschreibung="Technische Geräte",
+        )
+        self.standort = Standort.objects.create(
+            organisation=self.org,
+            name="Raum Z 101",
+            beschreibung="Raum im Hauptgebäude",
+        )
+        self.lager = Standort.objects.create(
+            organisation=self.org,
+            name="Lager",
+            beschreibung="Lagerraum",
+        )
+
         self.typ = Gegenstandstyp.objects.create(
             organisation=self.org, kategorie=self.kategorie,
             name="Laptop", beschreibung="Leihlaptop", maximale_ausleihzeit=14)
@@ -282,7 +305,7 @@ class StandortAmExemplarApiTest(MitTestdaten):
         self.assertEqual(r.json()["standort"], ["Dieser Standort existiert nicht."])
 
     def test_standort_eines_exemplars_aendern(self):
-        lager = Standort.objects.create(organisation=self.org, name="Lager")
+        lager = self.lager
         r = self.client.patch(f"{self.URL}{self.e1.id}/", {"standort": lager.id}, format="json")
         self.assertEqual(r.json()["standort"], "Lager")
         self.e2.refresh_from_db()
@@ -362,7 +385,7 @@ class BildApiTest(MitTestdaten):
 
 
 # =============================================================================
-# 3. Service – was über die Schnittstelle nicht sichtbar ist
+# 3. Service/Infrastruktur – was über die Schnittstelle nicht sichtbar ist
 # =============================================================================
 
 class ServiceTest(MitTestdaten):
@@ -372,11 +395,11 @@ class ServiceTest(MitTestdaten):
         with self.assertRaises(RegelVerstoss):
             typen.anlegen(self.typ_daten(exemplare=[
                 {"standort": self.standort.id, "inventarnummer": "INV-1", "zustand": "gut",
-                 "verfuegbarkeitsstatus": "verfuegbar"}]))
+                 "verfuegbarkeitsstatus": "verfuegbar"}]), organisation_id=self.org.id,)
         self.assertFalse(Gegenstandstyp.objects.filter(name="Beamer").exists())
 
-    def test_typ_organisation_kommt_vom_standort(self):
-        self.assertEqual(typen.anlegen(self.typ_daten()).organisation, self.org)
+    def test_typ_organisation_kommt_vom_service(self):
+        self.assertEqual(typen.anlegen(self.typ_daten(), organisation_id=self.org.id,).organisation, self.org)
 
     def test_protect_als_letzte_absicherung(self):
         """Übersieht die Domäne die Anfrage (hier per mock abgeschaltet),
@@ -386,6 +409,107 @@ class ServiceTest(MitTestdaten):
             with self.assertRaises(RegelVerstoss):
                 typen.loeschen(self.typ.id)
         self.assertTrue(Gegenstandstyp.objects.filter(id=self.typ.id).exists())
+        
+class CategoryRepositoryTest(MitTestdaten):
+
+    def test_liste_nur_fuer_angegebene_organisation(self):
+        fremde_kategorie = Kategorie.objects.create(
+            organisation=self.org2,
+            name="Andere Technik",
+            beschreibung="Kategorie der zweiten Organisation",
+        )
+
+        ids = list(
+            category_repository
+            .alle_fuer_organisation(self.org.id)
+            .values_list("id", flat=True)
+        )
+
+        self.assertIn(self.kategorie.id, ids)
+        self.assertNotIn(fremde_kategorie.id, ids)
+
+    def test_fremde_kategorie_wird_nicht_geladen(self):
+        fremde_kategorie = Kategorie.objects.create(
+            organisation=self.org2,
+            name="Fremd",
+            beschreibung="Gehört einer anderen Organisation",
+        )
+
+        self.assertIsNone(
+            category_repository.hole_fuer_organisation(
+                fremde_kategorie.id,
+                self.org.id,
+            )
+        )
+
+    def test_aktualisieren_erhaelt_id_organisation_und_typzuordnung(self):
+        kategorie_id = self.kategorie.id
+
+        aktualisiert = category_repository.aktualisieren(
+            self.kategorie,
+            {
+                "name": "Technik aktualisiert",
+                "beschreibung": "Neue Beschreibung",
+            },
+        )
+
+        self.typ.refresh_from_db()
+        aktualisiert.refresh_from_db()
+
+        self.assertEqual(aktualisiert.id, kategorie_id)
+        self.assertEqual(aktualisiert.organisation_id, self.org.id)
+        self.assertEqual(self.typ.kategorie_id, kategorie_id)
+
+
+class LocationRepositoryTest(MitTestdaten):
+
+    def test_liste_nur_fuer_angegebene_organisation(self):
+        fremder_standort = Standort.objects.create(
+            organisation=self.org2,
+            name="Fremder Standort",
+            beschreibung="Gehört einer anderen Organisation",
+        )
+
+        ids = list(
+            location_repository
+            .alle_fuer_organisation(self.org.id)
+            .values_list("id", flat=True)
+        )
+
+        self.assertIn(self.standort.id, ids)
+        self.assertNotIn(fremder_standort.id, ids)
+
+    def test_fremder_standort_wird_nicht_geladen(self):
+        fremder_standort = Standort.objects.create(
+            organisation=self.org2,
+            name="Fremd",
+            beschreibung="Gehört einer anderen Organisation",
+        )
+
+        self.assertIsNone(
+            location_repository.hole_fuer_organisation(
+                fremder_standort.id,
+                self.org.id,
+            )
+        )
+
+    def test_aktualisieren_erhaelt_id_organisation_und_exemplarzuordnung(self):
+        standort_id = self.standort.id
+
+        aktualisiert = location_repository.aktualisieren(
+            self.standort,
+            {
+                "name": "Standort aktualisiert",
+                "beschreibung": "Neue Beschreibung",
+            },
+        )
+
+        self.e1.refresh_from_db()
+        aktualisiert.refresh_from_db()
+
+        self.assertEqual(aktualisiert.id, standort_id)
+        self.assertEqual(aktualisiert.organisation_id, self.org.id)
+        self.assertEqual(self.e1.standort_id, standort_id)
 
 
 # =============================================================================

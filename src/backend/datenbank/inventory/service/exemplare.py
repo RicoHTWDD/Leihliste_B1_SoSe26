@@ -20,10 +20,10 @@ from inventory.domaene.regeln import RegelVerstoss  # noqa: F401 – Controller 
 from inventory.infrastruktur.models import (
     Gegenstandsexemplar,
     Gegenstandstyp,
-    Standort,
     Verfuegbarkeitsstatus,
     Zustand,
 )
+from inventory.infrastruktur import location_repository
 
 # Defekte oder verlorene Exemplare zählen nie als verfügbar (Filterlogik aus main, #163).
 NIE_VERFUEGBAR = (Zustand.DEFEKT, Zustand.VERLOREN)
@@ -80,14 +80,20 @@ def _bild_angaben(datei):
     return (datei.name, datei.size)
 
 
-def standort_laden(standort_id):
-    """Lädt den ausgewählten Standort. Gibt es ihn nicht → RegelVerstoss am Feld "standort".
-
-    Wird auch von typen.py genutzt (Exemplare beim Anlegen eines Typs).
-    """
-    standort = Standort.objects.filter(pk=standort_id).first()
+def standort_laden(standort_id, organisation_id):
+    """Lädt einen Standort der angegebenen Organisation."""
+    standort = location_repository.hole_fuer_organisation(
+        standort_id,
+        organisation_id,
+    )
     if standort is None:
-        raise RegelVerstoss(feldfehler={"standort": ["Dieser Standort existiert nicht."]})
+        raise RegelVerstoss(
+            feldfehler={
+                "standort": [
+                    "Dieser Standort existiert nicht oder gehört nicht zu dieser Organisation."
+                ]
+            }
+        )
     return standort
 
 
@@ -109,7 +115,7 @@ def anlegen(daten):
     if typ is None:
         raise RegelVerstoss(feldfehler={
             "gegenstand": ["Dieser Gegenstandstyp existiert nicht."]})
-    standort = standort_laden(daten["standort"])
+    standort = standort_laden(daten["standort"], typ.organisations_id,)
 
     # 3. Speichern – die Datenbank sichert die eindeutige Inventarnummer ab
     try:
@@ -163,7 +169,7 @@ def bearbeiten(id, aenderungen):
     # 3. Speichern – die Datenbank sichert die eindeutige Inventarnummer ab
     for feld, wert in aenderungen.items():
         if feld == "standort":
-            exemplar.standort = standort_laden(wert)   # ID → Standort aus der Liste
+            exemplar.standort = standort_laden(wert, exemplar.gegenstand.organisations_id,)   # ID → Standort aus der Liste
         elif feld == "bild":
             if exemplar.bild:
                 exemplar.bild.delete(save=False)       # altes Bild löschen (nur 1 Bild erlaubt)
@@ -186,6 +192,18 @@ def bearbeiten(id, aenderungen):
 def anlegen_pruefen(daten):
     """Wirft RegelVerstoss, wenn diese Daten nicht angelegt werden dürfen."""
     regeln.pruefe_exemplar_anlegen(daten, bild=_bild_angaben(daten.get("bild")))
+    typ = Gegenstandstyp.objects.filter(
+        pk=daten["gegenstand"]
+    ).first()
+
+    if typ is None:
+        raise RegelVerstoss(
+            feldfehler={
+                "gegenstand": ["Dieser Gegenstandstyp existiert nicht."]
+            }
+        )
+
+    standort_laden(daten["standort"], typ.organisation_id)
 
 
 def bearbeiten_pruefen(id, aenderungen):
@@ -193,6 +211,11 @@ def bearbeiten_pruefen(id, aenderungen):
     exemplar = Gegenstandsexemplar.objects.get(pk=id)
     regeln.pruefe_exemplar_bearbeiten(_bisheriger_stand(exemplar), aenderungen,
                                       bild=_bild_angaben(aenderungen.get("bild")))
+    if "standort" in aenderungen:
+        standort_laden(
+            aenderungen["standort"],
+            exemplar.gegenstand.organisation_id,
+        )
 
 
 # --- Löschen -----------------------------------------------------------------

@@ -5,7 +5,6 @@ class Zustand(models.TextChoices):
     NEU = 'neu', 'Neu'
     GUT = 'gut', 'Gut'
     BESCHAEDIGT = 'beschaedigt', 'Beschädigt'
-# defekt oder vreloren müsste sich auch auf den Verfügbarkeitsstatus auswirken, oder?
     DEFEKT = 'defekt', 'Defekt'
     VERLOREN = 'verloren', 'Verloren'
 
@@ -13,22 +12,15 @@ class Zustand(models.TextChoices):
 class Verfuegbarkeitsstatus(models.TextChoices):
     VERFUEGBAR = 'verfuegbar', 'Verfügbar'
     NICHT_VERFUEGBAR = 'nicht_verfuegbar', 'Nicht verfügbar'
-# Nicht verfügbar kann im Späteren noch differenziert werden (z.B. kaputt, Verlust, unkar), aber der Status ob verliehen oder reserviert, wird hier NICHT gespeichert, sondern ergebit sich Zeitraum-bezogen aus den (laufenden) Ausleihen und (bestätigten) Reservierungen
-#    RESERVIERT = 'reserviert', 'Reserviert'
-#   AUSGELIEHEN = 'ausgeliehen', 'Ausgeliehen'
 
 
 class Kategorie(models.Model):
-    # Jede Kategorie gehört zu einer Organisation
     organisation = models.ForeignKey(
         'organisations.Organisation',
         on_delete=models.CASCADE,
         related_name='kategorien',
-        null=True,
-        blank=True,
     )
     name = models.CharField(max_length=100)
-    # Beschreibung ist nicht optional
     beschreibung = models.CharField(max_length=500)
     is_seed = models.BooleanField(default=False)
     seed_key = models.CharField(
@@ -36,7 +28,7 @@ class Kategorie(models.Model):
         unique=True,
         null=True,
         blank=True,
-        help_text="Eindeutiger Schlüssel für vom Projekt verwaltete Seed-Daten."
+        help_text="Eindeutiger Schlüssel für vom Projekt verwaltete Seed-Daten.",
     )
     is_archiviert = models.BooleanField(default=False)
 
@@ -62,14 +54,12 @@ class Kategorie(models.Model):
 
 
 class Standort(models.Model):
-    # Jeder Standort gehört zu einer Organisation
     organisation = models.ForeignKey(
         'organisations.Organisation',
         on_delete=models.CASCADE,
         related_name='standorte',
     )
     name = models.CharField(max_length=100)
-    # Beschreibung ist nicht optional
     beschreibung = models.CharField(max_length=500)
     is_seed = models.BooleanField(default=False)
     seed_key = models.CharField(
@@ -77,7 +67,7 @@ class Standort(models.Model):
         unique=True,
         null=True,
         blank=True,
-        help_text="Eindeutiger Schlüssel für vom Projekt verwaltete Seed-Daten."
+        help_text="Eindeutiger Schlüssel für vom Projekt verwaltete Seed-Daten.",
     )
     is_archiviert = models.BooleanField(default=False)
 
@@ -103,23 +93,18 @@ class Standort(models.Model):
 
 
 class Gegenstandstyp(models.Model):
-    # Jeder Gegenstandstyp gehört zu einer Organisation
     organisation = models.ForeignKey(
         'organisations.Organisation',
         on_delete=models.CASCADE,
         related_name='gegenstandstypen',
     )
-    # Kategorie z.B. "Elektronik"
     kategorie = models.ForeignKey(
         Kategorie,
         on_delete=models.PROTECT,
-        related_name='gegenstandstypen'
+        related_name='gegenstandstypen',
     )
- # # Akzeptanzkriterium #33: Name höchstens 100 Zeichen
     name = models.CharField(max_length=100)
-    # Beschreibung ist optional
     beschreibung = models.TextField(null=True, blank=True)
-    # Maximale Ausleihzeit in Tagen
     maximale_ausleihzeit = models.IntegerField()
     erstellt_am = models.DateTimeField(auto_now_add=True)
     aktualisiert_am = models.DateTimeField(auto_now=True)
@@ -129,7 +114,7 @@ class Gegenstandstyp(models.Model):
         unique=True,
         null=True,
         blank=True,
-        help_text="Eindeutiger Schlüssel für vom Projekt verwaltete Seed-Daten."
+        help_text="Eindeutiger Schlüssel für vom Projekt verwaltete Seed-Daten.",
     )
 
     class Meta:
@@ -140,36 +125,27 @@ class Gegenstandstyp(models.Model):
 
 
 class Gegenstandsexemplar(models.Model):
-    # Jedes Exemplar gehört zu einem Gegenstandstyp
     gegenstand = models.ForeignKey(
         Gegenstandstyp,
         on_delete=models.CASCADE,
-        related_name='exemplare'
+        related_name='exemplare',
     )
-
-    # Standort, an dem dieses Exemplar liegt 
-    # Wird aus der Liste der Standorte gewählt, angelegt werden Standorte in #47.
-    # PROTECT: Ein Standort, auf den noch ein Exemplar zeigt, kann nicht gelöscht werden.
     standort = models.ForeignKey(
         Standort,
         on_delete=models.PROTECT,
         related_name='exemplare',
-        null=True,
-        blank=True,
     )
-    # Datei liegt in media/exemplare/, in der DB nur der Pfad.
     bild = models.ImageField(upload_to='exemplare/', null=True, blank=True)
-    # Inventarnummer ist eindeutig und wird nie wiederverwendet
     inventarnummer = models.CharField(max_length=255, unique=True)
     zustand = models.CharField(
         max_length=20,
         choices=Zustand.choices,
-        default=Zustand.GUT
+        default=Zustand.GUT,
     )
     verfuegbarkeitsstatus = models.CharField(
         max_length=20,
         choices=Verfuegbarkeitsstatus.choices,
-        default=Verfuegbarkeitsstatus.VERFUEGBAR
+        default=Verfuegbarkeitsstatus.VERFUEGBAR,
     )
     erstellt_am = models.DateTimeField(auto_now_add=True)
     aktualisiert_am = models.DateTimeField(auto_now=True)
@@ -179,7 +155,7 @@ class Gegenstandsexemplar(models.Model):
         unique=True,
         null=True,
         blank=True,
-        help_text="Eindeutiger Schlüssel für vom Projekt verwaltete Seed-Daten."
+        help_text="Eindeutiger Schlüssel für vom Projekt verwaltete Seed-Daten.",
     )
 
     class Meta:

@@ -141,7 +141,7 @@ class Command(BaseCommand):
             name: self._seed_obj(
                 Kategorie,
                 f"demo:kategorie:{name.lower()}",
-                {"name": name, "beschreibung": beschr},
+                {"organisation": organisation,"name": name, "beschreibung": beschr},
             )
             for name, beschr in KATEGORIEN.items()
         }
